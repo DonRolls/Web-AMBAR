@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credencial - TecNM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; background: #f5f5f5; color: #333; display: flex; flex-direction: column; height: 100vh; }
+
+        /* TOPBAR */
+        .topbar { background: #1a2a4a; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+        .topbar-left { display: flex; align-items: center; gap: 16px; }
+        .hamburger { color: white; font-size: 22px; cursor: pointer; }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-circle { width: 38px; height: 38px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #1a2a4a; text-align: center; line-height: 1.1; }
+        .logo-text { color: white; font-size: 13px; font-weight: 500; line-height: 1.3; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; color: white; font-size: 14px; font-weight: 500; }
+        .avatar-icon { width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+        /* LAYOUT */
+        .layout { display: flex; margin-top: 56px; height: calc(100vh - 56px); }
+
+        /* SIDEBAR */
+        .sidebar { width: 240px; background: white; border-right: 1px solid #e0e0e0; flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto; }
+        .nav-list { flex: 1; }
+        .nav-item { display: flex; align-items: center; gap: 14px; padding: 14px 20px; cursor: pointer; font-size: 14px; color: #444; border-left: 3px solid transparent; transition: background 0.15s; }
+        .nav-item:hover { background: #f0f4ff; }
+        .nav-item.active { background: #eef2ff; border-left: 3px solid #1a2a4a; color: #1a2a4a; font-weight: 500; }
+        .nav-icon { font-size: 18px; width: 22px; text-align: center; }
+        .nav-bottom { border-top: 1px solid #e0e0e0; }
+
+        /* MAIN */
+        .main { flex: 1; overflow-y: auto; background: white; padding: 28px 32px; }
+
+        .page-title { font-size: 20px; font-weight: 700; color: #1a2a4a; margin-bottom: 30px; }
+
+        /* CARDS CONTAINER */
+        .cards-container { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+
+        /* ── CREDENCIAL FRONTAL ── */
+        .credencial-front {
+            width: 380px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            background: white;
+        }
+
+        .front-top {
+            background: white;
+            padding: 12px 14px 10px 14px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .front-tipo {
+            font-size: 9px;
+            font-weight: 700;
+            color: #555;
+            letter-spacing: 1px;
+            text-align: right;
+            width: 100%;
+            position: absolute;
+            top: 10px;
+            right: 14px;
+        }
+
+        .front-header {
+            position: relative;
+            background: white;
+            padding: 8px 14px 0 14px;
+        }
+
+        .front-estudiante-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #555;
+            text-align: right;
+            margin-bottom: 6px;
+        }
+
+        .front-body {
+            display: flex;
+            gap: 12px;
+            padding: 0 14px 0 14px;
+            align-items: flex-start;
+        }
+
+        .foto-credencial {
+            width: 75px;
+            height: 90px;
+            background: #c9d4e8;
+            border: 1px solid #aaa;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #666;
+            overflow: hidden;
+        }
+
+        .front-info-right {
+            flex: 1;
+        }
+
+        .tecnm-logo-area {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .tecnm-logo-circle {
+            width: 32px; height: 32px;
+            background: #1a2a4a;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 8px; font-weight: 700; color: white;
+            text-align: center; line-height: 1.1;
+        }
+
+        .tecnm-logo-text {
+            font-size: 10px;
+            font-weight: 700;
+            color: #1a2a4a;
+            line-height: 1.3;
+        }
+
+        .front-field { margin-bottom: 5px; font-size: 10.5px; color: #333; }
+        .front-field span { font-weight: 400; color: #222; }
+        .front-field strong { font-weight: 600; }
+
+        /* Franja azul inferior */
+        .front-bottom-bar {
+            background: #1a2a4a;
+            height: 28px;
+            margin-top: 14px;
+            border-radius: 0 0 0 0;
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+        }
+
+        .front-wave {
+            background: linear-gradient(135deg, #1a2a4a 0%, #2e4a7a 50%, #1a2a4a 100%);
+            height: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+        .front-wave::before {
+            content: '';
+            position: absolute;
+            top: -10px; left: -20px;
+            width: 120px; height: 50px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        /* ── CREDENCIAL REVERSO ── */
+        .credencial-back {
+            width: 380px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            background: white;
+        }
+
+        .back-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-bottom: 2px solid #b5002a;
+        }
+
+        .back-sep-educacion {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .escudo-sep {
+            width: 28px; height: 28px;
+            background: #8B6914;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; color: white; font-weight: 700;
+        }
+
+        .sep-text {
+            font-size: 16px;
+            font-weight: 900;
+            color: #b5002a;
+            letter-spacing: 1px;
+        }
+
+        .sep-sub {
+            font-size: 7px;
+            color: #b5002a;
+            letter-spacing: 0.5px;
+            margin-top: -2px;
+        }
+
+        .back-ittijuana {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .it-logo-circle {
+            width: 24px; height: 24px;
+            background: #2e7d32;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 8px; color: white; font-weight: 700;
+        }
+
+        .it-text {
+            font-size: 9px;
+            font-weight: 700;
+            color: #333;
+            line-height: 1.3;
+        }
+
+        .back-body {
+            display: flex;
+            gap: 12px;
+            padding: 12px 14px;
+            align-items: flex-start;
+        }
+
+        .back-firma-area {
+            flex: 1;
+        }
+
+        .firma-texto {
+            font-family: 'Brush Script MT', cursive;
+            font-size: 26px;
+            color: #1a5276;
+            margin-bottom: 4px;
+            line-height: 1;
+        }
+
+        .firma-nombre {
+            font-size: 8px;
+            font-weight: 700;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .back-qr {
+            width: 60px; height: 60px;
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1px;
+            width: 50px; height: 50px;
+        }
+
+        .qr-cell {
+            background: #333;
+            border-radius: 1px;
+        }
+
+        .qr-cell.w { background: white; }
+
+        .back-vigencia {
+            padding: 0 14px 8px 14px;
+            font-size: 9px;
+            color: #555;
+        }
+
+        .vigencia-label { font-weight: 600; color: #333; margin-bottom: 4px; }
+
+        .vigencia-years {
+            display: flex;
+            gap: 6px;
+        }
+
+        .year-box {
+            border: 1px solid #aaa;
+            padding: 2px 6px;
+            font-size: 9px;
+            color: #555;
+            border-radius: 2px;
+        }
+
+        .year-box.active {
+            background: #1a2a4a;
+            color: white;
+            border-color: #1a2a4a;
+        }
+
+        .back-barcode-area {
+            padding: 8px 14px 14px 14px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .barcode-img {
+            flex: 1;
+            height: 36px;
+            background: repeating-linear-gradient(
+                90deg,
+                #000 0px, #000 2px,
+                #fff 2px, #fff 4px,
+                #000 4px, #000 5px,
+                #fff 5px, #fff 8px,
+                #000 8px, #000 9px,
+                #fff 9px, #fff 12px
+            );
+            border: 1px solid #ccc;
+        }
+
+        .back-side-text {
+            writing-mode: vertical-rl;
+            font-size: 7px;
+            color: #888;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+    <div class="topbar-left">
+        <span class="hamburger">☰</span>
+        <div class="logo-area">
+            <div class="logo-circle">TEC<br>NM</div>
+            <div class="logo-text">TECNOLÓGICO<br>NACIONAL DE MÉXICO</div>
+        </div>
+    </div>
+    <div class="topbar-right">
+        <span>INGENIERIA INFORMATICA</span>
+        <div class="avatar-icon">👤</div>
+    </div>
+</div>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="nav-list">
+                <a href="inicio.html"><div class="nav-item">
+                    <span class="nav-icon">🏠</span> Inicio
+                </div></a>
+                <a href="horario.html"><div class="nav-item">
+                    <span class="nav-icon">📅</span> Horario
+                </div></a>
+                <a href="calificaciones.html"><div class="nav-item">
+                    <span class="nav-icon">📋</span> Calificaciones
+                </div></a>
+                <a href="kardex.html"><div class="nav-item">
+                    <span class="nav-icon">📊</span> Kárdex
+                </div></a>
+                <a href="historicodeactividades.html"><div class="nav-item">
+                    <span class="nav-icon">📝</span> Histórico de actividades
+                </div></a>
+                <div class="nav-item active">
+                    <span class="nav-icon">🪪</span> Credencial
+                </div>
+                <a href="recibos.html"><div class="nav-item">
+                    <span class="nav-icon">🧾</span> Recibos
+                </div></a>
+                <a href="cargadematerias.html"><div class="nav-item">
+                    <span class="nav-icon">📚</span> Carga de Materias
+                </div></a>
+                <a href="tickets.html"><div class="nav-item">
+                    <span class="nav-icon">🎫</span> Tickets
+                </div></a>
+            </div>
+        <div class="nav-bottom">
+            <div class="nav-item"><span class="nav-icon">❓</span> Soporte</div>
+            <div class="nav-item"><span class="nav-icon">📖</span> Guía de uso</div>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <div class="page-title">Credencial</div>
+
+        <div class="cards-container">
+
+            <!-- FRENTE -->
+            <div class="credencial-front">
+                <div class="front-header">
+                    <div class="front-estudiante-label">ESTUDIANTE</div>
+                </div>
+                <div class="front-body">
+                    <div class="foto-credencial">👤</div>
+                    <div class="front-info-right">
+                        <div class="tecnm-logo-area">
+                            <div class="tecnm-logo-circle">TEC<br>NM</div>
+                            <div class="tecnm-logo-text">TECNOLÓGICO<br>NACIONAL DE MÉXICO.</div>
+                        </div>
+                        <div class="front-field"><strong>Nombre:</strong> <span>JESUS ARMANDO VILLA BARRAZA</span></div>
+                        <div class="front-field"><strong>Carrera:</strong> <span>ING. INFORMATICA</span></div>
+                        <div class="front-field"><strong>Control:</strong> <span>21212680</span></div>
+                    </div>
+                </div>
+                <div class="front-wave"></div>
+            </div>
+
+            <!-- REVERSO -->
+            <div class="credencial-back">
+                <div class="back-top">
+                    <div class="back-sep-educacion">
+                        <div class="escudo-sep">🏛</div>
+                        <div>
+                            <div class="sep-text">EDUCACIÓN</div>
+                            <div class="sep-sub">SECRETARÍA DE EDUCACIÓN PÚBLICA</div>
+                        </div>
+                    </div>
+                    <div class="back-ittijuana">
+                        <div class="it-logo-circle">IT</div>
+                        <div class="it-text">INSTITUTO TECNOLÓGICO<br>DE TIJUANA</div>
+                    </div>
+                </div>
+
+                <div class="back-body">
+                    <div class="back-firma-area">
+                        <div class="firma-texto">1480</div>
+                        <div class="firma-nombre">
+                            DRA. MARIA MAGDALENA SERRANO ORTEGA<br>
+                            JEFE (A) DEL DEPARTAMENTO<br>
+                            DE SERVICIOS ESCOLARES
+                        </div>
+                    </div>
+                    <!-- QR simulado -->
+                    <div class="back-qr">
+                        <svg width="54" height="54" viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Esquina superior izquierda -->
+                            <rect x="2" y="2" width="16" height="16" fill="none" stroke="#000" stroke-width="2"/>
+                            <rect x="6" y="6" width="8" height="8" fill="#000"/>
+                            <!-- Esquina superior derecha -->
+                            <rect x="36" y="2" width="16" height="16" fill="none" stroke="#000" stroke-width="2"/>
+                            <rect x="40" y="6" width="8" height="8" fill="#000"/>
+                            <!-- Esquina inferior izquierda -->
+                            <rect x="2" y="36" width="16" height="16" fill="none" stroke="#000" stroke-width="2"/>
+                            <rect x="6" y="40" width="8" height="8" fill="#000"/>
+                            <!-- Datos simulados centro -->
+                            <rect x="22" y="4" width="3" height="3" fill="#000"/>
+                            <rect x="26" y="4" width="3" height="3" fill="#000"/>
+                            <rect x="22" y="8" width="3" height="3" fill="#000"/>
+                            <rect x="22" y="22" width="3" height="3" fill="#000"/>
+                            <rect x="28" y="22" width="3" height="3" fill="#000"/>
+                            <rect x="22" y="28" width="3" height="3" fill="#000"/>
+                            <rect x="26" y="28" width="3" height="3" fill="#000"/>
+                            <rect x="36" y="22" width="3" height="3" fill="#000"/>
+                            <rect x="40" y="22" width="3" height="3" fill="#000"/>
+                            <rect x="44" y="26" width="3" height="3" fill="#000"/>
+                            <rect x="36" y="30" width="3" height="3" fill="#000"/>
+                            <rect x="22" y="36" width="3" height="3" fill="#000"/>
+                            <rect x="28" y="40" width="3" height="3" fill="#000"/>
+                            <rect x="36" y="36" width="3" height="3" fill="#000"/>
+                            <rect x="44" y="44" width="3" height="3" fill="#000"/>
+                            <rect x="40" y="44" width="3" height="3" fill="#000"/>
+                        </svg>
+                    </div>
+                    <div class="back-side-text">INST. TEC. DE TIJUANA · 21212680</div>
+                </div>
+
+                <div class="back-vigencia">
+                    <div class="vigencia-label">Vigencia</div>
+                    <div class="vigencia-years">
+                        <div class="year-box">2026</div>
+                        <div class="year-box">2027</div>
+                        <div class="year-box">2028</div>
+                        <div class="year-box">2029</div>
+                    </div>
+                </div>
+
+                <div class="back-barcode-area">
+                    <div>
+                        <div style="font-size:8px; color:#888; margin-bottom:3px;">A-O</div>
+                        <div style="font-size:8px; color:#888;">E-J</div>
+                    </div>
+                    <div style="flex:1; display:flex; flex-direction:column; gap:3px;">
+                        <div class="barcode-img"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

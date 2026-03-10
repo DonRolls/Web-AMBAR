@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tickets - TecNM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; background: #f5f5f5; color: #333; display: flex; flex-direction: column; height: 100vh; }
+
+        /* TOPBAR */
+        .topbar { background: #1a2a4a; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+        .topbar-left { display: flex; align-items: center; gap: 16px; }
+        .hamburger { color: white; font-size: 22px; cursor: pointer; }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-circle { width: 38px; height: 38px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #1a2a4a; text-align: center; line-height: 1.1; }
+        .logo-text { color: white; font-size: 13px; font-weight: 500; line-height: 1.3; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; color: white; font-size: 14px; font-weight: 500; }
+        .avatar-icon { width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+        /* LAYOUT */
+        .layout { display: flex; margin-top: 56px; height: calc(100vh - 56px); }
+
+        /* SIDEBAR */
+        .sidebar { width: 240px; background: white; border-right: 1px solid #e0e0e0; flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto; }
+        .nav-list { flex: 1; }
+        .nav-item { display: flex; align-items: center; gap: 14px; padding: 14px 20px; cursor: pointer; font-size: 14px; color: #444; border-left: 3px solid transparent; transition: background 0.15s; }
+        .nav-item:hover { background: #f0f4ff; }
+        .nav-item.active { background: #eef2ff; border-left: 3px solid #1a2a4a; color: #1a2a4a; font-weight: 500; }
+        .nav-icon { font-size: 18px; width: 22px; text-align: center; }
+        .nav-bottom { border-top: 1px solid #e0e0e0; }
+
+        /* MAIN */
+        .main { flex: 1; overflow-y: auto; background: white; padding: 28px 32px; }
+
+        /* HEADER */
+        .header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+        .page-title { font-size: 20px; font-weight: 700; color: #1a2a4a; }
+
+        .btn-generar {
+            background: #1a2a4a; color: white; border: none;
+            padding: 11px 22px; font-size: 13px; font-weight: 600;
+            letter-spacing: 0.5px; border-radius: 4px; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-generar:hover { background: #2e4a7a; }
+
+        /* TABS */
+        .tabs { display: flex; border-bottom: 1px solid #e0e0e0; margin-bottom: 0; }
+
+        .tab {
+            flex: 1; text-align: center; padding: 12px 0;
+            font-size: 13px; font-weight: 600; letter-spacing: 0.5px;
+            color: #888; cursor: pointer; border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .tab:hover { color: #1a2a4a; }
+        .tab.active { color: #1a2a4a; border-bottom: 2px solid #1a2a4a; }
+
+        /* TABLE */
+        .tickets-table { width: 100%; border-collapse: collapse; }
+
+        .tickets-table th {
+            text-align: left; padding: 14px 16px;
+            font-size: 13px; font-weight: 600; color: #333;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .th-fecha { display: flex; align-items: center; gap: 4px; }
+        .sort-arrow { font-size: 12px; color: #555; }
+
+        .tickets-table td {
+            padding: 20px 16px; font-size: 13px; color: #555;
+            text-align: center; border-bottom: 1px solid #f0f0f0;
+        }
+
+        .empty-msg { color: #888; font-size: 13px; }
+
+        /* PAGINATION */
+        .pagination-row {
+            display: flex; align-items: center; justify-content: flex-end;
+            gap: 12px; padding: 16px 0; font-size: 13px; color: #555;
+        }
+
+        .pagination-row label { font-size: 13px; color: #555; }
+
+        .per-page-select {
+            border: 1px solid #ccc; border-radius: 4px;
+            padding: 4px 8px; font-size: 13px; color: #333;
+            background: white; cursor: pointer;
+        }
+
+        .page-info { font-size: 13px; color: #555; margin: 0 4px; }
+
+        .page-btn {
+            background: none; border: none; cursor: pointer;
+            font-size: 16px; color: #aaa; padding: 2px 4px;
+            transition: color 0.15s;
+        }
+        .page-btn:hover { color: #333; }
+        .page-btn.disabled { color: #ddd; cursor: default; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+    <div class="topbar-left">
+        <span class="hamburger">☰</span>
+        <div class="logo-area">
+            <div class="logo-circle">TEC<br>NM</div>
+            <div class="logo-text">TECNOLÓGICO<br>NACIONAL DE MÉXICO</div>
+        </div>
+    </div>
+    <div class="topbar-right">
+        <span>INGENIERIA INFORMATICA</span>
+        <div class="avatar-icon">👤</div>
+    </div>
+</div>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="nav-list">
+                <a href="inicio.html"><div class="nav-item">
+                    <span class="nav-icon">🏠</span> Inicio
+                </div></a>
+                <a href="horario.html"><div class="nav-item">
+                    <span class="nav-icon">📅</span> Horario
+                </div></a>
+                <a href="calificaciones.html"><div class="nav-item">
+                    <span class="nav-icon">📋</span> Calificaciones
+                </div></a>
+                <a href="kardex.html"><div class="nav-item">
+                    <span class="nav-icon">📊</span> Kárdex
+                </div></a>
+                <a href="historicodeactividades.html"><div class="nav-item">
+                    <span class="nav-icon">📝</span> Histórico de actividades
+                </div></a>
+                <a href="credencial.html"><div class="nav-item">
+                    <span class="nav-icon">🪪</span> Credencial
+                </div></a>
+                <a href="recibos.html"><div class="nav-item">
+                    <span class="nav-icon">🧾</span> Recibos
+                </div></a>
+                <a href="cargadematerias.html"><div class="nav-item">
+                    <span class="nav-icon">📚</span> Carga de Materias
+                </div></a>
+                <div class="nav-item active">
+                    <span class="nav-icon">🎫</span> Tickets
+                </div>
+            </div>
+        <div class="nav-bottom">
+            <div class="nav-item"><span class="nav-icon">❓</span> Soporte</div>
+            <div class="nav-item"><span class="nav-icon">📖</span> Guía de uso</div>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <div class="header-row">
+            <div class="page-title">Tickets</div>
+            <button class="btn-generar">GENERAR TICKET</button>
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab(this, 'abiertos')">ABIERTOS</div>
+            <div class="tab" onclick="switchTab(this, 'finalizados')">FINALIZADOS</div>
+        </div>
+
+        <!-- TABLE -->
+        <table class="tickets-table">
+            <thead>
+                <tr>
+                    <th><div class="th-fecha">Fecha <span class="sort-arrow">↓</span></div></th>
+                    <th>Clave</th>
+                    <th>Descripción</th>
+                    <th>Estatus</th>
+                    <th>Editar</th>
+                    <th>Comentario</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-body">
+                <tr>
+                    <td colspan="6" class="empty-msg">No hay datos disponibles</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- PAGINATION -->
+        <div class="pagination-row">
+            <label>Elementos por página:</label>
+            <select class="per-page-select">
+                <option>10</option>
+                <option>25</option>
+                <option>50</option>
+            </select>
+            <span class="page-info">0-0 de 0</span>
+            <button class="page-btn disabled">|&lt;</button>
+            <button class="page-btn disabled">&lt;</button>
+            <button class="page-btn disabled">&gt;</button>
+            <button class="page-btn disabled">&gt;|</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function switchTab(el, tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+    }
+</script>
+
+</body>
+</html>

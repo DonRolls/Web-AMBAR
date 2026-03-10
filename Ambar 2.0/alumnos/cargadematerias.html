@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carga Académica - TecNM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; background: #f5f5f5; color: #333; display: flex; flex-direction: column; height: 100vh; }
+
+        /* TOPBAR */
+        .topbar { background: #1a2a4a; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+        .topbar-left { display: flex; align-items: center; gap: 16px; }
+        .hamburger { color: white; font-size: 22px; cursor: pointer; }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-circle { width: 38px; height: 38px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #1a2a4a; text-align: center; line-height: 1.1; }
+        .logo-text { color: white; font-size: 13px; font-weight: 500; line-height: 1.3; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; color: white; font-size: 14px; font-weight: 500; }
+        .avatar-icon { width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+        /* LAYOUT */
+        .layout { display: flex; margin-top: 56px; height: calc(100vh - 56px); }
+
+        /* SIDEBAR */
+        .sidebar { width: 240px; background: white; border-right: 1px solid #e0e0e0; flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto; }
+        .nav-list { flex: 1; }
+        .nav-item { display: flex; align-items: center; gap: 14px; padding: 14px 20px; cursor: pointer; font-size: 14px; color: #444; border-left: 3px solid transparent; transition: background 0.15s; }
+        .nav-item:hover { background: #f0f4ff; }
+        .nav-item.active { background: #eef2ff; border-left: 3px solid #1a2a4a; color: #1a2a4a; font-weight: 500; }
+        .nav-icon { font-size: 18px; width: 22px; text-align: center; }
+        .nav-bottom { border-top: 1px solid #e0e0e0; }
+
+        /* MAIN */
+        .main { flex: 1; overflow-y: auto; background: white; padding: 28px 32px; }
+
+        /* TITLE */
+        .page-title { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 600; color: #1a5276; margin-bottom: 8px; }
+        .estudiante-nombre { font-size: 14px; font-weight: 700; color: #222; }
+        .estudiante-id { font-size: 13px; color: #1a5276; margin-bottom: 16px; }
+
+        /* CARRERA SELECTOR */
+        .carrera-selector {
+            position: relative;
+            background: #eeeeee;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .carrera-selector label {
+            position: absolute; top: -9px; left: 12px;
+            background: #eeeeee; padding: 0 4px;
+            font-size: 11px; color: #888;
+        }
+        .carrera-valor { font-size: 14px; color: #333; font-weight: 500; }
+        .carrera-arrow { color: #888; font-size: 16px; }
+
+        /* DIVIDER */
+        .divider { border: none; border-top: 1px solid #e0e0e0; margin-bottom: 16px; }
+
+        /* TICKET BTN ROW */
+        .btn-row-right {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+        }
+
+        .btn-ticket {
+            background: #1a2a4a;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: background 0.2s;
+        }
+        .btn-ticket:hover { background: #2e4a7a; }
+
+        /* AVISO */
+        .aviso-fuera {
+            background: #f5f5f5;
+            border-radius: 4px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #444;
+            margin-bottom: 20px;
+        }
+        .aviso-icon { font-size: 18px; color: #555; }
+
+        /* HORARIO BTN ROW */
+        .btn-row-right-outline {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-horario {
+            background: white;
+            color: #1a2a4a;
+            border: 1px solid #1a2a4a;
+            padding: 10px 18px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-horario:hover { background: #1a2a4a; color: white; }
+    </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+    <div class="topbar-left">
+        <span class="hamburger">☰</span>
+        <div class="logo-area">
+            <div class="logo-circle">TEC<br>NM</div>
+            <div class="logo-text">TECNOLÓGICO<br>NACIONAL DE MÉXICO</div>
+        </div>
+    </div>
+    <div class="topbar-right">
+        <span>INGENIERIA INFORMATICA</span>
+        <div class="avatar-icon">👤</div>
+    </div>
+</div>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="nav-list">
+                <a href="inicio.html"><div class="nav-item">
+                    <span class="nav-icon">🏠</span> Inicio
+                </div></a>
+                <a href="horario.html"><div class="nav-item">
+                    <span class="nav-icon">📅</span> Horario
+                </div></a>
+                <a href="calificaciones.html"><div class="nav-item">
+                    <span class="nav-icon">📋</span> Calificaciones
+                </div></a>
+                <a href="kardex.html"><div class="nav-item">
+                    <span class="nav-icon">📊</span> Kárdex
+                </div></a>
+                <a href="historicodeactividades.html"><div class="nav-item">
+                    <span class="nav-icon">📝</span> Histórico de actividades
+                </div></a>
+                <a href="credencial.html"><div class="nav-item">
+                    <span class="nav-icon">🪪</span> Credencial
+                </div></a>
+                <a href="recibos.html"><div class="nav-item">
+                    <span class="nav-icon">🧾</span> Recibos
+                </div></a>
+                <div class="nav-item active">
+                    <span class="nav-icon">📚</span> Carga de Materias
+                </div>
+                <a href="tickets.html"><div class="nav-item">
+                    <span class="nav-icon">🎫</span> Tickets
+                </div></a>
+            </div>
+        <div class="nav-bottom">
+            <div class="nav-item"><span class="nav-icon">❓</span> Soporte</div>
+            <div class="nav-item"><span class="nav-icon">📖</span> Guía de uso</div>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <div class="page-title">
+            <span>📊</span> Carga Académica
+        </div>
+        <div class="estudiante-nombre">JESUS ARMANDO VILLA BARRAZA</div>
+        <div class="estudiante-id">21212680</div>
+
+        <!-- Selector carrera -->
+        <div class="carrera-selector">
+            <label>Selecciona una carrera</label>
+            <span class="carrera-valor">INGENIERIA INFORMATICA</span>
+            <span class="carrera-arrow">▾</span>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Botón TICKET -->
+        <div class="btn-row-right">
+            <button class="btn-ticket">🎫 TICKET</button>
+        </div>
+
+        <!-- Aviso fuera de horario -->
+        <div class="aviso-fuera">
+            <span class="aviso-icon">ℹ️</span>
+            <span>Fuera de horario de carga</span>
+        </div>
+
+        <!-- Botón HORARIO -->
+        <div class="btn-row-right-outline">
+            <button class="btn-horario">📅 HORARIO</button>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
