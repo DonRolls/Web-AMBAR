@@ -278,29 +278,56 @@
     }
   }
 
-  document.getElementById("btn-login").addEventListener("click",function()
-  {   
-        if (control === "" || password === ""){
+  const API_URL = "http://localhost:5000/api";
 
-          document.getElementById("mensaje").innerText="Debe de llenar todos los campos!";
-        }
-        else
-        {
-          document.location("alumnos/inicio.html");
-        }
- });
+  document.getElementById("btn-login").addEventListener("click", async function() {   
+    const control = document.getElementById("control").value;
+    const password = document.getElementById("password").value;
+    const mensaje = document.getElementById("mensaje");
+
+    if (control === "" || password === "") {
+      mensaje.innerText = "¡Debe de llenar todos los campos!";
+      mensaje.style.color = "#c0392b";
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // Obligatorio para guardar la cookie de sesión
+        body: JSON.stringify({ numero_control: control, contrasena: password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        mensaje.style.color = "green";
+        mensaje.innerText = "Acceso correcto. Redirigiendo...";
+        // Redirigir a la carpeta alumnos
+        window.location.href = "alumnos/inicio.html";
+      } else {
+        mensaje.style.color = "#c0392b";
+        mensaje.innerText = data.error || "Credenciales incorrectas";
+      }
+    } catch (error) {
+      mensaje.style.color = "#c0392b";
+      mensaje.innerText = "Error al conectar con el servidor.";
+    }
+  });
     
- document.getElementById("btn-support").addEventListener("click", function() {
-  fetch("http://localhost/Ambar 2.0/conexion.php")
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById("mensaje").innerText = data;
-    })
-    .catch(error => {
-      document.getElementById("mensaje").innerText = "Error de conexión";
-    });
-});
-    
+  document.getElementById("btn-support").addEventListener("click", async function() {
+    try {
+      const response = await fetch(`${API_URL}/test`);
+      const data = await response.json();
+      const mensaje = document.getElementById("mensaje");
+      mensaje.style.color = data.ok ? "green" : "#c0392b";
+      mensaje.innerText = data.mensaje;
+    } catch (error) {
+      document.getElementById("mensaje").style.color = "#c0392b";
+      document.getElementById("mensaje").innerText = "Error de conexión con el backend (app.py no está corriendo)";
+    }
+  });
 </script>
 
 </body>

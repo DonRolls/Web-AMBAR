@@ -563,6 +563,78 @@
 
     </div>
 </div>
+<script>
+  const API_URL = "http://localhost:5000/api";
 
+  document.addEventListener("DOMContentLoaded", async () => {
+    const tbody = document.querySelector(".horario-table tbody");
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Cargando horario...</td></tr>';
+
+    try {
+      const response = await fetch(`${API_URL}/horario`, { credentials: "include" });
+      if (response.status === 401) { window.location.href = "../login.html"; return; }
+      const horarioData = await response.json();
+
+      tbody.innerHTML = '';
+      if(horarioData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No tienes un horario asignado en el periodo actual.</td></tr>';
+        return;
+      }
+
+      // Agrupar por hora de inicio (ej. "14:00:00" -> "14:00")
+      const horasMap = {};
+      horarioData.forEach(item => {
+        const horaKey = item.hora_inicio.substring(0, 5); 
+        if(!horasMap[horaKey]) {
+            horasMap[horaKey] = { 'LUNES':[], 'MARTES':[], 'MIERCOLES':[], 'JUEVES':[], 'VIERNES':[], 'SABADO':[], 'DOMINGO':[] };
+        }
+        horasMap[horaKey][item.dia].push(item);
+      });
+
+      // Paleta de colores iterativa para las materias
+      const colores = ['pink', 'purple', 'green', 'salmon', 'yellow'];
+      const colorMateria = {};
+      let colorIdx = 0;
+
+      // Ordenar las horas (14:00, 15:00, etc.)
+      const horasOrdenadas = Object.keys(horasMap).sort();
+
+      horasOrdenadas.forEach(hora => {
+        let filaHtml = `<tr><td class="hora-cell">${hora}</td>`;
+        
+        ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'].forEach(dia => {
+          const clases = horasMap[hora][dia];
+          if(clases.length === 0) {
+            filaHtml += `<td class="empty-cell"></td>`;
+          } else {
+            // Renderizar la celda (si hay más de 1 clase en esa hora, se apilan)
+            let celdasHtml = '';
+            clases.forEach(c => {
+                if(!colorMateria[c.materia]) {
+                    colorMateria[c.materia] = colores[colorIdx % colores.length];
+                    colorIdx++;
+                }
+                const color = colorMateria[c.materia];
+                celdasHtml += `
+                <div class="materia ${color}">
+                    <strong>${c.materia}</strong>
+                    Aula: ${c.aula || 'N/A'}<br>
+                    Grupo: ${c.clave_grupo}<br>
+                    ${c.hora_inicio.substring(0,5)}-${c.hora_fin.substring(0,5)}
+                </div>`;
+            });
+            filaHtml += `<td>${celdasHtml}</td>`;
+          }
+        });
+        filaHtml += '</tr>';
+        tbody.innerHTML += filaHtml;
+      });
+
+    } catch (error) {
+      console.error("Error cargando horario:", error);
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:red;">Error de conexión.</td></tr>';
+    }
+  });
+</script>
 </body>
 </html>
