@@ -378,63 +378,6 @@
         </div>
     </div>
 </div>
-<script>
-  const API_URL = "http://localhost:5000/api";
 
-  document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      // 1. Cargar Perfil y Stats
-      const resInicio = await fetch(`${API_URL}/inicio`, { credentials: "include" });
-      if (resInicio.status === 401) { window.location.href = "../login.html"; return; }
-      const perfil = await resInicio.json();
-
-      document.querySelector(".estudiante-nombre").innerText = perfil.nombre_completo;
-      document.querySelector(".estudiante-id").innerText = perfil.numero_control;
-      document.querySelector(".carrera-valor").innerText = perfil.carrera;
-
-      // 2. Cargar Kardex
-      const resKardex = await fetch(`${API_URL}/kardex`, { credentials: "include" });
-      const kardexData = await resKardex.json();
-
-      const grid = document.querySelector(".kardex-grid");
-      grid.innerHTML = ""; // Limpiar grid estática
-
-      let creditosAcumulados = 0;
-
-      kardexData.forEach(mat => {
-        let claseCss = 'por-cursar';
-        if(mat.estatus === 'ACREDITADA') {
-            claseCss = 'aprobada';
-            creditosAcumulados += mat.creditos;
-        } else if(mat.estatus === 'REPROBADA') {
-            claseCss = 'reprobada';
-        } else if(mat.estatus === 'EN_CURSO') { // Si tuvieras este estado en tu vista SQL
-            claseCss = 'actual';
-        }
-
-        const califHtml = mat.calificacion ? `Calificación: ${mat.calificacion}<br>` : '';
-        
-        const html = `
-        <div class="materia-card ${claseCss}">
-            <div class="clave">${mat.clave}</div>
-            <div class="nombre">${mat.materia}</div>
-            <div class="detalle">${califHtml}Créditos: ${mat.creditos}</div>
-        </div>`;
-        grid.insertAdjacentHTML('beforeend', html);
-      });
-
-      // Actualizar stats de créditos
-      const spanStats = document.querySelectorAll(".stats-bar span strong");
-      if(spanStats.length > 0) {
-        spanStats[0].innerText = creditosAcumulados;
-        // Asumiendo 260 creditos totales para una ingeniería TecNM
-        spanStats[2].innerText = ((creditosAcumulados / 260) * 100).toFixed(2) + "%"; 
-      }
-
-    } catch (error) {
-      console.error("Error cargando kardex:", error);
-    }
-  });
-</script>
 </body>
 </html>

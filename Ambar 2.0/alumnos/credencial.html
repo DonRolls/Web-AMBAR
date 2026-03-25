@@ -500,32 +500,6 @@
         </div>
     </div>
 </div>
-<script>
-  const API_URL = "http://localhost:5000/api";
 
-  document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      const response = await fetch(`${API_URL}/inicio`, { credentials: "include" });
-      if (response.status === 401) { window.location.href = "../login.html"; return; }
-      
-      const estudiante = await response.json();
-
-      // Rellenar FRENTE
-      const spansFrente = document.querySelectorAll(".front-field span");
-      spansFrente[0].innerText = estudiante.nombre_completo;
-      spansFrente[1].innerText = estudiante.carrera;
-      spansFrente[2].innerText = estudiante.numero_control;
-
-      // Rellenar REVERSO
-      document.querySelector(".back-side-text").innerText = `INST. TEC. DE TIJUANA · ${estudiante.numero_control}`;
-
-      // Si tuvieras fotos reales en el backend, se asignarían aquí
-      // document.querySelector(".foto-credencial").innerHTML = `<img src="${estudiante.foto}" style="width:100%;height:100%;object-fit:cover;">`;
-
-    } catch (error) {
-      console.error("Error al cargar datos de la credencial:", error);
-    }
-  });
-</script>
 </body>
 </html>

@@ -144,39 +144,6 @@
 
     </div>
 </div>
-<script>
-  const API_URL = "http://localhost:5000/api";
 
-  document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      const response = await fetch(`${API_URL}/actividades`, { credentials: "include" });
-      if (response.status === 401) { window.location.href = "../login.html"; return; }
-      const data = await response.json();
-
-      const secciones = document.querySelectorAll(".seccion-mensaje");
-
-      // 1. Complementarias
-      if (data.complementarias && data.complementarias.length > 0) {
-        secciones[0].innerHTML = data.complementarias.map(a => `<li>${a.nombre} - ${a.horas} horas (${a.estatus})</li>`).join('');
-      }
-
-      // 2. Extraescolares
-      if (data.extraescolares && data.extraescolares.length > 0) {
-        secciones[1].innerHTML = data.extraescolares.map(a => `<li>${a.nombre} - ${a.horas} horas (${a.estatus})</li>`).join('');
-      }
-
-      // 3. Tutorías
-      if (data.tutorias && data.tutorias.length > 0) {
-        secciones[2].innerHTML = data.tutorias.map(t => {
-            const fecha = new Date(t.fecha).toLocaleDateString('es-MX');
-            return `<li>Tutoría con ${t.tutor} el ${fecha}</li>`;
-        }).join('');
-      }
-
-    } catch (error) {
-      console.error("Error cargando actividades:", error);
-    }
-  });
-</script>
 </body>
 </html>

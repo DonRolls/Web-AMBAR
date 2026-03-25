@@ -442,46 +442,5 @@
     </div>
 </div>
 
-<script>
-  const API_URL = "http://localhost:5000/api";
-
-  document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      const response = await fetch(`${API_URL}/inicio`, {
-        method: "GET",
-        credentials: "include" // Envía la sesión
-      });
-
-      if (response.status === 401) {
-        window.location.href = "../login.html"; // Si no hay sesión, al login
-        return;
-      }
-
-      const estudiante = await response.json();
-
-      // Rellenar Topbar
-      document.querySelector(".topbar-right span").innerText = estudiante.carrera;
-      document.querySelector(".carrera-value").innerText = estudiante.carrera;
-
-      // Rellenar Card Identificación
-      document.querySelector(".estudiante-nombre").innerText = estudiante.nombre_completo;
-      document.querySelector(".estudiante-email").innerText = `${estudiante.numero_control} - ${estudiante.email}`;
-
-      // Rellenar los campos del Info Grid (basado en el orden de tu HTML)
-      const spans = document.querySelectorAll(".info-field span");
-      spans[0].innerText = estudiante.carrera;
-      spans[1].innerText = estudiante.especialidad || "Sin especialidad";
-      spans[2].innerText = estudiante.semestre_actual;
-      spans[3].innerText = estudiante.promedio_sin_reprobadas || "0.00";
-      spans[4].innerText = estudiante.promedio_general || "0.00";
-      spans[5].innerText = "-"; // Promedio último semestre no viene en la vista SQL aún
-      spans[6].innerText = estudiante.estatus;
-
-    } catch (error) {
-      console.error("Error cargando perfil:", error);
-    }
-  });
-</script>
-
 </body>
 </html>

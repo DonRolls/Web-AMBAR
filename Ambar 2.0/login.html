@@ -278,57 +278,73 @@
     }
   }
 
-  const API_URL = "http://localhost:5000/api";
+  document.getElementById("btn-login").addEventListener("click", function() {
 
-  document.getElementById("btn-login").addEventListener("click", async function() {   
-    const control = document.getElementById("control").value;
-    const password = document.getElementById("password").value;
-    const mensaje = document.getElementById("mensaje");
+    // Guardar datos en las variables
+    let control  = document.getElementById("control").value;
+    let password = document.getElementById("password").value;
 
+    // Validar campos vacíos
     if (control === "" || password === "") {
-      mensaje.innerText = "¡Debe de llenar todos los campos!";
-      mensaje.style.color = "#c0392b";
-      return;
+        document.getElementById("mensaje").innerText = "Debe llenar todos los campos!";
+        document.getElementById("mensaje").style.color = "orange";
+        return; 
     }
+    else{
 
-    try {
-      const response = await fetch(`${API_URL}/login`, {
+    
+
+    // Enviar al servidor conexion.js
+    fetch("/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // Obligatorio para guardar la cookie de sesión
-        body: JSON.stringify({ numero_control: control, contrasena: password })
-      });
+        body: JSON.stringify({ N_ctrl: control, pass: password })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById("mensaje").style.color = "green";
+            document.getElementById("mensaje").innerText = "Bienvenido " + data.nombre;
+            // Redirección con espera
+            
+          setTimeout(function(){
+            window.location.href = "alumnos/inicio.html";
+          },1500);
 
-      const data = await response.json();
+            
+        } else {
+            document.getElementById("mensaje").style.color = "red";
+            document.getElementById("mensaje").innerText = "Número de control o contraseña incorrectos";
+        }
+    })
+    .catch(error => {
+        document.getElementById("mensaje").innerText = "Error de conexión con el servidor";
+    });}
+});
 
-      if (response.ok) {
-        mensaje.style.color = "green";
-        mensaje.innerText = "Acceso correcto. Redirigiendo...";
-        // Redirigir a la carpeta alumnos
-        window.location.href = "alumnos/inicio.html";
-      } else {
-        mensaje.style.color = "#c0392b";
-        mensaje.innerText = data.error || "Credenciales incorrectas";
-      }
-    } catch (error) {
-      mensaje.style.color = "#c0392b";
-      mensaje.innerText = "Error al conectar con el servidor.";
-    }
-  });
+ //Comprobación de conexión a BD   
+ document.getElementById("btn-support").addEventListener("click", function() {
     
-  document.getElementById("btn-support").addEventListener("click", async function() {
-    try {
-      const response = await fetch(`${API_URL}/test`);
-      const data = await response.json();
-      const mensaje = document.getElementById("mensaje");
-      mensaje.style.color = data.ok ? "green" : "#c0392b";
-      mensaje.innerText = data.mensaje;
-    } catch (error) {
-      document.getElementById("mensaje").style.color = "#c0392b";
-      document.getElementById("mensaje").innerText = "Error de conexión con el backend (app.py no está corriendo)";
-    }
-  });
-</script>
+    document.getElementById("mensaje").innerText = "Comprobando conexión...";
+    document.getElementById("mensaje").style.color = "gray";
 
+    fetch("/soporte")
+    .then(res => res.json())
+    .then(data => {
+        if (data.conectado) {
+            document.getElementById("mensaje").style.color = "green";
+            document.getElementById("mensaje").innerText = "Base de datos conectada correctamente";
+        } else {
+            document.getElementById("mensaje").style.color = "red";
+            document.getElementById("mensaje").innerText = "No se pudo conectar a la base de datos";
+        }
+    })
+    .catch(function() {
+        document.getElementById("mensaje").style.color = "red";
+        document.getElementById("mensaje").innerText = "Servidor no disponible";
+    });
+});
+    
+</script>
 </body>
 </html>

@@ -209,60 +209,6 @@
 
     </div>
 </div>
-<script>
-  const API_URL = "http://localhost:5000/api";
-  let mostrarHistorico = false;
 
-  document.addEventListener("DOMContentLoaded", () => {
-    cargarRecibos();
-    
-    document.querySelector(".btn-historico").addEventListener("click", () => {
-        mostrarHistorico = !mostrarHistorico;
-        document.querySelector(".btn-historico").innerText = mostrarHistorico ? "⟳ VER ACTUALES" : "⟳ VER HISTÓRICO";
-        cargarRecibos();
-    });
-  });
-
-  async function cargarRecibos() {
-    const tbody = document.querySelector(".recibos-table tbody");
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Cargando...</td></tr>';
-
-    try {
-      const url = `${API_URL}/recibos` + (mostrarHistorico ? "?historico=1" : "");
-      const response = await fetch(url, { credentials: "include" });
-      if (response.status === 401) { window.location.href = "../login.html"; return; }
-      const recibos = await response.json();
-
-      tbody.innerHTML = "";
-      if(recibos.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No hay recibos registrados.</td></tr>';
-        return;
-      }
-
-      recibos.forEach(r => {
-        const fEmision = new Date(r.fecha_emision).toLocaleDateString('es-MX');
-        const fVigencia = new Date(r.fecha_vigencia).toLocaleDateString('es-MX');
-        
-        let badgeColor = r.estatus === 'CUBIERTO' ? '#999' : (r.estatus === 'VENCIDO' ? '#c0392b' : '#2980b9');
-        
-        tbody.innerHTML += `
-        <tr>
-            <td>${r.descripcion}<br><small style="color:#888;">Ref: ${r.referencia || 'N/A'}</small></td>
-            <td>${fEmision}</td>
-            <td>${fVigencia}</td>
-            <td>$${parseFloat(r.importe).toFixed(2)}</td>
-        </tr>
-        <tr class="estado-row">
-            <td colspan="4">
-                <span class="badge-cubierto" style="color: ${badgeColor};">${r.estatus}</span>
-                ${r.fecha_pago ? `<span style="font-size:10px; color:#888; margin-left:10px;">Pagado el: ${new Date(r.fecha_pago).toLocaleDateString('es-MX')}</span>` : ''}
-            </td>
-        </tr>`;
-      });
-    } catch (error) {
-      console.error("Error cargando recibos:", error);
-    }
-  }
-</script>
 </body>
 </html>

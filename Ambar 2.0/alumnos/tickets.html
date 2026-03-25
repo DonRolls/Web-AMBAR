@@ -210,88 +210,10 @@
 </div>
 
 <script>
-  const API_URL = "http://localhost:5000/api";
-  let currentTab = 'ABIERTO'; // Estado por defecto
-
-  document.addEventListener("DOMContentLoaded", () => {
-    cargarTickets(currentTab);
-  });
-
-  function switchTab(el, tab) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    
-    // Mapear la pestaña al estado de la BD
-    currentTab = tab === 'abiertos' ? 'ABIERTO' : 'FINALIZADO';
-    cargarTickets(currentTab);
-  }
-
-  async function cargarTickets(estatus) {
-    const tbody = document.getElementById("tabla-body");
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Cargando...</td></tr>';
-
-    try {
-      const response = await fetch(`${API_URL}/tickets?estatus=${estatus}`, {
-        credentials: "include"
-      });
-
-      if (response.status === 401) {
-        window.location.href = "../login.html";
-        return;
-      }
-
-      const tickets = await response.json();
-      tbody.innerHTML = "";
-
-      if (tickets.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">No hay tickets en este estado</td></tr>';
-        return;
-      }
-
-      tickets.forEach(t => {
-        // Formatear la fecha
-        const fecha = new Date(t.fecha_creacion).toLocaleDateString('es-MX');
-        
-        tbody.innerHTML += `
-          <tr>
-            <td>${fecha}</td>
-            <td><strong>${t.clave}</strong></td>
-            <td>${t.descripcion}</td>
-            <td>${t.estatus}</td>
-            <td><button style="border:none; background:none; cursor:pointer;">✏️</button></td>
-            <td>${t.comentario || 'Sin comentarios'}</td>
-          </tr>
-        `;
-      });
-
-    } catch (error) {
-      tbody.innerHTML = '<tr><td colspan="6" style="color:red; text-align:center;">Error al cargar tickets</td></tr>';
+    function switchTab(el, tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
     }
-  }
-
-  // Lógica para crear un ticket nuevo
-  document.querySelector(".btn-generar").addEventListener("click", async () => {
-    const descripcion = prompt("Describe el problema o solicitud para tu nuevo ticket:");
-    if (!descripcion) return;
-
-    try {
-      const response = await fetch(`${API_URL}/tickets`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ descripcion })
-      });
-      const data = await response.json();
-      if (response.ok) {
-        alert(`Ticket creado con la clave: ${data.clave}`);
-        cargarTickets(currentTab); // Recargar la tabla
-      } else {
-        alert("Error: " + data.error);
-      }
-    } catch (e) {
-      alert("Error de conexión");
-    }
-  });
 </script>
 
 </body>

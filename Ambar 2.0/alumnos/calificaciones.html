@@ -505,79 +505,21 @@
 </div>
 
 <script>
-  const API_URL = "http://localhost:5000/api";
+    function toggleAccordion(header) {
+        const body = header.nextElementSibling;
+        const chevron = header.querySelector('.chevron');
+        const isOpen = body.classList.contains('open');
 
-  document.addEventListener("DOMContentLoaded", async () => {
-    const contenedor = document.querySelector(".main");
-    // Seleccionar donde insertaremos los acordeones (después del título de la sección)
-    const tituloSeccion = document.querySelector(".cal-section-title");
-
-    // Borrar acordeones estáticos existentes
-    document.querySelectorAll(".accordion-item").forEach(el => el.remove());
-
-    try {
-      const response = await fetch(`${API_URL}/calificaciones`, { credentials: "include" });
-      if (response.status === 401) { window.location.href = "../login.html"; return; }
-      
-      const calificaciones = await response.json();
-
-      if(calificaciones.length === 0) {
-        tituloSeccion.insertAdjacentHTML('afterend', '<p style="margin-top: 20px;">No tienes materias inscritas en el periodo actual.</p>');
-        return;
-      }
-
-      calificaciones.forEach(cal => {
-        const estatusClase = cal.estatus === 'ACREDITADA' ? 'aprobado' : (cal.estatus === 'REPROBADA' ? 'reprobado' : '');
-        const calFinal = cal.calificacion_final || 'N/A';
-        const estatusAbrev = cal.estatus === 'ACREDITADA' ? 'AC' : (cal.estatus === 'REPROBADA' ? 'RE' : 'SC');
-
-        const html = `
-        <div class="accordion-item">
-            <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span class="accordion-header-title">${cal.materia}</span>
-                <span class="chevron">▾</span>
-            </div>
-            <div class="accordion-body">
-                <div class="subsection-title">📊 Datos Generales</div>
-                <div class="datos-grid">
-                    <div>Materia: <span>${cal.nombre_corto || cal.materia}</span></div>
-                    <div>Docente: <span>${cal.docente}</span></div>
-                    <div>Grupo: <span>${cal.clave_grupo}</span></div>
-                    <div>Aula: <span>${cal.aula || '-'}</span></div>
-                </div>
-                <hr class="divider">
-                <div class="subsection-title">📈 Calificaciones</div>
-                <div class="datos-grid">
-                    <div>Parcial 1: <span>${cal.parcial1 || '-'}</span></div>
-                    <div>Parcial 2: <span>${cal.parcial2 || '-'}</span></div>
-                    <div>Parcial 3: <span>${cal.parcial3 || '-'}</span></div>
-                </div>
-                <div class="cal-final-label">Final</div>
-                <span class="cal-badge ${estatusClase}">${calFinal} - ${estatusAbrev}</span>
-            </div>
-        </div>`;
-        tituloSeccion.insertAdjacentHTML('afterend', html);
-      });
-    } catch (error) {
-      console.error("Error al cargar calificaciones:", error);
+        if (isOpen) {
+            body.classList.remove('open');
+            header.classList.remove('open');
+            chevron.classList.remove('open');
+        } else {
+            body.classList.add('open');
+            header.classList.add('open');
+            chevron.classList.add('open');
+        }
     }
-  });
-
-  function toggleAccordion(header) {
-      const body = header.nextElementSibling;
-      const chevron = header.querySelector('.chevron');
-      const isOpen = body.classList.contains('open');
-
-      if (isOpen) {
-          body.classList.remove('open');
-          header.classList.remove('open');
-          chevron.classList.remove('open');
-      } else {
-          body.classList.add('open');
-          header.classList.add('open');
-          chevron.classList.add('open');
-      }
-  }
 </script>
 
 </body>
