@@ -122,7 +122,7 @@
 <!-- TOPBAR -->
 <div class="topbar">
     <div class="topbar-left">
-        <span class="hamburger">☰</span>
+        <span class="hamburger" onclick="toggleSidebar()">☰</span>
         <div class="logo-area">
             <div class="logo-circle">TEC<br>NM</div>
             <div class="logo-text">TECNOLÓGICO<br>NACIONAL DE MÉXICO</div>
@@ -137,41 +137,8 @@
 <div class="layout">
 
     <!-- SIDEBAR -->
-    <div class="sidebar">
-        <div class="nav-list">
-                <a href="inicio.html"><div class="nav-item">
-                    <span class="nav-icon">🏠</span> Inicio
-                </div></a>
-                <a href="horario.html"><div class="nav-item">
-                    <span class="nav-icon">📅</span> Horario
-                </div></a>
-                <a href="calificaciones.html"><div class="nav-item">
-                    <span class="nav-icon">📋</span> Calificaciones
-                </div></a>
-                <a href="kardex.html"><div class="nav-item">
-                    <span class="nav-icon">📊</span> Kárdex
-                </div></a>
-                <a href="historicodeactividades.html"><div class="nav-item">
-                    <span class="nav-icon">📝</span> Histórico de actividades
-                </div></a>
-                <a href="credencial.html"><div class="nav-item">
-                    <span class="nav-icon">🪪</span> Credencial
-                </div></a>
-                <div class="nav-item active">
-                    <span class="nav-icon">🧾</span> Recibos
-                </div>
-                <a href="cargadematerias.html"><div class="nav-item">
-                    <span class="nav-icon">📚</span> Carga de Materias
-                </div></a>
-                <a href="tickets.html"><div class="nav-item">
-                    <span class="nav-icon">🎫</span> Tickets
-                </div></a>
-            </div>
-        <div class="nav-bottom">
-            <div class="nav-item"><span class="nav-icon">❓</span> Soporte</div>
-            <div class="nav-item"><span class="nav-icon">📖</span> Guía de uso</div>
-        </div>
-    </div>
+      <div id="sidebar-container"></div>
+   <script src="sidebar.js"></script>
 
     <!-- MAIN -->
     <div class="main">
