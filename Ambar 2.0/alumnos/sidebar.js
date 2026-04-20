@@ -1,143 +1,119 @@
-// sidebar.js - Barra lateral con sección inferior y toggle
+// sidebar.js — Barra lateral del Portal Estudiante (sistema Ámbar)
+(function () {
+    "use strict";
 
-(function() {
-    // Obtener el nombre de la página actual automáticamente
     const path = window.location.pathname;
     const paginaActual = path.split('/').pop().replace('.html', '') || 'inicio';
-    
-    // Enlaces principales
+
     const enlacesPrincipales = [
-        { texto: 'Inicio', icono: '🏠', url: 'inicio.html', id: 'inicio' },
-        { texto: 'Horario', icono: '📅', url: 'horario.html', id: 'horario' },
-        { texto: 'Calificaciones', icono: '📋', url: 'calificaciones.html', id: 'calificaciones' },
-        { texto: 'Kárdex', icono: '📊', url: 'kardex.html', id: 'kardex' },
-        { texto: 'Histórico de actividades', icono: '📝', url: 'historicodeactividades.html', id: 'historico' },
-        { texto: 'Credencial', icono: '🪪', url: 'credencial.html', id: 'credencial' },
-        { texto: 'Recibos', icono: '🧾', url: 'recibos.html', id: 'recibos' },
-        { texto: 'Carga de Materias', icono: '📚', url: 'cargadematerias.html', id: 'cargamaterias' },
-        { texto: 'Tickets', icono: '🎫', url: 'tickets.html', id: 'tickets' }
+        { texto: 'Inicio',                  icono: '🏠', url: 'inicio.html',               id: 'inicio' },
+        { texto: 'Horario',                 icono: '📅', url: 'horario.html',               id: 'horario' },
+        { texto: 'Calificaciones',          icono: '📋', url: 'calificaciones.html',         id: 'calificaciones' },
+        { texto: 'Kárdex',                  icono: '📊', url: 'kardex.html',                 id: 'kardex' },
+        { texto: 'Histórico de Actividades',icono: '📝', url: 'historicodeactividades.html', id: 'historicodeactividades' },
+        { texto: 'Credencial',              icono: '🪪', url: 'credencial.html',             id: 'credencial' },
+        { texto: 'Recibos',                 icono: '🧾', url: 'recibos.html',                id: 'recibos' },
+        { texto: 'Carga de Materias',       icono: '📚', url: 'cargadematerias.html',        id: 'cargadematerias' },
+        { texto: 'Tickets',                 icono: '🎫', url: 'tickets.html',                id: 'tickets' },
     ];
-    
-    // Enlaces inferiores
+
     const enlacesInferiores = [
-        { texto: 'Soporte', icono: '❓', url: 'soporte.html', id: 'soporte' },
-        { texto: 'Guia de uso', icono: '📖', url: 'guia.html', id: 'guia' }
+        { texto: 'Soporte',     icono: '❓', url: 'soporte.html', id: 'soporte' },
+        { texto: 'Guía de uso', icono: '📖', url: 'guia.html',    id: 'guia' },
     ];
-    
-    function generarSidebar() {
-        let enlacesHTML = '';
-        
-        // Generar enlaces principales
-        for (const enlace of enlacesPrincipales) {
-            const claseActivo = (paginaActual === enlace.id) ? 'active' : '';
-            enlacesHTML += `
-                <a href="${enlace.url}" style="text-decoration: none; color: inherit;">
-                    <div class="nav-item ${claseActivo}">
-                        <span class="nav-icon">${enlace.icono}</span>
-                        <span class="nav-text">${enlace.texto}</span>
-                    </div>
-                </a>
-            `;
-        }
-        
-        // Generar enlaces inferiores
-        let enlacesInferioresHTML = '';
-        for (const enlace of enlacesInferiores) {
-            const claseActivo = (paginaActual === enlace.id) ? 'active' : '';
-            enlacesInferioresHTML += `
-                <a href="${enlace.url}" style="text-decoration: none; color: inherit;">
-                    <div class="nav-item ${claseActivo}">
-                        <span class="nav-icon">${enlace.icono}</span>
-                        <span class="nav-text">${enlace.texto}</span>
-                    </div>
-                </a>
-            `;
-        }
-        
-        return `
-            <div class="sidebar" id="main-sidebar">
-                <div class="sidebar-wrapper">
-                    <div class="nav-list">
-                        ${enlacesHTML}
-                    </div>
-                    <div class="nav-bottom">
-                        ${enlacesInferioresHTML}
-                    </div>
-                </div>
-            </div>
-        `;
+
+    function isActive(id) {
+        return paginaActual === id;
     }
-    
-    // Insertar la sidebar
-    const contenedor = document.getElementById('sidebar-container');
-    if (contenedor) {
-        contenedor.innerHTML = generarSidebar();
+
+    function buildItem(item) {
+        const active = isActive(item.id) ? ' active' : '';
+        return `<a href="${item.url}" class="nav-item${active}">
+            <span class="nav-icon">${item.icono}</span>
+            <span class="nav-label">${item.texto}</span>
+        </a>`;
     }
-    
-    // Función para toggle (ocultar/mostrar) la sidebar
-    window.toggleSidebar = function() {
+
+    const html = `
+        <style>
+            #sidebar-container {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+            #sidebar-container .nav-section-label {
+                padding: 20px 12px 8px;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1.2px;
+                text-transform: uppercase;
+                color: rgba(255,255,255,.3);
+                white-space: nowrap;
+                font-family: 'DM Sans', sans-serif;
+            }
+            #sidebar-container a.nav-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 11px 16px;
+                cursor: pointer;
+                font-size: 13.5px;
+                font-weight: 500;
+                color: rgba(255,255,255,.65);
+                border-left: 3px solid transparent;
+                transition: all .18s;
+                text-decoration: none;
+                white-space: nowrap;
+                overflow: hidden;
+                font-family: 'DM Sans', sans-serif;
+            }
+            #sidebar-container a.nav-item:hover {
+                background: rgba(255,255,255,.07);
+                color: white;
+            }
+            #sidebar-container a.nav-item.active {
+                background: rgba(232,161,0,.12);
+                border-left: 3px solid #E8A100;
+                color: #E8A100;
+            }
+            #sidebar-container .nav-icon {
+                font-size: 18px;
+                width: 22px;
+                text-align: center;
+                flex-shrink: 0;
+            }
+            #sidebar-container .nav-bottom-wrap {
+                border-top: 1px solid rgba(255,255,255,.07);
+                padding: 8px 0;
+            }
+            #sidebar-container .nav-main { flex: 1; }
+        </style>
+
+        <div class="nav-section-label">Menú principal</div>
+        <div class="nav-main">
+            ${enlacesPrincipales.map(buildItem).join('')}
+        </div>
+        <div class="nav-bottom-wrap">
+            ${enlacesInferiores.map(buildItem).join('')}
+        </div>
+    `;
+
+    const container = document.getElementById('sidebar-container');
+    if (container) container.innerHTML = html;
+
+    // Toggle sidebar
+    window.toggleSidebar = function () {
         const sidebar = document.getElementById('main-sidebar');
-        const mainContent = document.querySelector('.main');
-        const hamburger = document.querySelector('.hamburger');
-        
-        if (sidebar) {
-            sidebar.classList.toggle('collapsed');
-            if (mainContent) {
-                mainContent.classList.toggle('expanded');
-            }
-            if (hamburger) {
-                hamburger.classList.toggle('active');
-            }
-        }
+        if (sidebar) sidebar.classList.toggle('collapsed');
     };
-    
-    // Agregar estilos para la animación de ocultar/mostrar
+
+    // Sidebar collapse styles
     const style = document.createElement('style');
     style.textContent = `
-        .sidebar {
-            transition: width 0.3s ease, transform 0.3s ease;
-            overflow-x: hidden;
-        }
-        
-        .sidebar.collapsed {
-            width: 0px;
-            min-width: 0px;
-            padding: 0;
-            overflow: hidden;
-        }
-        
-        .main {
-            transition: margin-left 0.3s ease, flex 0.3s ease;
-            flex: 1;
-        }
-        
-        .main.expanded {
-            margin-left: 0;
-        }
-        
-        /* Cuando la sidebar está oculta, el main ocupa todo */
-        .layout {
-            display: flex;
-        }
-        
-        /* Ocultar texto cuando está colapsada */
-        .sidebar.collapsed .nav-text {
-            display: none;
-        }
-        
-        .sidebar.collapsed .nav-icon {
-            font-size: 20px;
-        }
-        
-        /* Animación del hamburguesa */
-        .hamburger {
-            transition: transform 0.3s ease;
-            display: inline-block;
-        }
-        
-        .hamburger.active {
-            transform: rotate(90deg);
-        }
+        #main-sidebar { transition: width .28s cubic-bezier(.4,0,.2,1); overflow: hidden; }
+        #main-sidebar.collapsed { width: 60px !important; }
+        #main-sidebar.collapsed .nav-label { opacity: 0; pointer-events: none; }
+        #main-sidebar.collapsed .nav-section-label { opacity: 0; }
     `;
     document.head.appendChild(style);
 })();

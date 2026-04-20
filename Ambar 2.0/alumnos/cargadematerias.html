@@ -1,186 +1,95 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carga Académica - TecNM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Roboto', sans-serif; background: #f5f5f5; color: #333; display: flex; flex-direction: column; height: 100vh; }
-
-        /* TOPBAR */
-        .topbar { background: #1a2a4a; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
-        .topbar-left { display: flex; align-items: center; gap: 16px; }
-        .hamburger { color: white; font-size: 22px; cursor: pointer; }
-        .logo-area { display: flex; align-items: center; gap: 10px; }
-        .logo-circle { width: 38px; height: 38px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #1a2a4a; text-align: center; line-height: 1.1; }
-        .logo-text { color: white; font-size: 13px; font-weight: 500; line-height: 1.3; }
-        .topbar-right { display: flex; align-items: center; gap: 12px; color: white; font-size: 14px; font-weight: 500; }
-        .avatar-icon { width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-
-        /* LAYOUT */
-        .layout { display: flex; margin-top: 56px; height: calc(100vh - 56px); }
-
-        /* SIDEBAR */
-        .sidebar { width: 240px; background: white; border-right: 1px solid #e0e0e0; flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto; }
-        .nav-list { flex: 1; }
-        .nav-item { display: flex; align-items: center; gap: 14px; padding: 14px 20px; cursor: pointer; font-size: 14px; color: #444; border-left: 3px solid transparent; transition: background 0.15s; }
-        .nav-item:hover { background: #f0f4ff; }
-        .nav-item.active { background: #eef2ff; border-left: 3px solid #1a2a4a; color: #1a2a4a; font-weight: 500; }
-        .nav-icon { font-size: 18px; width: 22px; text-align: center; }
-        .nav-bottom { border-top: 1px solid #e0e0e0; }
-
-        /* MAIN */
-        .main { flex: 1; overflow-y: auto; background: white; padding: 28px 32px; }
-
-        /* TITLE */
-        .page-title { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 600; color: #1a5276; margin-bottom: 8px; }
-        .estudiante-nombre { font-size: 14px; font-weight: 700; color: #222; }
-        .estudiante-id { font-size: 13px; color: #1a5276; margin-bottom: 16px; }
-
-        /* CARRERA SELECTOR */
-        .carrera-selector {
-            position: relative;
-            background: #eeeeee;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        .carrera-selector label {
-            position: absolute; top: -9px; left: 12px;
-            background: #eeeeee; padding: 0 4px;
-            font-size: 11px; color: #888;
-        }
-        .carrera-valor { font-size: 14px; color: #333; font-weight: 500; }
-        .carrera-arrow { color: #888; font-size: 16px; }
-
-        /* DIVIDER */
-        .divider { border: none; border-top: 1px solid #e0e0e0; margin-bottom: 16px; }
-
-        /* TICKET BTN ROW */
-        .btn-row-right {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 16px;
-        }
-
-        .btn-ticket {
-            background: #1a2a4a;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            font-size: 13px;
-            font-weight: 500;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            transition: background 0.2s;
-        }
-        .btn-ticket:hover { background: #2e4a7a; }
-
-        /* AVISO */
-        .aviso-fuera {
-            background: #f5f5f5;
-            border-radius: 4px;
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 14px;
-            color: #444;
-            margin-bottom: 20px;
-        }
-        .aviso-icon { font-size: 18px; color: #555; }
-
-        /* HORARIO BTN ROW */
-        .btn-row-right-outline {
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .btn-horario {
-            background: white;
-            color: #1a2a4a;
-            border: 1px solid #1a2a4a;
-            padding: 10px 18px;
-            font-size: 13px;
-            font-weight: 500;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            transition: background 0.2s, color 0.2s;
-        }
-        .btn-horario:hover { background: #1a2a4a; color: white; }
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carga Académica — Portal Estudiante TecNM</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0D1B3E;--navy-mid:#1D3461;--gold:#E8A100;--gold-lt:#FFF3D0;--gold-glow:rgba(232,161,0,.18);--bg:#F0F4FA;--card:#FFFFFF;--text:#1A1F36;--text-2:#5A6488;--border:#E2E8F0;--warn:#F59E0B;--radius:14px;--shadow:0 4px 24px rgba(13,27,62,.09)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{background:var(--navy);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:fixed;inset:0 0 auto 0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.3)}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.hbg{color:white;font-size:22px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:.2s}
+.hbg:hover{background:rgba(255,255,255,.12)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-badge{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:11px;font-weight:800;color:var(--navy);line-height:1.1;text-align:center}
+.brand-name{color:white;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;line-height:1.3}
+.brand-name span{display:block;font-size:10px;font-weight:300;opacity:.7;letter-spacing:.6px;text-transform:uppercase}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.stu-tag{background:rgba(59,130,246,.25);border:1px solid rgba(59,130,246,.5);color:#93C5FD;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:.4px;text-transform:uppercase}
+.avatar{width:34px;height:34px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;font-weight:700;color:var(--navy)}
+.logout-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.8);font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif}
+.logout-btn:hover{background:rgba(255,255,255,.15);color:white}
+.layout{display:flex;margin-top:58px;height:calc(100vh - 58px);overflow:hidden}
+#main-sidebar{width:235px;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0}
+.main{flex:1;overflow-y:auto;padding:28px 32px;background:var(--bg)}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);margin-bottom:8px}
+.breadcrumb span{color:var(--gold);font-weight:600}
+.page-header{margin-bottom:22px;animation:fadeUp .5s ease both}
+.page-header h1{font-family:'Outfit',sans-serif;font-size:26px;font-weight:700;color:var(--navy)}
+.stu-nombre{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.stu-id{font-size:12px;color:var(--text-2);margin-bottom:18px}
+/* SELECTOR */
+.dept-selector{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:12px 18px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;max-width:600px;box-shadow:var(--shadow);cursor:pointer;transition:.2s;animation:fadeUp .5s ease .05s both;position:relative}
+.dept-selector:hover{border-color:var(--gold)}
+.dept-selector label{position:absolute;top:-9px;left:14px;background:var(--card);padding:0 4px;font-size:11px;color:var(--text-2);font-weight:600;letter-spacing:.4px}
+.dept-value{font-size:13.5px;color:var(--text);font-weight:600}
+.dept-arrow{color:var(--gold);font-size:16px}
+/* DIVIDER */
+.divider{border:none;border-top:1px solid var(--border);margin-bottom:18px;max-width:600px}
+/* AVISO */
+.aviso{background:var(--card);border:1px solid rgba(245,158,11,.4);border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--text);max-width:600px;margin-bottom:20px;box-shadow:var(--shadow);animation:fadeUp .5s ease .1s both}
+.aviso-icon{font-size:20px}
+/* BUTTONS ROW */
+.btn-row{display:flex;align-items:center;justify-content:flex-end;gap:10px;max-width:600px;animation:fadeUp .5s ease .12s both}
+.btn-ticket{background:var(--gold);color:var(--navy);border:none;padding:10px 18px;font-size:13px;font-weight:700;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.2s;font-family:'DM Sans',sans-serif}
+.btn-ticket:hover{background:#d4930a;box-shadow:0 4px 14px rgba(232,161,0,.4)}
+.btn-horario{background:var(--card);color:var(--navy);border:1.5px solid var(--navy);padding:10px 18px;font-size:13px;font-weight:700;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.2s;font-family:'DM Sans',sans-serif}
+.btn-horario:hover{background:var(--navy);color:white}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
 </head>
 <body>
-
-<!-- TOPBAR -->
-<div class="topbar">
-    <div class="topbar-left">
-        <span class="hamburger" onclick="toggleSidebar()">☰</span>
-        <div class="logo-area">
-            <div class="logo-circle">TEC<br>NM</div>
-            <div class="logo-text">TECNOLÓGICO<br>NACIONAL DE MÉXICO</div>
-        </div>
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="hbg" onclick="toggleSidebar()">☰</span>
+    <div class="brand">
+      <div class="brand-badge">TEC<br>NM</div>
+      <div class="brand-name">Tecnológico Nacional de México<span>Portal Estudiantes</span></div>
     </div>
-    <div class="topbar-right">
-        <span>INGENIERIA INFORMATICA</span>
-        <div class="avatar-icon">👤</div>
-    </div>
-</div>
-
+  </div>
+  <div class="topbar-right">
+    <span class="stu-tag">Estudiante</span>
+    <div class="avatar">👤</div>
+    <button class="logout-btn">Cerrar sesión</button>
+  </div>
+</header>
 <div class="layout">
-
-    <!-- SIDEBAR -->
-       <div id="sidebar-container"></div>
-   <script src="sidebar.js"></script>
-
-    <!-- MAIN -->
-    <div class="main">
-
-        <div class="page-title">
-            <span>📊</span> Carga Académica
-        </div>
-        <div class="estudiante-nombre">JESUS ARMANDO VILLA BARRAZA</div>
-        <div class="estudiante-id">21212680</div>
-
-        <!-- Selector carrera -->
-        <div class="carrera-selector">
-            <label>Selecciona una carrera</label>
-            <span class="carrera-valor">INGENIERIA INFORMATICA</span>
-            <span class="carrera-arrow">▾</span>
-        </div>
-
-        <hr class="divider">
-
-        <!-- Botón TICKET -->
-        <div class="btn-row-right">
-            <button class="btn-ticket">🎫 TICKET</button>
-        </div>
-
-        <!-- Aviso fuera de horario -->
-        <div class="aviso-fuera">
-            <span class="aviso-icon">ℹ️</span>
-            <span>Fuera de horario de carga</span>
-        </div>
-
-        <!-- Botón HORARIO -->
-        <div class="btn-row-right-outline">
-            <button class="btn-horario">📅 HORARIO</button>
-        </div>
-
+  <div id="main-sidebar"><div id="sidebar-container" style="display:flex;flex-direction:column;height:100%"></div></div>
+  <script src="sidebar.js"></script>
+  <main class="main">
+    <div class="breadcrumb">Portal Estudiantes <span>›</span> <span>Carga de Materias</span></div>
+    <div class="page-header"><h1>Carga Académica</h1></div>
+    <div class="stu-nombre">JESUS ARMANDO VILLA BARRAZA</div>
+    <div class="stu-id">21212680</div>
+    <div class="dept-selector">
+      <label>Selecciona una carrera</label>
+      <span class="dept-value">INGENIERÍA INFORMÁTICA</span>
+      <span class="dept-arrow">▾</span>
     </div>
+    <hr class="divider">
+    <div class="btn-row" style="justify-content:flex-end;margin-bottom:16px">
+      <button class="btn-ticket">🎫 Ticket</button>
+    </div>
+    <div class="aviso">
+      <span class="aviso-icon">ℹ️</span>
+      <span>Fuera de horario de carga de materias.</span>
+    </div>
+    <div class="btn-row">
+      <button class="btn-horario">📅 Horario</button>
+    </div>
+  </main>
 </div>
-
 </body>
 </html>

@@ -1,493 +1,218 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calificaciones - TecNM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        /* ── TOPBAR ── */
-        .topbar {
-            background-color: #1a2a4a;
-            height: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 100;
-        }
-        .topbar-left { display: flex; align-items: center; gap: 16px; }
-        .hamburger { color: white; font-size: 22px; cursor: pointer; }
-        .logo-area { display: flex; align-items: center; gap: 10px; }
-        .logo-circle {
-            width: 38px; height: 38px;
-            background: white; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 10px; font-weight: 700; color: #1a2a4a;
-            text-align: center; line-height: 1.1;
-        }
-        .logo-text { color: white; font-size: 13px; font-weight: 500; line-height: 1.3; }
-        .topbar-right { display: flex; align-items: center; gap: 12px; color: white; font-size: 14px; font-weight: 500; }
-        .avatar-icon {
-            width: 32px; height: 32px;
-            background: rgba(255,255,255,0.2); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 16px;
-        }
-
-        /* ── LAYOUT ── */
-        .layout { display: flex; margin-top: 56px; height: calc(100vh - 56px); }
-
-        /* ── SIDEBAR ── */
-        .sidebar {
-            width: 240px; background: white;
-            border-right: 1px solid #e0e0e0;
-            overflow-y: auto; flex-shrink: 0;
-            display: flex; flex-direction: column;
-        }
-        .nav-list { flex: 1; }
-        .nav-item {
-            display: flex; align-items: center; gap: 14px;
-            padding: 14px 20px; cursor: pointer;
-            font-size: 14px; color: #444;
-            border-left: 3px solid transparent;
-            transition: background 0.15s;
-        }
-        .nav-item:hover { background: #f0f4ff; }
-        .nav-item.active {
-            background: #eef2ff;
-            border-left: 3px solid #1a2a4a;
-            color: #1a2a4a; font-weight: 500;
-        }
-        .nav-icon { font-size: 18px; width: 22px; text-align: center; }
-        .nav-bottom { border-top: 1px solid #e0e0e0; }
-
-        /* ── MAIN ── */
-        .main {
-            flex: 1; overflow-y: auto;
-            padding: 30px; background: #f5f5f5;
-        }
-
-        /* ── IMPRESION BOLETA ── */
-        .section-title {
-            display: flex; align-items: center; gap: 10px;
-            font-size: 18px; font-weight: 600; color: #1a5276;
-            margin-bottom: 16px;
-        }
-
-        .boleta-bar {
-            display: flex; align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px; gap: 16px;
-        }
-
-        .periodo-select {
-            position: relative; flex: 1; max-width: 560px;
-        }
-        .periodo-select label {
-            position: absolute; top: -9px; left: 12px;
-            background: white; padding: 0 4px;
-            font-size: 11px; color: #888;
-        }
-        .periodo-select select {
-            width: 100%; padding: 14px 16px;
-            border: 1px solid #bbb; border-radius: 4px;
-            font-size: 14px; color: #555;
-            appearance: none; cursor: pointer;
-            background: white;
-        }
-        .periodo-arrow {
-            position: absolute; right: 12px; top: 50%;
-            transform: translateY(-50%); pointer-events: none; color: #888;
-        }
-
-        .btn-descargar {
-            background: #546e8a; color: white;
-            border: none; padding: 12px 20px;
-            font-size: 13px; font-weight: 600;
-            letter-spacing: 0.5px; border-radius: 4px;
-            cursor: pointer; white-space: nowrap;
-            transition: background 0.2s;
-        }
-        .btn-descargar:hover { background: #3d5166; }
-
-        /* ── CALIFICACIONES SECTION ── */
-        .cal-section-title {
-            display: flex; align-items: center; gap: 10px;
-            font-size: 18px; font-weight: 600; color: #1a5276;
-            margin-bottom: 16px;
-        }
-
-        /* ── ACCORDION ── */
-        .accordion-item {
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            margin-bottom: 8px;
-            background: white;
-            overflow: hidden;
-        }
-
-        .accordion-header {
-            display: flex; align-items: center;
-            justify-content: space-between;
-            padding: 14px 20px;
-            background: #eeeeee;
-            cursor: pointer;
-            user-select: none;
-            transition: background 0.15s;
-        }
-        .accordion-header:hover { background: #e0e0e0; }
-        .accordion-header.open { background: #e8e8e8; }
-
-        .accordion-header-title {
-            font-size: 13px; font-weight: 600;
-            color: #444; letter-spacing: 0.3px;
-        }
-
-        .chevron {
-            font-size: 16px; color: #777;
-            transition: transform 0.25s;
-            display: inline-block;
-        }
-        .chevron.open { transform: rotate(180deg); }
-
-        /* ── ACCORDION BODY ── */
-        .accordion-body {
-            display: none;
-            padding: 24px;
-            border-top: 1px solid #e8e8e8;
-        }
-        .accordion-body.open { display: block; }
-
-        /* Datos Generales */
-        .subsection-title {
-            display: flex; align-items: center; gap: 8px;
-            font-size: 15px; font-weight: 600; color: #333;
-            margin-bottom: 16px;
-        }
-
-        .datos-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px 24px;
-            margin-bottom: 24px;
-            font-size: 13px; color: #444;
-        }
-        .datos-grid span { font-weight: 600; color: #222; }
-
-        /* Horario mini table */
-        .horario-mini {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 24px;
-            font-size: 13px;
-        }
-        .horario-mini th {
-            text-align: left; padding: 8px 12px;
-            color: #555; font-weight: 500;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        .horario-mini td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #f0f0f0;
-            color: #444;
-        }
-
-        /* Calificaciones badge */
-        .cal-final-label {
-            font-size: 13px; color: #555;
-            margin-bottom: 10px; font-weight: 500;
-        }
-        .cal-badge {
-            display: inline-block;
-            background: #e0e0e0; color: #333;
-            border-radius: 20px; padding: 6px 16px;
-            font-size: 13px; font-weight: 500;
-        }
-        .cal-badge.aprobado { background: #c8e6c9; color: #1b5e20; }
-        .cal-badge.reprobado { background: #ffcdd2; color: #b71c1c; }
-
-        .divider { border: none; border-top: 1px solid #eee; margin: 20px 0; }
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calificaciones — Portal Estudiante TecNM</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0D1B3E;--navy-mid:#1D3461;--gold:#E8A100;--gold-lt:#FFF3D0;--gold-glow:rgba(232,161,0,.18);--bg:#F0F4FA;--card:#FFFFFF;--text:#1A1F36;--text-2:#5A6488;--border:#E2E8F0;--success:#0FAF7A;--danger:#E84040;--radius:14px;--shadow:0 4px 24px rgba(13,27,62,.09);--shadow-md:0 8px 40px rgba(13,27,62,.14)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{background:var(--navy);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:fixed;inset:0 0 auto 0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.3)}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.hbg{color:white;font-size:22px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:.2s}
+.hbg:hover{background:rgba(255,255,255,.12)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-badge{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:11px;font-weight:800;color:var(--navy);line-height:1.1;text-align:center}
+.brand-name{color:white;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;line-height:1.3}
+.brand-name span{display:block;font-size:10px;font-weight:300;opacity:.7;letter-spacing:.6px;text-transform:uppercase}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.stu-tag{background:rgba(59,130,246,.25);border:1px solid rgba(59,130,246,.5);color:#93C5FD;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:.4px;text-transform:uppercase}
+.avatar{width:34px;height:34px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;font-weight:700;color:var(--navy)}
+.logout-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.8);font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif}
+.logout-btn:hover{background:rgba(255,255,255,.15);color:white}
+.layout{display:flex;margin-top:58px;height:calc(100vh - 58px);overflow:hidden}
+#main-sidebar{width:235px;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0}
+.main{flex:1;overflow-y:auto;padding:28px 32px;background:var(--bg)}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);margin-bottom:8px}
+.breadcrumb span{color:var(--gold);font-weight:600}
+.page-header{margin-bottom:22px;animation:fadeUp .5s ease both}
+.page-header h1{font-family:'Outfit',sans-serif;font-size:26px;font-weight:700;color:var(--navy);letter-spacing:-.3px}
+/* BOLETA BAR */
+.boleta-bar{display:flex;align-items:center;gap:14px;margin-bottom:28px;flex-wrap:wrap;animation:fadeUp .5s ease .05s both;max-width:780px}
+.periodo-wrap{flex:1;min-width:200px;position:relative;background:var(--card);border:1.5px solid var(--border);border-radius:10px;transition:.15s}
+.periodo-wrap:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-glow)}
+.periodo-wrap label{position:absolute;top:-9px;left:12px;background:var(--card);padding:0 4px;font-size:11px;color:var(--text-2);font-weight:600;letter-spacing:.4px;text-transform:uppercase}
+.periodo-wrap select{width:100%;padding:13px 16px;border:none;border-radius:10px;font-size:13.5px;color:var(--text);font-family:'DM Sans',sans-serif;appearance:none;cursor:pointer;background:transparent;outline:none}
+.periodo-arrow{position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--gold)}
+.btn-dl{background:var(--gold);color:var(--navy);border:none;padding:12px 20px;font-size:13px;font-weight:700;border-radius:8px;cursor:pointer;white-space:nowrap;transition:.2s;font-family:'DM Sans',sans-serif}
+.btn-dl:hover{background:#d4930a;box-shadow:0 4px 14px rgba(232,161,0,.4)}
+/* SECTION TITLE */
+.sec-title{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px;animation:fadeUp .5s ease .1s both}
+.sec-icon{width:28px;height:28px;border-radius:7px;background:var(--gold-lt);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:14px}
+/* ACCORDION */
+.acc-item{border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;background:var(--card);overflow:hidden;box-shadow:var(--shadow);max-width:780px;animation:fadeUp .5s ease both}
+.acc-item:nth-child(1){animation-delay:.12s}
+.acc-item:nth-child(2){animation-delay:.16s}
+.acc-item:nth-child(3){animation-delay:.2s}
+.acc-item:nth-child(4){animation-delay:.24s}
+.acc-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#FAFBFF;cursor:pointer;user-select:none;transition:.15s;border-bottom:1px solid transparent}
+.acc-header:hover{background:var(--gold-lt)}
+.acc-header.open{background:var(--gold-lt);border-bottom-color:rgba(232,161,0,.3)}
+.acc-header-title{font-size:13.5px;font-weight:700;color:var(--navy)}
+.chevron{font-size:14px;color:var(--gold);transition:transform .25s;display:inline-block}
+.chevron.open{transform:rotate(180deg)}
+.acc-body{display:none;padding:22px 24px;border-top:1px solid var(--border)}
+.acc-body.open{display:block;animation:fadeUp .3s ease both}
+/* DATOS GRID */
+.sub-title{font-size:13.5px;font-weight:700;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.datos-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;margin-bottom:20px;font-size:13px;color:var(--text-2)}
+.datos-grid span{font-weight:700;color:var(--text)}
+/* HORARIO MINI */
+.h-mini{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:12.5px}
+.h-mini th{text-align:left;padding:7px 10px;color:var(--text-2);font-weight:600;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.h-mini td{padding:9px 10px;border-bottom:1px solid #F1F5FB;color:var(--text)}
+.divider{border:none;border-top:1px solid var(--border);margin:18px 0}
+/* BADGES CAL */
+.cal-label{font-size:12px;color:var(--text-2);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.cal-badge{display:inline-flex;align-items:center;font-size:13px;font-weight:700;padding:5px 14px;border-radius:20px}
+.cal-nc{background:#F1F5FB;color:var(--text-2)}
+.cal-ok{background:#DCFCE7;color:#15803D}
+.cal-re{background:#FEE2E2;color:#B91C1C}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
 </head>
 <body>
-
-<!-- TOPBAR -->
-<div class="topbar">
-    <div class="topbar-left">
-        <span class="hamburger" onclick="toggleSidebar()">☰</span>
-        <div class="logo-area">
-            <div class="logo-circle">TEC<br>NM</div>
-            <div class="logo-text">TECNOLÓGICO<br>NACIONAL DE MÉXICO</div>
-        </div>
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="hbg" onclick="toggleSidebar()">☰</span>
+    <div class="brand">
+      <div class="brand-badge">TEC<br>NM</div>
+      <div class="brand-name">Tecnológico Nacional de México<span>Portal Estudiantes</span></div>
     </div>
-    <div class="topbar-right">
-        <span>INGENIERIA INFORMATICA</span>
-        <div class="avatar-icon">👤</div>
-    </div>
-</div>
-
-<!-- LAYOUT -->
+  </div>
+  <div class="topbar-right">
+    <span class="stu-tag">Estudiante</span>
+    <div class="avatar">👤</div>
+    <button class="logout-btn">Cerrar sesión</button>
+  </div>
+</header>
 <div class="layout">
+  <div id="main-sidebar"><div id="sidebar-container" style="display:flex;flex-direction:column;height:100%"></div></div>
+  <script src="sidebar.js"></script>
+  <main class="main">
+    <div class="breadcrumb">Portal Estudiantes <span>›</span> <span>Calificaciones</span></div>
+    <div class="page-header"><h1>Calificaciones</h1></div>
 
-    <!-- SIDEBAR -->
-       <div id="sidebar-container"></div>
-   <script src="sidebar.js"></script>
-
-    <!-- MAIN -->
-    <div class="main">
-
-        <!-- Impresión de boleta -->
-        <div class="section-title">
-            <span>📄</span> Impresión de boleta
-        </div>
-
-        <div class="boleta-bar">
-            <div class="periodo-select">
-                <label>Periodo</label>
-                <select>
-                    <option value="">Seleccione periodo</option>
-                    <option>2024 - Enero / Junio</option>
-                    <option>2024 - Agosto / Diciembre</option>
-                    <option>2025 - Enero / Junio</option>
-                </select>
-                <span class="periodo-arrow">▾</span>
-            </div>
-            <button class="btn-descargar">DESCARGAR BOLETA</button>
-        </div>
-
-        <!-- Calificaciones title -->
-        <div class="cal-section-title">
-            <span>📋</span> Calificaciones
-        </div>
-
-        <!-- ── MATERIA 1: SERVICIO SOCIAL (abierta por defecto) ── -->
-        <div class="accordion-item">
-            <div class="accordion-header open" onclick="toggleAccordion(this)">
-                <span class="accordion-header-title">SERVICIO SOCIAL</span>
-                <span class="chevron open">▾</span>
-            </div>
-            <div class="accordion-body open">
-
-                <div class="subsection-title">📊 Datos Generales</div>
-                <div class="datos-grid">
-                    <div>Materia: <span>SERVICIO SOCIAL</span></div>
-                    <div>Docente: <span>—</span></div>
-                    <div>Créditos: <span>10</span></div>
-                    <div>Grupo: <span>TI9A</span></div>
-                    <div></div>
-                    <div>Clave: <span>4IIF9</span></div>
-                </div>
-
-                <hr class="divider">
-
-                <div class="subsection-title">📅 Horario</div>
-                <table class="horario-mini">
-                    <thead>
-                        <tr>
-                            <th>Lun</th><th>Mar</th><th>Mie</th>
-                            <th>Jue</th><th>Vie</th><th>Sab</th><th>Dom</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>-</td><td>-</td><td>-</td>
-                            <td>-</td><td>-</td><td>-</td><td>-</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <hr class="divider">
-
-                <div class="subsection-title">📈 Calificaciones</div>
-                <div class="cal-final-label">Final</div>
-                <span class="cal-badge">0 - NC</span>
-
-            </div>
-        </div>
-
-        <!-- ── MATERIA 2 ── -->
-        <div class="accordion-item">
-            <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span class="accordion-header-title">DESARROLLO DE APLICACIONES WEB</span>
-                <span class="chevron">▾</span>
-            </div>
-            <div class="accordion-body">
-
-                <div class="subsection-title">📊 Datos Generales</div>
-                <div class="datos-grid">
-                    <div>Materia: <span>DESARROLLO DE APLICACIONES WEB</span></div>
-                    <div>Docente: <span>PROF. MARTINEZ LOPEZ</span></div>
-                    <div>Créditos: <span>5</span></div>
-                    <div>Grupo: <span>06A</span></div>
-                    <div></div>
-                    <div>Clave: <span>DAW01</span></div>
-                </div>
-
-                <hr class="divider">
-
-                <div class="subsection-title">📅 Horario</div>
-                <table class="horario-mini">
-                    <thead>
-                        <tr>
-                            <th>Lun</th><th>Mar</th><th>Mie</th>
-                            <th>Jue</th><th>Vie</th><th>Sab</th><th>Dom</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>15:00-16:00</td>
-                            <td>15:00-16:00</td>
-                            <td>15:00-16:00</td>
-                            <td>15:00-16:00</td>
-                            <td>15:00-16:00</td>
-                            <td>-</td>
-                            <td>-</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <hr class="divider">
-
-                <div class="subsection-title">📈 Calificaciones</div>
-                <div class="cal-final-label">Final</div>
-                <span class="cal-badge aprobado">92 - AC</span>
-
-            </div>
-        </div>
-
-        <!-- ── MATERIA 3 ── -->
-        <div class="accordion-item">
-            <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span class="accordion-header-title">DESARROLLO E IMPLEMENTACION DE SISTEMAS DE INFORMACION</span>
-                <span class="chevron">▾</span>
-            </div>
-            <div class="accordion-body">
-
-                <div class="subsection-title">📊 Datos Generales</div>
-                <div class="datos-grid">
-                    <div>Materia: <span>DES. IMP. SIST. INF.</span></div>
-                    <div>Docente: <span>PROF. GARCIA RUIZ</span></div>
-                    <div>Créditos: <span>5</span></div>
-                    <div>Grupo: <span>06A</span></div>
-                    <div></div>
-                    <div>Clave: <span>DISI2</span></div>
-                </div>
-
-                <hr class="divider">
-
-                <div class="subsection-title">📅 Horario</div>
-                <table class="horario-mini">
-                    <thead>
-                        <tr>
-                            <th>Lun</th><th>Mar</th><th>Mie</th>
-                            <th>Jue</th><th>Vie</th><th>Sab</th><th>Dom</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>14:00-15:00</td>
-                            <td>14:00-15:00</td>
-                            <td>14:00-15:00</td>
-                            <td>14:00-15:00</td>
-                            <td>14:00-15:00</td>
-                            <td>-</td>
-                            <td>-</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <hr class="divider">
-
-                <div class="subsection-title">📈 Calificaciones</div>
-                <div class="cal-final-label">Final</div>
-                <span class="cal-badge aprobado">88 - AC</span>
-
-            </div>
-        </div>
-
-        <!-- ── MATERIA 4 ── -->
-        <div class="accordion-item">
-            <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span class="accordion-header-title">ESTRATEGIA DE GESTION DE SERVICIOS DE TI</span>
-                <span class="chevron">▾</span>
-            </div>
-            <div class="accordion-body">
-
-                <div class="subsection-title">📊 Datos Generales</div>
-                <div class="datos-grid">
-                    <div>Materia: <span>ESTRATEG. GEST SERV.</span></div>
-                    <div>Docente: <span>PROF. HERNANDEZ DIAZ</span></div>
-                    <div>Créditos: <span>4</span></div>
-                    <div>Grupo: <span>08A</span></div>
-                    <div></div>
-                    <div>Clave: <span>EGS03</span></div>
-                </div>
-
-                <hr class="divider">
-
-                <div class="subsection-title">📅 Horario</div>
-                <table class="horario-mini">
-                    <thead>
-                        <tr>
-                            <th>Lun</th><th>Mar</th><th>Mie</th>
-                            <th>Jue</th><th>Vie</th><th>Sab</th><th>Dom</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>16:00-17:00</td>
-                            <td>16:00-17:00</td>
-                            <td>16:00-17:00</td>
-                            <td>16:00-17:00</td>
-                            <td>16:00-17:00</td>
-                            <td>-</td>
-                            <td>-</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <hr class="divider">
-
-                <div class="subsection-title">📈 Calificaciones</div>
-                <div class="cal-final-label">Final</div>
-                <span class="cal-badge reprobado">55 - RE</span>
-
-            </div>
-        </div>
-
+    <div class="boleta-bar">
+      <div class="periodo-wrap">
+        <label>Periodo</label>
+        <select>
+          <option value="">Seleccione periodo</option>
+          <option>2024 – Enero / Junio</option>
+          <option>2024 – Agosto / Diciembre</option>
+          <option>2025 – Enero / Junio</option>
+        </select>
+        <span class="periodo-arrow">▾</span>
+      </div>
+      <button class="btn-dl">⬇ Descargar Boleta</button>
     </div>
+
+    <div class="sec-title"><div class="sec-icon">📋</div>Calificaciones por materia</div>
+
+    <!-- MATERIA 1 -->
+    <div class="acc-item">
+      <div class="acc-header open" onclick="toggleAcc(this)">
+        <span class="acc-header-title">SERVICIO SOCIAL</span><span class="chevron open">▾</span>
+      </div>
+      <div class="acc-body open">
+        <div class="sub-title">📊 Datos Generales</div>
+        <div class="datos-grid">
+          <div>Materia: <span>SERVICIO SOCIAL</span></div>
+          <div>Docente: <span>—</span></div>
+          <div>Créditos: <span>10</span></div>
+          <div>Grupo: <span>TI9A</span></div>
+          <div>Clave: <span>4IIF9</span></div>
+        </div>
+        <hr class="divider">
+        <div class="sub-title">📅 Horario</div>
+        <table class="h-mini"><thead><tr><th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th></tr></thead><tbody><tr><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr></tbody></table>
+        <hr class="divider">
+        <div class="sub-title">📈 Calificación Final</div>
+        <div class="cal-label">Final</div>
+        <span class="cal-badge cal-nc">0 — NC</span>
+      </div>
+    </div>
+
+    <!-- MATERIA 2 -->
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span class="acc-header-title">DESARROLLO DE APLICACIONES WEB</span><span class="chevron">▾</span>
+      </div>
+      <div class="acc-body">
+        <div class="sub-title">📊 Datos Generales</div>
+        <div class="datos-grid">
+          <div>Materia: <span>DESARROLLO DE APLICACIONES WEB</span></div>
+          <div>Docente: <span>PROF. MARTINEZ LOPEZ</span></div>
+          <div>Créditos: <span>5</span></div>
+          <div>Grupo: <span>06A</span></div>
+          <div>Clave: <span>DAW01</span></div>
+        </div>
+        <hr class="divider">
+        <div class="sub-title">📅 Horario</div>
+        <table class="h-mini"><thead><tr><th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th></tr></thead><tbody><tr><td>15:00–16:00</td><td>15:00–16:00</td><td>15:00–16:00</td><td>15:00–16:00</td><td>15:00–16:00</td><td>—</td><td>—</td></tr></tbody></table>
+        <hr class="divider">
+        <div class="sub-title">📈 Calificación Final</div>
+        <div class="cal-label">Final</div>
+        <span class="cal-badge cal-ok">92 — AC</span>
+      </div>
+    </div>
+
+    <!-- MATERIA 3 -->
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span class="acc-header-title">DESARROLLO E IMPLEMENTACIÓN DE SISTEMAS DE INFORMACIÓN</span><span class="chevron">▾</span>
+      </div>
+      <div class="acc-body">
+        <div class="sub-title">📊 Datos Generales</div>
+        <div class="datos-grid">
+          <div>Materia: <span>DES. IMP. SIST. INF.</span></div>
+          <div>Docente: <span>PROF. GARCIA RUIZ</span></div>
+          <div>Créditos: <span>5</span></div>
+          <div>Grupo: <span>06A</span></div>
+          <div>Clave: <span>DISI2</span></div>
+        </div>
+        <hr class="divider">
+        <div class="sub-title">📅 Horario</div>
+        <table class="h-mini"><thead><tr><th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th></tr></thead><tbody><tr><td>14:00–15:00</td><td>14:00–15:00</td><td>14:00–15:00</td><td>14:00–15:00</td><td>14:00–15:00</td><td>—</td><td>—</td></tr></tbody></table>
+        <hr class="divider">
+        <div class="sub-title">📈 Calificación Final</div>
+        <div class="cal-label">Final</div>
+        <span class="cal-badge cal-ok">88 — AC</span>
+      </div>
+    </div>
+
+    <!-- MATERIA 4 -->
+    <div class="acc-item">
+      <div class="acc-header" onclick="toggleAcc(this)">
+        <span class="acc-header-title">ESTRATEGIA DE GESTIÓN DE SERVICIOS DE TI</span><span class="chevron">▾</span>
+      </div>
+      <div class="acc-body">
+        <div class="sub-title">📊 Datos Generales</div>
+        <div class="datos-grid">
+          <div>Materia: <span>ESTRATEG. GEST SERV.</span></div>
+          <div>Docente: <span>PROF. HERNANDEZ DIAZ</span></div>
+          <div>Créditos: <span>4</span></div>
+          <div>Grupo: <span>08A</span></div>
+          <div>Clave: <span>EGS03</span></div>
+        </div>
+        <hr class="divider">
+        <div class="sub-title">📅 Horario</div>
+        <table class="h-mini"><thead><tr><th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th></tr></thead><tbody><tr><td>16:00–17:00</td><td>16:00–17:00</td><td>16:00–17:00</td><td>16:00–17:00</td><td>16:00–17:00</td><td>—</td><td>—</td></tr></tbody></table>
+        <hr class="divider">
+        <div class="sub-title">📈 Calificación Final</div>
+        <div class="cal-label">Final</div>
+        <span class="cal-badge cal-re">55 — RE</span>
+      </div>
+    </div>
+
+  </main>
 </div>
-
 <script>
-    function toggleAccordion(header) {
-        const body = header.nextElementSibling;
-        const chevron = header.querySelector('.chevron');
-        const isOpen = body.classList.contains('open');
-
-        if (isOpen) {
-            body.classList.remove('open');
-            header.classList.remove('open');
-            chevron.classList.remove('open');
-        } else {
-            body.classList.add('open');
-            header.classList.add('open');
-            chevron.classList.add('open');
-        }
-    }
+function toggleAcc(header){
+  const body=header.nextElementSibling,chev=header.querySelector('.chevron'),open=body.classList.contains('open');
+  body.classList.toggle('open',!open);header.classList.toggle('open',!open);chev.classList.toggle('open',!open);
+}
 </script>
-
 </body>
 </html>

@@ -1,534 +1,136 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Horario - TecNM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        /* ── TOPBAR ── */
-        .topbar {
-            background-color: #1a2a4a;
-            height: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 100;
-        }
-
-        .topbar-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .hamburger {
-            color: white;
-            font-size: 22px;
-            cursor: pointer;
-        }
-
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo-circle {
-            width: 38px;
-            height: 38px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: 700;
-            color: #1a2a4a;
-            text-align: center;
-            line-height: 1.1;
-        }
-
-        .logo-text {
-            color: white;
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 1.3;
-        }
-
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: white;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .avatar-icon {
-            width: 32px;
-            height: 32px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-
-        /* ── LAYOUT ── */
-        .layout {
-            display: flex;
-            margin-top: 56px;
-            height: calc(100vh - 56px);
-        }
-
-        /* ── SIDEBAR ── */
-        .sidebar {
-            width: 240px;
-            background: white;
-            border-right: 1px solid #e0e0e0;
-            overflow-y: auto;
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .nav-list { flex: 1; }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px 20px;
-            cursor: pointer;
-            font-size: 14px;
-            color: #444;
-            border-left: 3px solid transparent;
-            transition: background 0.15s;
-        }
-
-        .nav-item:hover { background: #f0f4ff; }
-
-        .nav-item.active {
-            background: #eef2ff;
-            border-left: 3px solid #1a2a4a;
-            color: #1a2a4a;
-            font-weight: 500;
-        }
-
-        .nav-icon {
-            font-size: 18px;
-            width: 22px;
-            text-align: center;
-        }
-
-        .nav-bottom {
-            border-top: 1px solid #e0e0e0;
-        }
-
-        /* ── MAIN CONTENT ── */
-        .main {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: auto;
-            padding: 30px;
-            background: #f5f5f5;
-        }
-
-        /* ── PAGE TITLE ── */
-        .page-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 24px;
-            font-size: 20px;
-            font-weight: 600;
-            color: #1a5276;
-        }
-
-        .page-title span { font-size: 22px; }
-
-        /* ── HORARIO TABLE ── */
-        .horario-wrapper {
-            overflow-x: auto;
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-        }
-
-        .horario-table {
-            border-collapse: collapse;
-            min-width: 900px;
-            width: 100%;
-        }
-
-        .horario-table th {
-            padding: 12px 16px;
-            text-align: left;
-            font-size: 13px;
-            font-weight: 600;
-            color: #555;
-            border-bottom: 1px solid #e0e0e0;
-            background: white;
-        }
-
-        .horario-table td {
-            padding: 8px;
-            vertical-align: top;
-            border-bottom: 1px solid #eeeeee;
-            border-right: 1px solid #eeeeee;
-        }
-
-        .hora-cell {
-            font-size: 13px;
-            font-weight: 500;
-            color: #555;
-            padding: 16px 12px;
-            white-space: nowrap;
-            vertical-align: middle;
-            text-align: right;
-            border-right: 1px solid #e0e0e0 !important;
-            width: 60px;
-        }
-
-        .empty-cell {
-            background: white;
-            min-width: 80px;
-        }
-
-        /* ── MATERIA CARDS ── */
-        .materia {
-            border-radius: 4px;
-            padding: 8px 10px;
-            font-size: 11.5px;
-            line-height: 1.5;
-            min-width: 140px;
-        }
-
-        .materia strong {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        /* Colors */
-        .pink   { background-color: #f8bbd0; color: #4a0020; }
-        .purple { background-color: #e1bee7; color: #2e0040; }
-        .green  { background-color: #c8e6c9; color: #1a3a1a; }
-        .salmon { background-color: #ffccbc; color: #3e1a00; }
-        .yellow { background-color: #fff9c4; color: #3a3000; }
-
-        /* Scrollbar hint */
-        .scroll-hint {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 10px;
-            font-size: 18px;
-            color: #aaa;
-            border-top: 1px solid #eee;
-        }
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horario — Portal Estudiante TecNM</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0D1B3E;--navy-mid:#1D3461;--gold:#E8A100;--gold-lt:#FFF3D0;--gold-glow:rgba(232,161,0,.18);--bg:#F0F4FA;--card:#FFFFFF;--text:#1A1F36;--text-2:#5A6488;--border:#E2E8F0;--radius:14px;--shadow:0 4px 24px rgba(13,27,62,.09);--shadow-md:0 8px 40px rgba(13,27,62,.14)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{background:var(--navy);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:fixed;inset:0 0 auto 0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.3)}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.hbg{color:white;font-size:22px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:.2s}
+.hbg:hover{background:rgba(255,255,255,.12)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-badge{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:11px;font-weight:800;color:var(--navy);line-height:1.1;text-align:center}
+.brand-name{color:white;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;line-height:1.3}
+.brand-name span{display:block;font-size:10px;font-weight:300;opacity:.7;letter-spacing:.6px;text-transform:uppercase}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.stu-tag{background:rgba(59,130,246,.25);border:1px solid rgba(59,130,246,.5);color:#93C5FD;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:.4px;text-transform:uppercase}
+.avatar{width:34px;height:34px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;font-weight:700;color:var(--navy)}
+.logout-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.8);font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif}
+.logout-btn:hover{background:rgba(255,255,255,.15);color:white}
+.layout{display:flex;margin-top:58px;height:calc(100vh - 58px);overflow:hidden}
+#main-sidebar{width:235px;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0}
+.main{flex:1;overflow-y:auto;overflow-x:auto;padding:28px 32px;background:var(--bg)}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);margin-bottom:8px}
+.breadcrumb span{color:var(--gold);font-weight:600}
+.page-header{margin-bottom:22px;animation:fadeUp .5s ease both}
+.page-header h1{font-family:'Outfit',sans-serif;font-size:26px;font-weight:700;color:var(--navy);letter-spacing:-.3px}
+.page-header p{font-size:13.5px;color:var(--text-2);margin-top:3px}
+/* HORARIO CARD */
+.s-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;animation:fadeUp .5s ease .1s both}
+.s-head{display:flex;align-items:center;padding:16px 22px;border-bottom:1px solid var(--border)}
+.s-title{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px}
+.s-title-icon{width:28px;height:28px;border-radius:7px;background:var(--gold-lt);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:14px}
+/* TABLE */
+.t-wrap{overflow-x:auto}
+.horario-table{border-collapse:collapse;min-width:860px;width:100%}
+.horario-table th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text-2);border-bottom:1px solid var(--border);background:#FAFBFF;white-space:nowrap}
+.horario-table td{padding:6px 8px;vertical-align:top;border-bottom:1px solid #F1F5FB;border-right:1px solid #F1F5FB}
+.hora-cell{font-size:12.5px;font-weight:700;color:var(--navy);padding:14px 14px;white-space:nowrap;vertical-align:middle;text-align:right;border-right:1px solid var(--border)!important;width:64px;background:#FAFBFF}
+.empty-cell{background:white;min-width:90px}
+/* MATERIA CARDS */
+.materia{border-radius:8px;padding:8px 10px;font-size:11.5px;line-height:1.5;min-width:120px}
+.materia strong{display:block;font-weight:700;margin-bottom:2px;font-size:12px}
+.materia .room{font-size:10.5px;opacity:.8;margin-top:2px;display:inline-block;background:rgba(0,0,0,.08);border-radius:4px;padding:1px 5px}
+.pink  {background:#FFE4EC;color:#7c1535;border:1px solid #f9a8c9}
+.purple{background:#EDE9FE;color:#3b0764;border:1px solid #c4b5fd}
+.green {background:#DCFCE7;color:#14532d;border:1px solid #86efac}
+.salmon{background:#FFEDD5;color:#7c2d12;border:1px solid #fdba74}
+.yellow{background:#FEF9C3;color:#713f12;border:1px solid #fde047}
+.scroll-hint{display:flex;justify-content:space-between;padding:6px 14px;font-size:16px;color:var(--text-2);border-top:1px solid var(--border)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
 </head>
 <body>
-
-<!-- TOPBAR -->
-<div class="topbar">
-    <div class="topbar-left">
-        <span class="hamburger" onclick="toggleSidebar()">☰</span>
-        <div class="logo-area">
-            <div class="logo-circle">TEC<br>NM</div>
-            <div class="logo-text">TECNOLÓGICO<br>NACIONAL DE MÉXICO</div>
-        </div>
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="hbg" onclick="toggleSidebar()">☰</span>
+    <div class="brand">
+      <div class="brand-badge">TEC<br>NM</div>
+      <div class="brand-name">Tecnológico Nacional de México<span>Portal Estudiantes</span></div>
     </div>
-    <div class="topbar-right">
-        <span>INGENIERIA INFORMATICA</span>
-        <div class="avatar-icon">👤</div>
-    </div>
-</div>
-
-<!-- LAYOUT -->
+  </div>
+  <div class="topbar-right">
+    <span class="stu-tag">Estudiante</span>
+    <div class="avatar">👤</div>
+    <button class="logout-btn">Cerrar sesión</button>
+  </div>
+</header>
 <div class="layout">
-
-    <!-- SIDEBAR -->
-     <div id="sidebar-container"></div>
-     <script src="sidebar.js"></script>
-
-    <!-- MAIN -->
-    <div class="main">
-
-        <div class="page-title">
-            <span>📅</span> Horario Semestral
-        </div>
-
-        <div class="horario-wrapper">
-            <table class="horario-table">
-                <thead>
-                    <tr>
-                        <th>Hora</th>
-                        <th>Lun</th>
-                        <th>Mar</th>
-                        <th>Mie</th>
-                        <th>Jue</th>
-                        <th>Vie</th>
-                        <th>Sab</th>
-                        <th>Dom</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <!-- 14:00 -->
-                    <tr>
-                        <td class="hora-cell">14:00</td>
-                        <td>
-                            <div class="materia pink">
-                                <strong>DES. IMP. SIST. INF.</strong>
-                                Aula: LAB-D<br>
-                                Paquete: 06A<br>
-                                14:00-15:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia pink">
-                                <strong>DES. IMP. SIST. INF.</strong>
-                                Aula: 0308<br>
-                                Paquete: 06A<br>
-                                14:00-15:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia pink">
-                                <strong>DES. IMP. SIST. INF.</strong>
-                                Aula: LAB-D<br>
-                                Paquete: 06A<br>
-                                14:00-15:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia pink">
-                                <strong>DES. IMP. SIST. INF.</strong>
-                                Aula: 0308<br>
-                                Paquete: 06A<br>
-                                14:00-15:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia pink">
-                                <strong>DES. IMP. SIST. INF.</strong>
-                                Aula: LAB-D<br>
-                                Paquete: 06A<br>
-                                14:00-15:00
-                            </div>
-                        </td>
-                        <td class="empty-cell"></td>
-                        <td class="empty-cell"></td>
-                    </tr>
-
-                    <!-- 15:00 -->
-                    <tr>
-                        <td class="hora-cell">15:00</td>
-                        <td>
-                            <div class="materia purple">
-                                <strong>DES. APLIC. WEB</strong>
-                                Aula: LAB-I<br>
-                                Paquete: 06A<br>
-                                15:00-16:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia purple">
-                                <strong>DES. APLIC. WEB</strong>
-                                Aula: LAB-I<br>
-                                Paquete: 06A<br>
-                                15:00-16:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia purple">
-                                <strong>DES. APLIC. WEB</strong>
-                                Aula: 0306<br>
-                                Paquete: 06A<br>
-                                15:00-16:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia purple">
-                                <strong>DES. APLIC. WEB</strong>
-                                Aula: 0306<br>
-                                Paquete: 06A<br>
-                                15:00-16:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia purple">
-                                <strong>DES. APLIC. WEB</strong>
-                                Aula: LAB-I<br>
-                                Paquete: 06A<br>
-                                15:00-16:00
-                            </div>
-                        </td>
-                        <td class="empty-cell"></td>
-                        <td class="empty-cell"></td>
-                    </tr>
-
-                    <!-- 16:00 -->
-                    <tr>
-                        <td class="hora-cell">16:00</td>
-                        <td>
-                            <div class="materia green">
-                                <strong>ESTRATEG. GEST SERV.</strong>
-                                Aula: 9203<br>
-                                Paquete: 08A<br>
-                                16:00-17:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia green">
-                                <strong>ESTRATEG. GEST SERV.</strong>
-                                Aula: 9203<br>
-                                Paquete: 08A<br>
-                                16:00-17:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia green">
-                                <strong>ESTRATEG. GEST SERV.</strong>
-                                Aula: 9203<br>
-                                Paquete: 08A<br>
-                                16:00-17:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia green">
-                                <strong>ESTRATEG. GEST SERV.</strong>
-                                Aula: 9203<br>
-                                Paquete: 08A<br>
-                                16:00-17:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia green">
-                                <strong>ESTRATEG. GEST SERV.</strong>
-                                Aula: 9203<br>
-                                Paquete: 08A<br>
-                                16:00-17:00
-                            </div>
-                        </td>
-                        <td class="empty-cell"></td>
-                        <td class="empty-cell"></td>
-                    </tr>
-
-                    <!-- 17:00 -->
-                    <tr>
-                        <td class="hora-cell">17:00</td>
-                        <td>
-                            <div class="materia salmon">
-                                <strong>AUDITORIA INFORM.</strong>
-                                Aula: 0308<br>
-                                Paquete: 06A<br>
-                                17:00-18:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia salmon">
-                                <strong>AUDITORIA INFORM.</strong>
-                                Aula: 0308<br>
-                                Paquete: 06A<br>
-                                17:00-18:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia salmon">
-                                <strong>AUDITORIA INFORM.</strong>
-                                Aula: 0308<br>
-                                Paquete: 06A<br>
-                                17:00-18:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia salmon">
-                                <strong>AUDITORIA INFORM.</strong>
-                                Aula: 0308<br>
-                                Paquete: 06A<br>
-                                17:00-18:00
-                            </div>
-                        </td>
-                        <td class="empty-cell"></td>
-                        <td class="empty-cell"></td>
-                        <td class="empty-cell"></td>
-                    </tr>
-
-                    <!-- 18:00 -->
-                    <tr>
-                        <td class="hora-cell">18:00</td>
-                        <td>
-                            <div class="materia yellow">
-                                <strong>DESARROLLO DE SOFT CON APLIC EN LA NUBE</strong>
-                                Aula: 0305<br>
-                                Paquete: 08A<br>
-                                18:00-19:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia yellow">
-                                <strong>DESARROLLO DE SOFT CON APLIC EN LA NUBE</strong>
-                                Aula: LAB-A<br>
-                                Paquete: 08A<br>
-                                18:00-19:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia yellow">
-                                <strong>DESARROLLO DE SOFT CON APLIC EN LA NUBE</strong>
-                                Aula: 0305<br>
-                                Paquete: 08A<br>
-                                18:00-19:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia yellow">
-                                <strong>DESARROLLO DE SOFT CON APLIC EN LA NUBE</strong>
-                                Aula: LAB-A<br>
-                                Paquete: 08A<br>
-                                18:00-19:00
-                            </div>
-                        </td>
-                        <td>
-                            <div class="materia yellow">
-                                <strong>DESARROLLO DE SOFT CON APLIC EN LA NUBE</strong>
-                                Aula: LAB-A<br>
-                                Paquete: 08A<br>
-                                18:00-19:00
-                            </div>
-                        </td>
-                        <td class="empty-cell"></td>
-                        <td class="empty-cell"></td>
-                    </tr>
-
-                </tbody>
-            </table>
-            <div class="scroll-hint">
-                <span>‹</span>
-                <span>›</span>
-            </div>
-        </div>
-
+  <div id="main-sidebar"><div id="sidebar-container" style="display:flex;flex-direction:column;height:100%"></div></div>
+  <script src="sidebar.js"></script>
+  <main class="main">
+    <div class="breadcrumb">Portal Estudiantes <span>›</span> <span>Horario</span></div>
+    <div class="page-header"><h1>Horario Semestral</h1><p>Enero – Junio 2026</p></div>
+    <div class="s-card">
+      <div class="s-head"><div class="s-title"><div class="s-title-icon">📅</div>Distribución semanal</div></div>
+      <div class="t-wrap">
+        <table class="horario-table">
+          <thead><tr><th>Hora</th><th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="hora-cell">14:00</td>
+              <td><div class="materia pink"><strong>DES. IMP. SIST. INF.</strong>Paquete: 06A<span class="room">LAB-D</span></div></td>
+              <td><div class="materia pink"><strong>DES. IMP. SIST. INF.</strong>Paquete: 06A<span class="room">0308</span></div></td>
+              <td><div class="materia pink"><strong>DES. IMP. SIST. INF.</strong>Paquete: 06A<span class="room">LAB-D</span></div></td>
+              <td><div class="materia pink"><strong>DES. IMP. SIST. INF.</strong>Paquete: 06A<span class="room">0308</span></div></td>
+              <td><div class="materia pink"><strong>DES. IMP. SIST. INF.</strong>Paquete: 06A<span class="room">LAB-D</span></div></td>
+              <td class="empty-cell"></td><td class="empty-cell"></td>
+            </tr>
+            <tr>
+              <td class="hora-cell">15:00</td>
+              <td><div class="materia purple"><strong>DES. APLIC. WEB</strong>Paquete: 06A<span class="room">LAB-I</span></div></td>
+              <td><div class="materia purple"><strong>DES. APLIC. WEB</strong>Paquete: 06A<span class="room">LAB-I</span></div></td>
+              <td><div class="materia purple"><strong>DES. APLIC. WEB</strong>Paquete: 06A<span class="room">0306</span></div></td>
+              <td><div class="materia purple"><strong>DES. APLIC. WEB</strong>Paquete: 06A<span class="room">0306</span></div></td>
+              <td><div class="materia purple"><strong>DES. APLIC. WEB</strong>Paquete: 06A<span class="room">LAB-I</span></div></td>
+              <td class="empty-cell"></td><td class="empty-cell"></td>
+            </tr>
+            <tr>
+              <td class="hora-cell">16:00</td>
+              <td><div class="materia green"><strong>ESTRATEG. GEST SERV.</strong>Paquete: 08A<span class="room">9203</span></div></td>
+              <td><div class="materia green"><strong>ESTRATEG. GEST SERV.</strong>Paquete: 08A<span class="room">9203</span></div></td>
+              <td><div class="materia green"><strong>ESTRATEG. GEST SERV.</strong>Paquete: 08A<span class="room">9203</span></div></td>
+              <td><div class="materia green"><strong>ESTRATEG. GEST SERV.</strong>Paquete: 08A<span class="room">9203</span></div></td>
+              <td><div class="materia green"><strong>ESTRATEG. GEST SERV.</strong>Paquete: 08A<span class="room">9203</span></div></td>
+              <td class="empty-cell"></td><td class="empty-cell"></td>
+            </tr>
+            <tr>
+              <td class="hora-cell">17:00</td>
+              <td><div class="materia salmon"><strong>AUDITORIA INFORM.</strong>Paquete: 06A<span class="room">0308</span></div></td>
+              <td><div class="materia salmon"><strong>AUDITORIA INFORM.</strong>Paquete: 06A<span class="room">0308</span></div></td>
+              <td><div class="materia salmon"><strong>AUDITORIA INFORM.</strong>Paquete: 06A<span class="room">0308</span></div></td>
+              <td><div class="materia salmon"><strong>AUDITORIA INFORM.</strong>Paquete: 06A<span class="room">0308</span></div></td>
+              <td class="empty-cell"></td><td class="empty-cell"></td><td class="empty-cell"></td>
+            </tr>
+            <tr>
+              <td class="hora-cell">18:00</td>
+              <td><div class="materia yellow"><strong>SOFT EN LA NUBE</strong>Paquete: 08A<span class="room">0305</span></div></td>
+              <td><div class="materia yellow"><strong>SOFT EN LA NUBE</strong>Paquete: 08A<span class="room">LAB-A</span></div></td>
+              <td><div class="materia yellow"><strong>SOFT EN LA NUBE</strong>Paquete: 08A<span class="room">0305</span></div></td>
+              <td><div class="materia yellow"><strong>SOFT EN LA NUBE</strong>Paquete: 08A<span class="room">LAB-A</span></div></td>
+              <td><div class="materia yellow"><strong>SOFT EN LA NUBE</strong>Paquete: 08A<span class="room">LAB-A</span></div></td>
+              <td class="empty-cell"></td><td class="empty-cell"></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="scroll-hint"><span>‹</span><span>›</span></div>
+      </div>
     </div>
+  </main>
 </div>
-
 </body>
 </html>

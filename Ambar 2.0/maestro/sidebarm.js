@@ -1,6 +1,4 @@
-// sidebarm.js — Barra lateral del Portal Docente (carpeta maestro/)
-// Incluir con: <script src="sidebarm.js"></script>
-
+// sidebarm.js — Barra lateral del Portal Docente (sistema Ámbar)
 (function () {
     "use strict";
 
@@ -19,7 +17,6 @@
         { icon: "🚪", label: "Cerrar sesión",  href: "#", id: "btn-logout" },
     ];
 
-    // Detecta la página activa comparando el nombre de archivo
     function isActive(href) {
         const current = window.location.pathname.split("/").pop() || "home.html";
         return current === href;
@@ -29,62 +26,78 @@
         const active = isActive(item.href) ? " active" : "";
         const idAttr = item.id ? ` id="${item.id}"` : "";
         return `
-            <a href="${item.href}" class="nav-item${active}"${idAttr} style="text-decoration:none;">
+            <a href="${item.href}" class="nav-item${active}"${idAttr}>
                 <span class="nav-icon">${item.icon}</span>
-                <span>${item.label}</span>
+                <span class="nav-label">${item.label}</span>
             </a>`;
     }
 
     const html = `
         <style>
-            /* Estilos propios del sidebar, en caso de que la página no los incluya */
+            #sidebar-container {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+            #sidebar-container .nav-section-label {
+                padding: 20px 12px 8px;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1.2px;
+                text-transform: uppercase;
+                color: rgba(255,255,255,.3);
+                white-space: nowrap;
+                font-family: 'DM Sans', sans-serif;
+            }
             #sidebar-container a.nav-item {
                 display: flex;
                 align-items: center;
-                gap: 14px;
-                padding: 14px 20px;
+                gap: 12px;
+                padding: 11px 16px;
                 cursor: pointer;
-                font-size: 14px;
-                color: #444;
-                border-left: 3px solid transparent;
-                transition: background 0.15s;
-                text-decoration: none;
-            }
-            #sidebar-container a.nav-item:hover  { background: #f0f4ff; }
-            #sidebar-container a.nav-item.active {
-                background: #eef2ff;
-                border-left: 3px solid #1a2a4a;
-                color: #1a2a4a;
+                font-size: 13.5px;
                 font-weight: 500;
+                color: rgba(255,255,255,.65);
+                border-left: 3px solid transparent;
+                transition: all .18s;
+                text-decoration: none;
+                white-space: nowrap;
+                overflow: hidden;
+                font-family: 'DM Sans', sans-serif;
+            }
+            #sidebar-container a.nav-item:hover {
+                background: rgba(255,255,255,.07);
+                color: white;
+            }
+            #sidebar-container a.nav-item.active {
+                background: rgba(232,161,0,.12);
+                border-left: 3px solid #E8A100;
+                color: #E8A100;
             }
             #sidebar-container .nav-icon {
                 font-size: 18px;
                 width: 22px;
                 text-align: center;
+                flex-shrink: 0;
             }
-            #sidebar-container .sidebar-divider {
-                border: none;
-                border-top: 1px solid #e0e0e0;
+            #sidebar-container .nav-divider {
+                height: 1px;
+                background: rgba(255,255,255,.07);
                 margin: 8px 0;
             }
-            #sidebar-container .sidebar-section-label {
-                font-size: 10px;
-                color: #aaa;
-                text-transform: uppercase;
-                letter-spacing: 0.08em;
-                padding: 12px 20px 4px;
+            #sidebar-container .nav-bottom-wrap {
+                border-top: 1px solid rgba(255,255,255,.07);
+                padding: 8px 0;
             }
+            #sidebar-container .nav-main { flex: 1; }
         </style>
 
-        <div style="display:flex; flex-direction:column; height:100%;">
-            <div style="flex:1;">
-                <div class="sidebar-section-label">Menú principal</div>
-                ${navItems.map(buildItem).join("")}
-            </div>
-            <div>
-                <hr class="sidebar-divider">
-                ${bottomItems.map(buildItem).join("")}
-            </div>
+        <div class="nav-section-label">Menú principal</div>
+        <div class="nav-main">
+            ${navItems.map(buildItem).join("")}
+        </div>
+        <div class="nav-bottom-wrap">
+            ${bottomItems.map(buildItem).join("")}
         </div>
     `;
 
@@ -92,7 +105,6 @@
     if (container) {
         container.innerHTML = html;
 
-        // Botón de cerrar sesión
         const btnLogout = document.getElementById("btn-logout");
         if (btnLogout) {
             btnLogout.addEventListener("click", function (e) {
@@ -101,7 +113,6 @@
                     logoutCoord();
                 } else {
                     sessionStorage.clear();
-                    // Sube un nivel para salir de la carpeta maestro/
                     window.location.href = "../login.html";
                 }
             });

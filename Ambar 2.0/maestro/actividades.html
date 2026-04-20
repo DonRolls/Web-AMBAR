@@ -1,407 +1,165 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Actividades - tecNM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Actividades — TecNM Ámbar</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0D1B3E;--navy-light:#152347;--navy-mid:#1D3461;--gold:#E8A100;--gold-lt:#FFF3D0;--gold-glow:rgba(232,161,0,.18);--bg:#F0F4FA;--card:#FFFFFF;--text:#1A1F36;--text-2:#5A6488;--border:#E2E8F0;--success:#0FAF7A;--danger:#E84040;--warn:#F59E0B;--info:#3B82F6;--radius:14px;--shadow:0 4px 24px rgba(13,27,62,.09);--shadow-md:0 8px 40px rgba(13,27,62,.14)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{background:var(--navy);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:fixed;inset:0 0 auto 0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.3)}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.hbg{color:white;font-size:22px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:.2s}
+.hbg:hover{background:rgba(255,255,255,.12)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-badge{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:11px;font-weight:800;color:var(--navy);line-height:1.1;text-align:center}
+.brand-name{color:white;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;line-height:1.3}
+.brand-name span{display:block;font-size:10px;font-weight:300;opacity:.7;letter-spacing:.6px;text-transform:uppercase}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.doc-tag{background:rgba(232,161,0,.2);border:1px solid rgba(232,161,0,.4);color:var(--gold);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:.4px;text-transform:uppercase}
+.avatar{width:34px;height:34px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;font-weight:700;color:var(--navy)}
+.logout-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.8);font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif}
+.logout-btn:hover{background:rgba(255,255,255,.15);color:white}
+.layout{display:flex;margin-top:58px;height:calc(100vh - 58px);overflow:hidden}
+.sidebar{width:235px;background:var(--navy);display:flex;flex-direction:column;transition:width .28s cubic-bezier(.4,0,.2,1);overflow:hidden;flex-shrink:0}
+.sidebar.collapsed{width:60px}
+.main{flex:1;overflow-y:auto;padding:28px 32px;background:var(--bg)}
+.page-header{margin-bottom:22px;animation:fadeUp .5s ease both}
+.page-header h1{font-family:'Outfit',sans-serif;font-size:26px;font-weight:700;color:var(--navy);letter-spacing:-.3px}
+.page-header p{font-size:13.5px;color:var(--text-2);margin-top:3px}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);margin-bottom:8px}
+.breadcrumb span{color:var(--gold);font-weight:600}
 
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
+/* SEARCH + ACTIONS BAR */
+.filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;animation:fadeUp .5s ease .08s both}
+.search-box{display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 14px;gap:8px;flex:1;max-width:380px;transition:.15s;box-shadow:var(--shadow)}
+.search-box:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-glow)}
+.search-box input{border:none;outline:none;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;width:100%;background:transparent}
+.search-box input::placeholder{color:var(--text-2)}
+.btn-add{background:var(--gold);color:var(--navy);font-size:13px;font-weight:700;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px}
+.btn-add:hover{background:#d4930a;box-shadow:0 4px 14px rgba(232,161,0,.4)}
 
-        /* ── TOPBAR ── */
-        .topbar {
-            background-color: #1a2a4a;
-            height: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 100;
-        }
+/* TABLE CARD */
+.table-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;animation:fadeUp .5s ease .12s both}
+.tc-head{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--border)}
+.tc-title{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px}
+.tc-title-icon{width:28px;height:28px;border-radius:7px;background:var(--gold-lt);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:14px}
+.tc-count{background:var(--gold-lt);color:var(--gold);font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid rgba(232,161,0,.3)}
 
-        .topbar-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
+table{width:100%;border-collapse:collapse}
+thead th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text-2);padding:10px 22px;border-bottom:1px solid var(--border);text-align:left;background:#FAFBFF}
+tbody td{font-size:13px;padding:13px 22px;border-bottom:1px solid #F1F5FB;color:var(--text);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{transition:background .15s;animation:fadeUp .4s ease both}
+tbody tr:nth-child(1){animation-delay:.15s}
+tbody tr:nth-child(2){animation-delay:.2s}
+tbody tr:nth-child(3){animation-delay:.25s}
+tbody tr:nth-child(4){animation-delay:.3s}
+tbody tr:nth-child(5){animation-delay:.35s}
+tbody tr:hover td{background:#F8FBFF}
 
-        .hamburger {
-            color: white;
-            font-size: 22px;
-            cursor: pointer;
-        }
+/* ITEM STYLES */
+.act-unit{font-size:13px;color:var(--navy);font-weight:600;margin-bottom:6px}
+.act-list{padding-left:18px;font-size:12.5px;color:var(--text-2);line-height:1.8}
+.act-list li{margin-bottom:2px}
 
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+/* BUTTONS */
+.btn-group{display:flex;gap:6px;flex-wrap:wrap}
+.btn-sm{font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;border:none;cursor:pointer;transition:.18s;font-family:'DM Sans',sans-serif}
+.btn-edit{background:var(--gold-lt);color:var(--gold);border:1px solid rgba(232,161,0,.4)}
+.btn-edit:hover{background:#FFE8A0;border-color:var(--gold)}
+.btn-delete{background:#FEF2F2;color:var(--danger);border:1px solid rgba(232,64,64,.25)}
+.btn-delete:hover{background:#FFE0E0;border-color:var(--danger)}
 
-        .logo-circle {
-            width: 38px;
-            height: 38px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: 700;
-            color: #1a2a4a;
-            text-align: center;
-            line-height: 1.1;
-        }
-
-        .logo-text {
-            color: white;
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 1.3;
-        }
-
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: white;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .avatar-icon {
-            width: 32px;
-            height: 32px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-
-        /* ── LAYOUT ── */
-        .layout {
-            display: flex;
-            margin-top: 56px;
-            height: calc(100vh - 56px);
-        }
-
-        /* ── SIDEBAR ── */
-        .sidebar {
-            width: 240px;
-            background: white;
-            border-right: 1px solid #e0e0e0;
-            overflow-y: auto;
-            flex-shrink: 0;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px 20px;
-            cursor: pointer;
-            font-size: 14px;
-            color: #444;
-            border-left: 3px solid transparent;
-            transition: background 0.15s;
-        }
-
-        .nav-item:hover {
-            background: #f0f4ff;
-        }
-
-        .nav-item.active {
-            background: #eef2ff;
-            border-left: 3px solid #1a2a4a;
-            color: #1a2a4a;
-            font-weight: 500;
-        }
-
-        .nav-icon {
-            font-size: 18px;
-            width: 22px;
-            text-align: center;
-        }
-
-        .nav-bottom {
-            margin-top: auto;
-            border-top: 1px solid #e0e0e0;
-        }
-        /* ── MAIN CONTENT ── */
-        .main {
-            flex: 1;
-            overflow-y: auto;
-            padding: 30px;
-            background: #f5f5f5;
-        }
-
-        /* ── CARRERA SELECTOR ── */
-        .carrera-selector {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 12px 16px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            max-width: 760px;
-        }
-
-        .carrera-label {
-            font-size: 11px;
-            color: #888;
-            margin-bottom: 2px;
-        }
-
-        .carrera-value {
-            font-size: 14px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .carrera-arrow {
-            color: #888;
-            font-size: 18px;
-        }
-
-        /* ── CARD ── */
-        .card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            padding: 24px;
-            margin-bottom: 16px;
-            max-width: 760px;
-        }
-
-        .card-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1a5276;
-            margin-bottom: 20px;
-        }
-
-        /* ── IDENTIFICACIÓN ── */
-        .id-section {
-            display: flex;
-            gap: 24px;
-            align-items: flex-start;
-        }
-
-        .foto-placeholder {
-            width: 120px;
-            height: 150px;
-            background: #d0d8e8;
-            border-radius: 4px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #888;
-            font-size: 40px;
-            overflow: hidden;
-        }
-
-        .foto-placeholder img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .id-info {
-            flex: 1;
-        }
-
-        .estudiante-nombre {
-            font-size: 16px;
-            font-weight: 600;
-            color: #222;
-            margin-bottom: 4px;
-        }
-
-        .estudiante-email {
-            font-size: 13px;
-            color: #555;
-            margin-bottom: 20px;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px 24px;
-        }
-
-        .info-field label {
-            font-size: 11px;
-            color: #888;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .info-field span {
-            font-size: 13px;
-            color: #222;
-            font-weight: 500;
-        }
-
-        /* ── ACCORDION ── */
-        .accordion {
-            background: #f7f7f7;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            padding: 16px 20px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            max-width: 760px;
-            font-size: 14px;
-            color: #444;
-        }
-
-        .accordion:hover {
-            background: #eeeeee;
-        }
-
-        .accordion-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .accordion-icon {
-            font-size: 16px;
-            color: #666;
-        }
-
-        .chevron {
-            font-size: 18px;
-            color: #888;
-        }
-
-        /* ── SIDEBAR BOTTOM ── */
-        .sidebar-wrapper {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .nav-list { flex: 1; }
-    </style>
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
 </head>
-
 <body>
- <!-- TOPBAR -->
-<nav class="topbar">
-    <div class="topbar-left">
-        <span class="hamburger">☰</span>
-        <div class="logo-area">
-            <div class="logo-circle">TEC<br>NM</div>
-            <div class="logo-text">Tecnológico Nacional de México</div>
-        </div>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="hbg" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">☰</span>
+    <div class="brand">
+      <div class="brand-badge">TEC<br>NM</div>
+      <div class="brand-name">Tecnológico Nacional de México<span>Portal Docentes</span></div>
     </div>
-    <div class="topbar-right">
-        <span>INGENIERÍA INFORMÁTICA</span>
-        <div class="avatar-icon" style="background: rgba(255,255,255,0.2); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">👤</div>
-    </div>
-</nav>
-<!--layout-->
+  </div>
+  <div class="topbar-right">
+    <span class="doc-tag">Docente</span>
+    <div class="avatar">👨‍🏫</div>
+    <button class="logout-btn">Cerrar sesión</button>
+  </div>
+</header>
+
 <div class="layout">
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div id="sidebar-container"></div>
-        <script src="sidebarm.js"></script>
-    </aside>
+  <aside class="sidebar" id="sidebar">
+    <div id="sidebar-container" style="display:flex;flex-direction:column;height:100%"></div>
+    <script src="sidebarm.js"></script>
+  </aside>
 
-    <main class="main">
-        <div class="page-header">
-            <h1>GESTIÓN DE ACTIVIDADES</h1>
-        </div>
+  <main class="main">
+    <div class="breadcrumb">Portal Docentes <span>›</span> <span>Actividades</span></div>
+    <div class="page-header">
+      <h1>Gestión de Actividades</h1>
+      <p>Administra las actividades de aprendizaje de tus materias</p>
+    </div>
 
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="🔍 Buscar actividad por nombre o descripción...">
-        </div>
+    <div class="filter-bar">
+      <div class="search-box">
+        <span style="color:var(--text-2)">🔍</span>
+        <input type="text" placeholder="Buscar actividad por nombre o descripción...">
+      </div>
+      <button class="btn-add">＋ Nueva actividad</button>
+    </div>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 70%;">Descripción de la Actividad</th>
-                        <th style="width: 30%;">Opciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Presentación de PowerPoint:</strong> Introducción a los conceptos básicos.</td>
-                        <td>
-                            <div class="btn-group">
-                                <button class="btn-edit">Editar</button>
-                                <button class="btn-delete">Eliminar</button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>Presentación de Proyecto:</strong> Avances del primer parcial.</td>
-                        <td>
-                            <div class="btn-group">
-                                <button class="btn-edit">Editar</button>
-                                <button class="btn-delete">Eliminar</button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <p style="margin-bottom: 8px; color: #1a5276; font-weight: 500;">Unidad 1: Inteligencia de Negocios (BI)</p>
-                            <ul style="padding-left: 20px; font-size: 13px; color: #555;">
-                                <li>Investigar la definición, objetivos y ventajas de BI.</li>
-                                <li>Analizar componentes mediante ejemplos prácticos.</li>
-                                <li>Diseñar esquema de Data Warehouse unificado.</li>
-                                <li>Ejercicios de toma de decisiones basadas en datos.</li>
-                            </ul>
-                        </td>
-                        <td>
-                            <div class="btn-group">
-                                <button class="btn-edit">Editar</button>
-                                <button class="btn-delete">Eliminar</button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Acceso a bases de datos — Gestión de repositorios institucionales.</td>
-                        <td>
-                            <div class="btn-group">
-                                <button class="btn-edit">Editar</button>
-                                <button class="btn-delete">Eliminar</button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Desarrollar dashboards interactivos para minería de datos (Power BI / Tableau).</td>
-                        <td>
-                            <div class="btn-group">
-                                <button class="btn-edit">Editar</button>
-                                <button class="btn-delete">Eliminar</button>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </main>
+    <div class="table-card">
+      <div class="tc-head">
+        <div class="tc-title"><div class="tc-title-icon">📋</div> Actividades registradas</div>
+        <span class="tc-count">5 actividades</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:70%">Descripción de la Actividad</th>
+            <th style="width:30%">Opciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Presentación de PowerPoint:</strong> Introducción a los conceptos básicos.</td>
+            <td><div class="btn-group"><button class="btn-sm btn-edit">Editar</button><button class="btn-sm btn-delete">Eliminar</button></div></td>
+          </tr>
+          <tr>
+            <td><strong>Presentación de Proyecto:</strong> Avances del primer parcial.</td>
+            <td><div class="btn-group"><button class="btn-sm btn-edit">Editar</button><button class="btn-sm btn-delete">Eliminar</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="act-unit">Unidad 1: Inteligencia de Negocios (BI)</div>
+              <ul class="act-list">
+                <li>Investigar la definición, objetivos y ventajas de BI.</li>
+                <li>Analizar componentes mediante ejemplos prácticos.</li>
+                <li>Diseñar esquema de Data Warehouse unificado.</li>
+                <li>Ejercicios de toma de decisiones basadas en datos.</li>
+              </ul>
+            </td>
+            <td><div class="btn-group"><button class="btn-sm btn-edit">Editar</button><button class="btn-sm btn-delete">Eliminar</button></div></td>
+          </tr>
+          <tr>
+            <td>Acceso a bases de datos — Gestión de repositorios institucionales.</td>
+            <td><div class="btn-group"><button class="btn-sm btn-edit">Editar</button><button class="btn-sm btn-delete">Eliminar</button></div></td>
+          </tr>
+          <tr>
+            <td>Desarrollar dashboards interactivos para minería de datos (Power BI / Tableau).</td>
+            <td><div class="btn-group"><button class="btn-sm btn-edit">Editar</button><button class="btn-sm btn-delete">Eliminar</button></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
 </div>
 
 </body>
