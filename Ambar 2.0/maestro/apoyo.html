@@ -6,38 +6,358 @@
     <title>Apoyo Didáctico</title>
 
     <style>
-        body { font-family: Arial; background: #f5f5f5; margin: 0; padding: 0; }
-        header { background: #0d47a1; color: white; padding: 15px; text-align: center; }
-        .container { width: 90%; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; }
-        ul { margin-top: 20px; }
-        li { margin-bottom: 15px; }
-        a { color: #0d47a1; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            background-color: #1a2a4a;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .hamburger {
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-circle {
+            width: 38px;
+            height: 38px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: #1a2a4a;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .logo-text {
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .avatar-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        /* ── LAYOUT ── */
+        .layout {
+            display: flex;
+            margin-top: 56px;
+            height: calc(100vh - 56px);
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: 240px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #444;
+            border-left: 3px solid transparent;
+            transition: background 0.15s;
+        }
+
+        .nav-item:hover {
+            background: #f0f4ff;
+        }
+
+        .nav-item.active {
+            background: #eef2ff;
+            border-left: 3px solid #1a2a4a;
+            color: #1a2a4a;
+            font-weight: 500;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            width: 22px;
+            text-align: center;
+        }
+
+        .nav-bottom {
+            margin-top: auto;
+            border-top: 1px solid #e0e0e0;
+        }
+        /* ── MAIN CONTENT ── */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            background: #f5f5f5;
+        }
+
+        /* ── CARRERA SELECTOR ── */
+        .carrera-selector {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 760px;
+        }
+
+        .carrera-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 2px;
+        }
+
+        .carrera-value {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .carrera-arrow {
+            color: #888;
+            font-size: 18px;
+        }
+
+        /* ── CARD ── */
+        .card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 24px;
+            margin-bottom: 16px;
+            max-width: 760px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a5276;
+            margin-bottom: 20px;
+        }
+
+        /* ── IDENTIFICACIÓN ── */
+        .id-section {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+        }
+
+        .foto-placeholder {
+            width: 120px;
+            height: 150px;
+            background: #d0d8e8;
+            border-radius: 4px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-size: 40px;
+            overflow: hidden;
+        }
+
+        .foto-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .id-info {
+            flex: 1;
+        }
+
+        .estudiante-nombre {
+            font-size: 16px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 4px;
+        }
+
+        .estudiante-email {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px 24px;
+        }
+
+        .info-field label {
+            font-size: 11px;
+            color: #888;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .info-field span {
+            font-size: 13px;
+            color: #222;
+            font-weight: 500;
+        }
+
+        /* ── ACCORDION ── */
+        .accordion {
+            background: #f7f7f7;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 16px 20px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            max-width: 760px;
+            font-size: 14px;
+            color: #444;
+        }
+
+        .accordion:hover {
+            background: #eeeeee;
+        }
+
+        .accordion-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .accordion-icon {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .chevron {
+            font-size: 18px;
+            color: #888;
+        }
+
+        /* ── SIDEBAR BOTTOM ── */
+        .sidebar-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .nav-list { flex: 1; }
     </style>
 </head>
 
 <body>
+ <!-- TOPBAR -->
+<div class="topbar">
+    <div class="topbar-left">
+        <span class="hamburger">☰</span>
+        <div class="logo-area">
+            <div class="logo-circle">TEC<br>NM</div>
+            <div class="logo-text">TECNOLÓGICO<br>NACIONAL DE MÉXICO</div>
+        </div>
+    </div>
+    <div class="topbar-right">
+        <span>INGENIERIA INFORMATICA</span>
+        <div class="avatar-icon">👤</div>
+    </div>
+</div>   
+    
+</head>
 
-<header>APOYO DIDÁCTICO</header>
+<body>
+    <!--Layout-->
+<div class="layout">
+    <aside class="sidebar">
+        <div id="sidebar-container"></div>
+        <script src="sidebarm.js"></script>
+    </aside>
 
-<div class="container">
+    <main class="main">
+        <div class="page-header">
+            <h1>Apoyo Didáctico</h1>
+        </div>
 
-    <ul>
-        <li>
-            Video de Therac 25:  
-            <a href="https://www.youtube.com/watch?v=Ap0orGCiou8&t=24s">
-                https://www.youtube.com/watch?v=Ap0orGCiou8&t=24s
-            </a>
-        </li>
+        <div class="resources-grid">
+            
+            <div class="resource-card">
+                <h3><span class="icon">🎬</span> Caso Therac-25</h3>
+                <p>Análisis detallado sobre uno de los accidentes más famosos en la ingeniería de software y sistemas médicos.</p>
+                <a href="https://www.youtube.com/watch?v=Ap0orGCiou8&t=24s" target="_blank" class="btn-link">Ver Video en YouTube</a>
+            </div>
 
-        <li>Google Scholar</li>
+            <div class="resource-card">
+                <h3><span class="icon">🎓</span> Google Scholar</h3>
+                <p>Buscador especializado en literatura científico-académica. Ideal para proyectos e investigaciones.</p>
+                <a href="https://scholar.google.es/" target="_blank" class="btn-link">Ir a Google Académico</a>
+            </div>
 
-        <li>
-            Hosting de diferentes sistemas operativos  
-            <a href="https://www.google.com/url?...">Enlace</a>
-        </li>
-    </ul>
+            <div class="resource-card">
+                <h3><span class="icon">💻</span> Sistemas Operativos</h3>
+                <p>Recursos y hosting para la exploración y prueba de diferentes entornos y sistemas operativos.</p>
+                <a href="#" class="btn-link">Explorar Hosting</a>
+            </div>
 
-</div>
+        </div>
+    </main>
+</div>  
 
 </body>
 </html>
