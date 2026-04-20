@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alumnos — Coordinador Ámbar</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0D1B3E;--navy-light:#152347;--navy-mid:#1D3461;--gold:#E8A100;--gold-lt:#FFF3D0;--bg:#F0F4FA;--card:#FFF;--text:#1A1F36;--text-2:#5A6488;--border:#E2E8F0;--success:#0FAF7A;--danger:#E84040;--warn:#F59E0B;--info:#3B82F6;--radius:14px;--shadow:0 4px 24px rgba(13,27,62,.09);--shadow-md:0 8px 40px rgba(13,27,62,.16)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{background:var(--navy);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:fixed;inset:0 0 auto 0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.3)}
+.topbar-l{display:flex;align-items:center;gap:16px}
+.hbg{color:white;font-size:22px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:.2s}
+.hbg:hover{background:rgba(255,255,255,.12)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-badge{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:11px;font-weight:800;color:var(--navy);line-height:1.1;text-align:center}
+.brand-name{color:white;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;line-height:1.3}
+.brand-name span{display:block;font-size:10px;font-weight:300;opacity:.7;letter-spacing:.6px;text-transform:uppercase}
+.topbar-r{display:flex;align-items:center;gap:12px}
+.coord-tag{background:rgba(232,161,0,.2);border:1px solid rgba(232,161,0,.4);color:var(--gold);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:.4px;text-transform:uppercase}
+.avatar{width:34px;height:34px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;font-weight:700;color:var(--navy)}
+.logout-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.8);font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif}
+.logout-btn:hover{background:rgba(255,255,255,.15);color:white}
+.layout{display:flex;margin-top:58px;height:calc(100vh - 58px);overflow:hidden}
+.sidebar{width:235px;background:var(--navy);display:flex;flex-direction:column;transition:width .28s cubic-bezier(.4,0,.2,1);overflow:hidden;flex-shrink:0}
+.sidebar.collapsed{width:60px}
+.nav-section{padding:20px 12px 8px;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.3);white-space:nowrap;overflow:hidden;transition:opacity .2s}
+.sidebar.collapsed .nav-section{opacity:0}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;font-size:13.5px;font-weight:500;color:rgba(255,255,255,.65);border-left:3px solid transparent;transition:.18s;white-space:nowrap;overflow:hidden;text-decoration:none}
+.nav-item:hover{background:rgba(255,255,255,.07);color:white}
+.nav-item.active{background:rgba(232,161,0,.12);border-left:3px solid var(--gold);color:var(--gold)}
+.nav-icon{font-size:18px;width:22px;text-align:center;flex-shrink:0}
+.nav-label{transition:opacity .2s}
+.sidebar.collapsed .nav-label{opacity:0;pointer-events:none}
+.nav-divider{height:1px;background:rgba(255,255,255,.07);margin:8px 16px}
+.nav-bottom{margin-top:auto;border-top:1px solid rgba(255,255,255,.07);padding:12px 0}
+.sidebar-user{display:flex;align-items:center;gap:10px;padding:10px 16px;overflow:hidden}
+.su-av{width:32px;height:32px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--navy);flex-shrink:0}
+.su-info{overflow:hidden}
+.su-name{font-size:12.5px;color:white;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.su-role{font-size:11px;color:rgba(255,255,255,.4)}
+.sidebar.collapsed .su-info{display:none}
+.main{flex:1;overflow-y:auto;padding:28px 32px;background:var(--bg)}
+.page-header{margin-bottom:22px;animation:fadeUp .5s ease both}
+.page-header h1{font-family:'Outfit',sans-serif;font-size:24px;font-weight:700;color:var(--navy)}
+.breadcrumb{font-size:12px;color:var(--text-2);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.breadcrumb span{color:var(--gold);font-weight:600}
+
+/* ── FILTERS ── */
+.filter-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px;animation:fadeUp .5s ease .1s both}
+.filter-select{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;cursor:pointer;transition:.15s;outline:none}
+.filter-select:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-lt)}
+.search-box{display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 14px;gap:8px;flex:1;max-width:320px;transition:.15s}
+.search-box:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-lt)}
+.search-box input{border:none;outline:none;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;width:100%;background:transparent}
+.search-box input::placeholder{color:var(--text-2)}
+
+/* ── STUDENT TABLE ── */
+.table-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;animation:fadeUp .5s ease .15s both}
+.tc-head{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--border)}
+.tc-title{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px}
+.tc-count{background:var(--gold-lt);color:var(--gold);font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid rgba(232,161,0,.3)}
+.tc-table{width:100%;border-collapse:collapse}
+.tc-table th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text-2);padding:10px 18px;border-bottom:1px solid var(--border);text-align:left;background:#FAFBFF}
+.tc-table td{font-size:13px;padding:13px 18px;border-bottom:1px solid #F1F5FB;color:var(--text);vertical-align:middle}
+.tc-table tr:last-child td{border-bottom:none}
+.tc-table tbody tr{animation:fadeUp .4s ease both;transition:background .15s}
+.tc-table tbody tr:hover td{background:#F8FBFF}
+.stu-name{font-weight:700;font-size:13.5px;color:var(--navy)}
+.stu-ctrl{font-size:11.5px;color:var(--text-2);font-family:monospace;margin-top:1px}
+.stu-email{font-size:11.5px;color:var(--info);margin-top:2px}
+.esp-tag{display:inline-block;background:#F5F3FF;color:#7C3AED;font-size:11px;font-weight:600;padding:2px 8px;border-radius:5px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;gap:4px}
+.badge-green{background:#ECFDF5;color:#059669}
+.badge-red{background:#FEF2F2;color:#DC2626}
+.badge-yellow{background:#FFFBEB;color:#D97706}
+.badge-blue{background:#EFF6FF;color:#3B82F6}
+.badge-purple{background:#F5F3FF;color:#7C3AED}
+
+/* ── BUTTONS ── */
+.btn-sm{font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;border:none;cursor:pointer;transition:.18s;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:5px}
+.btn-action{background:var(--gold-lt);color:var(--gold);border:1px solid rgba(232,161,0,.4)}
+.btn-action:hover{background:#FFE8A0;border-color:var(--gold)}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(13,27,62,.55);backdrop-filter:blur(4px);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.25s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--card);border-radius:18px;width:580px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-md);transform:scale(.92) translateY(20px);transition:.28s cubic-bezier(.34,1.56,.64,1);position:relative}
+.overlay.open .modal{transform:scale(1) translateY(0)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:22px 26px 16px;border-bottom:1px solid var(--border)}
+.modal-title{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px}
+.modal-close{width:30px;height:30px;border-radius:8px;background:var(--bg);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:.15s;color:var(--text-2)}
+.modal-close:hover{background:var(--border);color:var(--text)}
+.modal-body{padding:22px 26px}
+
+/* ── STUDENT CARD IN MODAL ── */
+.stu-card-mini{background:var(--bg);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:20px;border:1px solid var(--border)}
+.stu-av-large{width:46px;height:46px;background:linear-gradient(135deg,var(--navy),var(--navy-mid));border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:white;flex-shrink:0}
+.stu-card-info{}
+.stu-card-name{font-weight:700;font-size:14.5px;color:var(--navy)}
+.stu-card-sub{font-size:12px;color:var(--text-2);margin-top:2px}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;border-bottom:2px solid var(--border);margin-bottom:20px}
+.tab{padding:9px 18px;font-size:13px;font-weight:600;color:var(--text-2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.18s;border-radius:6px 6px 0 0}
+.tab:hover{color:var(--navy);background:#F0F4FA}
+.tab.active{color:var(--navy);border-bottom-color:var(--gold);background:var(--gold-lt)}
+.tab-content{display:none}
+.tab-content.active{display:block;animation:fadeUp .3s ease both}
+
+/* ── FORM ── */
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.form-label{font-size:12px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px}
+.form-control{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:9px 13px;font-size:13.5px;color:var(--text);font-family:'DM Sans',sans-serif;transition:.15s;outline:none;width:100%}
+.form-control:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-lt);background:white}
+select.form-control{cursor:pointer}
+.form-hint{font-size:11.5px;color:var(--text-2);margin-top:-8px;margin-bottom:4px;display:flex;align-items:flex-start;gap:5px}
+
+/* ── GRUPO PICKER ── */
+.grupo-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;padding-right:4px}
+.grupo-option{border:1.5px solid var(--border);border-radius:8px;padding:10px 14px;cursor:pointer;transition:.18s;display:flex;align-items:center;gap:12px}
+.grupo-option:hover{border-color:var(--gold);background:var(--gold-lt)}
+.grupo-option.selected{border-color:var(--gold);background:var(--gold-lt)}
+.go-radio{width:16px;height:16px;border:2px solid var(--border);border-radius:50%;flex-shrink:0;transition:.15s;display:flex;align-items:center;justify-content:center}
+.grupo-option.selected .go-radio{border-color:var(--gold);background:var(--gold)}
+.grupo-option.selected .go-radio::after{content:'';width:6px;height:6px;border-radius:50%;background:white;display:block}
+.go-info{flex:1}
+.go-mat{font-weight:600;font-size:13px;color:var(--navy)}
+.go-sub{font-size:11.5px;color:var(--text-2);margin-top:1px}
+.go-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;background:#ECFDF5;color:#059669;flex-shrink:0}
+
+/* ── WARN BOX ── */
+.warn-box{background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:8px;padding:12px 14px;font-size:12.5px;color:#92400E;display:flex;gap:8px;margin-bottom:14px}
+
+.modal-foot{display:flex;justify-content:flex-end;gap:10px;padding:16px 26px 22px;border-top:1px solid var(--border)}
+.btn{font-family:'Outfit',sans-serif;font-size:13.5px;font-weight:600;padding:9px 22px;border-radius:8px;border:none;cursor:pointer;transition:.18s}
+.btn-primary{background:var(--navy);color:white}
+.btn-primary:hover{background:var(--navy-mid)}
+.btn-ghost{background:transparent;color:var(--text-2);border:1.5px solid var(--border)}
+.btn-ghost:hover{background:var(--bg)}
+.btn-loading{opacity:.6;pointer-events:none}
+
+/* ── EMPTY ── */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-2)}
+.empty-state .e-icon{font-size:48px;margin-bottom:12px;opacity:.4}
+.empty-state p{font-size:14px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:white;padding:12px 20px;border-radius:10px;font-size:13.5px;font-weight:500;box-shadow:var(--shadow-md);z-index:999;transform:translateY(80px);opacity:0;transition:.3s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:10px;max-width:340px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-left:4px solid var(--success)}
+.toast.error{border-left:4px solid var(--danger)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-l">
+    <div class="hbg" onclick="toggleSidebar()">☰</div>
+    <div class="brand">
+      <div class="brand-badge">TEC<br>NM</div>
+      <div class="brand-name">Sistema Ámbar<span>Tecnológico Nacional de México</span></div>
+    </div>
+  </div>
+  <div class="topbar-r">
+    <span class="coord-tag">Coordinador</span>
+    <span id="coord-name" style="font-size:13px;color:rgba(255,255,255,.8);font-weight:500"></span>
+    <div class="avatar" id="coord-av">C</div>
+    <button class="logout-btn" onclick="logoutCoord()">Cerrar sesión</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar" id="sidebar">
+    <div class="nav-section">Panel</div>
+    <a class="nav-item" href="inicio_coord.html"><span class="nav-icon">🏠</span><span class="nav-label">Inicio</span></a>
+    <div class="nav-divider"></div>
+    <div class="nav-section">Académico</div>
+    <a class="nav-item" href="grupos_coord.html"><span class="nav-icon">📚</span><span class="nav-label">Grupos</span></a>
+    <a class="nav-item active" href="alumnos_coord.html"><span class="nav-icon">🎓</span><span class="nav-label">Alumnos</span></a>
+    <div class="nav-divider"></div>
+    <div class="nav-section">Sistema</div>
+    <a class="nav-item" href="SoporteM.html"><span class="nav-icon">🔧</span><span class="nav-label">Soporte</span></a>
+    <div class="nav-bottom">
+      <div class="sidebar-user">
+        <div class="su-av" id="sidebar-av">C</div>
+        <div class="su-info">
+          <div class="su-name" id="sidebar-name">Coordinador</div>
+          <div class="su-role" id="sidebar-dept">Departamento</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="page-header">
+      <div class="breadcrumb">Ámbar › <span>Alumnos</span></div>
+      <h1>🎓 Gestión de Alumnos</h1>
+      <p style="font-size:13.5px;color:var(--text-2);margin-top:4px">Cambia grupos, especialidad o carrera de los alumnos del departamento.</p>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filter-bar">
+      <div class="search-box">
+        <span style="color:var(--text-2)">🔍</span>
+        <input type="text" id="search-inp" placeholder="Buscar por nombre o N° control…" oninput="filterTable()">
+      </div>
+      <select class="filter-select" id="filter-carrera" onchange="filterTable()">
+        <option value="">Todas las carreras</option>
+      </select>
+      <select class="filter-select" id="filter-estatus" onchange="filterTable()">
+        <option value="">Todos los estatus</option>
+        <option value="VIGENTE">Vigente</option>
+        <option value="BAJA">Baja</option>
+      </select>
+      <select class="filter-select" id="filter-sem" onchange="filterTable()">
+        <option value="">Todos los semestres</option>
+      </select>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card">
+      <div class="tc-head">
+        <div class="tc-title">👥 Alumnos del Departamento <span class="tc-count" id="alu-count">0 alumnos</span></div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="tc-table">
+          <thead>
+            <tr>
+              <th>Alumno</th>
+              <th>Carrera</th>
+              <th>Especialidad</th>
+              <th style="text-align:center">Semestre</th>
+              <th style="text-align:center">Materias</th>
+              <th style="text-align:center">Estatus</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="alumnos-tbody">
+            <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-2)">
+              <div class="empty-state"><div class="e-icon">⏳</div><p>Cargando alumnos…</p></div>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTION MODAL -->
+<div class="overlay" id="action-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">⚙️ Gestionar Alumno</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Student Mini Card -->
+      <div class="stu-card-mini">
+        <div class="stu-av-large" id="modal-av">JG</div>
+        <div class="stu-card-info">
+          <div class="stu-card-name" id="modal-nombre">—</div>
+          <div class="stu-card-sub" id="modal-sub">—</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('grupo',this)">↔ Cambiar Grupo</div>
+        <div class="tab" onclick="switchTab('esp',this)">⭐ Especialidad</div>
+        <div class="tab" onclick="switchTab('carrera',this)">🏛 Carrera</div>
+      </div>
+
+      <!-- TAB: GRUPO -->
+      <div class="tab-content active" id="tab-grupo">
+        <p style="font-size:12.5px;color:var(--text-2);margin-bottom:12px">
+          Selecciona un grupo del periodo activo donde inscribir al alumno:
+        </p>
+        <div class="grupo-list" id="grupos-disponibles">
+          <div style="text-align:center;padding:20px;color:var(--text-2)">
+            <span style="font-size:24px">⏳</span><br>Cargando grupos disponibles…
+          </div>
+        </div>
+        <input type="hidden" id="selected-grupo">
+      </div>
+
+      <!-- TAB: ESPECIALIDAD -->
+      <div class="tab-content" id="tab-esp">
+        <div class="warn-box">⚠️ El cambio de especialidad es inmediato y afecta el plan de estudios del alumno.
+          Se recomienda verificar con el alumno antes de proceder.</div>
+        <div class="form-group">
+          <label class="form-label">Especialidad actual</label>
+          <input class="form-control" id="esp-actual" readonly style="background:#F8FAFB;color:var(--text-2)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nueva especialidad</label>
+          <select class="form-control" id="nueva-esp">
+            <option value="">Selecciona una especialidad…</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- TAB: CARRERA -->
+      <div class="tab-content" id="tab-carrera">
+        <div class="warn-box">⚠️ Solo puedes transferir alumnos a carreras del mismo departamento.
+          Al cambiar de carrera, la especialidad actual se eliminará y deberá asignarse una nueva.</div>
+        <div class="form-group">
+          <label class="form-label">Carrera actual</label>
+          <input class="form-control" id="carrera-actual" readonly style="background:#F8FAFB;color:var(--text-2)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nueva carrera (mismo departamento)</label>
+          <select class="form-control" id="nueva-carrera">
+            <option value="">Selecciona una carrera…</option>
+          </select>
+        </div>
+        <div class="form-hint" style="color:var(--text-2)">
+          🏛 Solo se muestran carreras del departamento <strong id="hint-depto"></strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" id="btn-save" onclick="saveAction()">Guardar Cambio</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="../session.js"></script>
+<script>
+let sess, alumnos = [], filtered = [];
+let carreras = [], especialidades = [];
+let currentAlumno = null, currentTab = 'grupo';
+
+window.addEventListener('DOMContentLoaded', async () => {
+  sess = getCoordSession();
+  if (!sess) return;
+  const initials = (sess.nombre[0]||'') + (sess.apellidos[0]||'');
+  document.getElementById('coord-av').textContent = initials;
+  document.getElementById('sidebar-av').textContent = initials;
+  document.getElementById('coord-name').textContent = sess.nombre + ' ' + sess.apellidos;
+  document.getElementById('sidebar-name').textContent = sess.nombre + ' ' + sess.apellidos;
+  document.getElementById('sidebar-dept').textContent = sess.departamento;
+  document.getElementById('hint-depto').textContent = sess.departamento;
+
+  await Promise.all([loadCarreras(), loadEspecialidades(), loadAlumnos()]);
+});
+
+async function loadCarreras() {
+  const r = await fetch(`/coord/carreras/${sess.idDepto}`);
+  carreras = await r.json();
+  const sel = document.getElementById('filter-carrera');
+  carreras.forEach(c => sel.insertAdjacentHTML('beforeend', `<option value="${c.id_carrera}">${c.Nombre}</option>`));
+  const selNueva = document.getElementById('nueva-carrera');
+  carreras.forEach(c => selNueva.insertAdjacentHTML('beforeend', `<option value="${c.id_carrera}">${c.Nombre}</option>`));
+}
+
+async function loadEspecialidades() {
+  const r = await fetch(`/coord/especialidades/${sess.idDepto}`);
+  especialidades = await r.json();
+  const sel = document.getElementById('nueva-esp');
+  especialidades.forEach(e => sel.insertAdjacentHTML('beforeend',
+    `<option value="${e.ID_Especialidad}">${e.Nombre} — ${e.Carrera}</option>`));
+}
+
+async function loadAlumnos() {
+  try {
+    const r = await fetch(`/coord/alumnos/${sess.idDepto}`);
+    alumnos = await r.json();
+    filtered = [...alumnos];
+    buildSemestres();
+    renderTable();
+  } catch(e) {
+    document.getElementById('alumnos-tbody').innerHTML =
+      `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--danger)">Error al cargar alumnos</td></tr>`;
+  }
+}
+
+function buildSemestres() {
+  const sems = [...new Set(alumnos.map(a => a.Semestre))].sort((a,b)=>a-b);
+  const sel = document.getElementById('filter-sem');
+  sems.forEach(s => sel.insertAdjacentHTML('beforeend', `<option value="${s}">${s}° Semestre</option>`));
+}
+
+function renderTable() {
+  const tbody = document.getElementById('alumnos-tbody');
+  document.getElementById('alu-count').textContent = filtered.length + ' alumnos';
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="e-icon">🔍</div><p>No se encontraron alumnos</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map((a, i) => {
+    const isVig = a.Estatus === 'VIGENTE';
+    const initials = a.Nombre.charAt(0) + a.Apellidos.charAt(0);
+    return `<tr style="animation-delay:${i*.03}s">
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:34px;height:34px;background:linear-gradient(135deg,var(--navy),var(--navy-mid));border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:white;flex-shrink:0">${initials}</div>
+          <div>
+            <div class="stu-name">${a.Apellidos}, ${a.Nombre}</div>
+            <div class="stu-ctrl">${a.N_ctrl}</div>
+            <div class="stu-email">${a.Email}</div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div style="font-size:12.5px;font-weight:500;color:var(--navy)">${a.Carrera}</div>
+      </td>
+      <td>
+        ${a.Especialidad
+          ? `<span class="esp-tag" title="${a.Especialidad}">${a.Especialidad}</span>`
+          : `<span style="font-size:12px;color:var(--text-2);font-style:italic">Sin especialidad</span>`}
+      </td>
+      <td style="text-align:center">
+        <span class="badge badge-blue">${a.Semestre}°</span>
+      </td>
+      <td style="text-align:center">
+        <span class="badge ${a.MateriasActuales > 0 ? 'badge-green' : 'badge-yellow'}">${a.MateriasActuales} mat.</span>
+      </td>
+      <td style="text-align:center">
+        <span class="badge ${isVig ? 'badge-green' : 'badge-red'}">${isVig ? '✓ Vigente' : '✕ Baja'}</span>
+      </td>
+      <td>
+        <button class="btn-sm btn-action" onclick="openAction('${a.N_ctrl}')">⚙️ Gestionar</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterTable() {
+  const q = document.getElementById('search-inp').value.toLowerCase();
+  const car = document.getElementById('filter-carrera').value;
+  const est = document.getElementById('filter-estatus').value;
+  const sem = document.getElementById('filter-sem').value;
+  filtered = alumnos.filter(a =>
+    (!q || a.Nombre.toLowerCase().includes(q) || a.Apellidos.toLowerCase().includes(q) || a.N_ctrl.includes(q)) &&
+    (!car || a.id_carrera == car) &&
+    (!est || a.Estatus === est) &&
+    (!sem || a.Semestre == sem)
+  );
+  renderTable();
+}
+
+async function openAction(nctrl) {
+  currentAlumno = alumnos.find(a => a.N_ctrl === nctrl);
+  if (!currentAlumno) return;
+
+  const initials = currentAlumno.Nombre.charAt(0) + currentAlumno.Apellidos.charAt(0);
+  document.getElementById('modal-av').textContent = initials;
+  document.getElementById('modal-nombre').textContent = `${currentAlumno.Nombre} ${currentAlumno.Apellidos}`;
+  document.getElementById('modal-sub').textContent = `${currentAlumno.N_ctrl} · ${currentAlumno.Carrera} · Sem. ${currentAlumno.Semestre}`;
+  document.getElementById('esp-actual').value = currentAlumno.Especialidad || 'Sin especialidad asignada';
+  document.getElementById('carrera-actual').value = currentAlumno.Carrera;
+
+  // Load available groups
+  document.getElementById('grupos-disponibles').innerHTML =
+    `<div style="text-align:center;padding:20px;color:var(--text-2)">⏳ Cargando grupos disponibles…</div>`;
+
+  document.getElementById('action-overlay').classList.add('open');
+  switchTab('grupo', document.querySelector('.tab'));
+
+  try {
+    const r = await fetch(`/coord/grupos-disponibles/${nctrl}`);
+    const grupos = await r.json();
+    renderGruposDisponibles(grupos);
+  } catch(e) {
+    document.getElementById('grupos-disponibles').innerHTML =
+      `<div style="text-align:center;padding:20px;color:var(--danger)">Error al cargar grupos</div>`;
+  }
+}
+
+function renderGruposDisponibles(grupos) {
+  const container = document.getElementById('grupos-disponibles');
+  if (!grupos.length) {
+    container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-2)">
+      <span style="font-size:32px">✓</span><br>El alumno ya está inscrito en todos los grupos disponibles
+    </div>`;
+    return;
+  }
+  container.innerHTML = grupos.map(g => `
+    <div class="grupo-option" onclick="selectGrupo(${g.ID_Grupo}, this)">
+      <div class="go-radio"></div>
+      <div class="go-info">
+        <div class="go-mat">${g.Materia}</div>
+        <div class="go-sub">${g.Clave} · ${g.Docente} · ${g.Horario || 'Sin horario'} · ${g.Aula}</div>
+      </div>
+      <span class="go-badge">${g.Inscritos} inscritos</span>
+    </div>
+  `).join('');
+}
+
+function selectGrupo(gid, el) {
+  document.querySelectorAll('.grupo-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('selected-grupo').value = gid;
+}
+
+function switchTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  // Update button label
+  const labels = { grupo: '↔ Inscribir en Grupo', esp: '⭐ Cambiar Especialidad', carrera: '🏛 Cambiar Carrera' };
+  document.getElementById('btn-save').textContent = labels[tab];
+}
+
+async function saveAction() {
+  const btn = document.getElementById('btn-save');
+  btn.classList.add('btn-loading');
+  btn.textContent = '⏳ Guardando…';
+  try {
+    if (currentTab === 'grupo') await saveGrupo();
+    else if (currentTab === 'esp') await saveEspecialidad();
+    else if (currentTab === 'carrera') await saveCarrera();
+  } finally {
+    btn.classList.remove('btn-loading');
+  }
+}
+
+async function saveGrupo() {
+  const gid = document.getElementById('selected-grupo').value;
+  if (!gid) { showToast('Selecciona un grupo', 'error'); return; }
+  const r = await fetch('/coord/alumnos/cambiar-grupo', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ N_ctrl: currentAlumno.N_ctrl, ID_Grupo_Nuevo: parseInt(gid), idCoord: sess.ID_Coordinador })
+  });
+  const d = await r.json();
+  if (d.success) {
+    closeModal();
+    await loadAlumnos();
+    showToast('✓ Alumno inscrito en el grupo correctamente', 'success');
+  } else { showToast(d.mensaje || 'Error al cambiar grupo', 'error'); }
+}
+
+async function saveEspecialidad() {
+  const espId = document.getElementById('nueva-esp').value;
+  if (!espId) { showToast('Selecciona una especialidad', 'error'); return; }
+  const r = await fetch(`/coord/alumnos/${currentAlumno.N_ctrl}/especialidad`, {
+    method:'PUT', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ ID_Especialidad: parseInt(espId), idCoord: sess.ID_Coordinador })
+  });
+  const d = await r.json();
+  if (d.success) {
+    closeModal();
+    await loadAlumnos();
+    showToast('✓ Especialidad actualizada', 'success');
+  } else { showToast('Error al cambiar especialidad', 'error'); }
+}
+
+async function saveCarrera() {
+  const carId = document.getElementById('nueva-carrera').value;
+  if (!carId) { showToast('Selecciona una carrera', 'error'); return; }
+  if (carId == currentAlumno.id_carrera) { showToast('El alumno ya pertenece a esa carrera', 'error'); return; }
+  const r = await fetch(`/coord/alumnos/${currentAlumno.N_ctrl}/carrera`, {
+    method:'PUT', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ id_carrera_nueva: parseInt(carId), idCoord: sess.ID_Coordinador, idDepto: parseInt(sess.idDepto) })
+  });
+  const d = await r.json();
+  if (d.success) {
+    closeModal();
+    await loadAlumnos();
+    showToast('✓ Carrera actualizada correctamente', 'success');
+  } else { showToast(d.mensaje || 'Error al cambiar carrera', 'error'); }
+}
+
+function closeModal() { document.getElementById('action-overlay').classList.remove('open'); }
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>

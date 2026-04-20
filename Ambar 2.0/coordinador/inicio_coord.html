@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Coordinador — Ámbar</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:       #0D1B3E;
+  --navy-light: #152347;
+  --navy-mid:   #1D3461;
+  --gold:       #E8A100;
+  --gold-lt:    #FFF3D0;
+  --gold-glow:  rgba(232,161,0,.18);
+  --bg:         #F0F4FA;
+  --card:       #FFFFFF;
+  --text:       #1A1F36;
+  --text-2:     #5A6488;
+  --border:     #E2E8F0;
+  --success:    #0FAF7A;
+  --danger:     #E84040;
+  --warn:       #F59E0B;
+  --info:       #3B82F6;
+  --radius:     14px;
+  --shadow:     0 4px 24px rgba(13,27,62,.09);
+  --shadow-md:  0 8px 40px rgba(13,27,62,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--navy);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:fixed;inset:0 0 auto 0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.3)}
+.topbar-l{display:flex;align-items:center;gap:16px}
+.hbg{color:white;font-size:22px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:.2s}
+.hbg:hover{background:rgba(255,255,255,.12)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-badge{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:11px;font-weight:800;color:var(--navy);line-height:1.1;text-align:center}
+.brand-name{color:white;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;line-height:1.3}
+.brand-name span{display:block;font-size:10px;font-weight:300;opacity:.7;letter-spacing:.6px;text-transform:uppercase}
+.topbar-r{display:flex;align-items:center;gap:12px}
+.coord-tag{background:rgba(232,161,0,.2);border:1px solid rgba(232,161,0,.4);color:var(--gold);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:.4px;text-transform:uppercase}
+.avatar{width:34px;height:34px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;font-weight:700;color:var(--navy)}
+.logout-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.8);font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif}
+.logout-btn:hover{background:rgba(255,255,255,.15);color:white}
+
+/* ── LAYOUT ── */
+.layout{display:flex;margin-top:58px;height:calc(100vh - 58px);overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:235px;background:var(--navy);display:flex;flex-direction:column;transition:width .28s cubic-bezier(.4,0,.2,1);overflow:hidden;flex-shrink:0}
+.sidebar.collapsed{width:60px}
+.nav-section{padding:20px 12px 8px;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.3);white-space:nowrap;overflow:hidden;transition:opacity .2s}
+.sidebar.collapsed .nav-section{opacity:0}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;font-size:13.5px;font-weight:500;color:rgba(255,255,255,.65);border-left:3px solid transparent;transition:.18s;white-space:nowrap;overflow:hidden;text-decoration:none}
+.nav-item:hover{background:rgba(255,255,255,.07);color:white}
+.nav-item.active{background:rgba(232,161,0,.12);border-left:3px solid var(--gold);color:var(--gold)}
+.nav-icon{font-size:18px;width:22px;text-align:center;flex-shrink:0}
+.nav-label{transition:opacity .2s}
+.sidebar.collapsed .nav-label{opacity:0;pointer-events:none}
+.nav-divider{height:1px;background:rgba(255,255,255,.07);margin:8px 16px}
+.nav-bottom{margin-top:auto;border-top:1px solid rgba(255,255,255,.07);padding:12px 0}
+.sidebar-user{display:flex;align-items:center;gap:10px;padding:10px 16px;overflow:hidden}
+.su-av{width:32px;height:32px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--navy);flex-shrink:0}
+.su-info{overflow:hidden}
+.su-name{font-size:12.5px;color:white;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.su-role{font-size:11px;color:rgba(255,255,255,.4)}
+.sidebar.collapsed .su-info{display:none}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;padding:28px 32px;background:var(--bg)}
+
+/* ── PAGE HEADER ── */
+.page-header{margin-bottom:28px;animation:fadeUp .5s ease both}
+.page-header h1{font-family:'Outfit',sans-serif;font-size:26px;font-weight:700;color:var(--navy);letter-spacing:-.3px}
+.page-header p{font-size:13.5px;color:var(--text-2);margin-top:3px}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);margin-bottom:8px}
+.breadcrumb span{color:var(--gold);font-weight:600}
+
+/* ── KPI CARDS ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.kpi-card{background:var(--card);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow);border:1px solid var(--border);position:relative;overflow:hidden;animation:fadeUp .5s ease both;transition:transform .2s,box-shadow .2s}
+.kpi-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.kpi-card:nth-child(1){animation-delay:.05s}
+.kpi-card:nth-child(2){animation-delay:.1s}
+.kpi-card:nth-child(3){animation-delay:.15s}
+.kpi-card:nth-child(4){animation-delay:.2s}
+.kpi-accent{position:absolute;top:0;left:0;width:4px;height:100%;border-radius:var(--radius) 0 0 var(--radius)}
+.kpi-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px}
+.kpi-val{font-family:'Outfit',sans-serif;font-size:32px;font-weight:700;line-height:1;margin-bottom:4px;color:var(--navy)}
+.kpi-label{font-size:12px;color:var(--text-2);font-weight:500}
+.kpi-sub{font-size:11.5px;color:var(--text-2);margin-top:8px;display:flex;align-items:center;gap:5px}
+.kpi-badge{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px}
+
+/* ── TWO COL ── */
+.two-col{display:grid;grid-template-columns:1fr 360px;gap:20px}
+
+/* ── SECTION CARD ── */
+.s-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);animation:fadeUp .6s ease both}
+.s-card:nth-child(1){animation-delay:.25s}
+.s-card:nth-child(2){animation-delay:.3s}
+.s-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
+.s-title{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px}
+.s-title-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.s-action{font-size:12px;color:var(--gold);font-weight:600;cursor:pointer;text-decoration:none;padding:5px 10px;border-radius:6px;transition:.15s}
+.s-action:hover{background:var(--gold-lt)}
+.s-body{padding:0}
+
+/* ── HISTORY TABLE ── */
+.h-table{width:100%;border-collapse:collapse}
+.h-table th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text-2);padding:10px 22px;border-bottom:1px solid var(--border);text-align:left;background:#FAFBFF}
+.h-table td{font-size:13px;padding:13px 22px;border-bottom:1px solid #F1F5FB;color:var(--text);vertical-align:middle}
+.h-table tr:last-child td{border-bottom:none}
+.h-table tr{animation:fadeUp .4s ease both}
+.h-table tr:nth-child(1){animation-delay:.3s}
+.h-table tr:nth-child(2){animation-delay:.35s}
+.h-table tr:nth-child(3){animation-delay:.4s}
+.h-table tr:nth-child(4){animation-delay:.45s}
+.h-table tr:nth-child(5){animation-delay:.5s}
+.h-table tr:hover td{background:#F8FBFF}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.3px;gap:4px}
+.badge-blue{background:#EFF6FF;color:#3B82F6}
+.badge-green{background:#ECFDF5;color:#059669}
+.badge-red{background:#FEF2F2;color:#DC2626}
+.badge-yellow{background:#FFFBEB;color:#D97706}
+.badge-navy{background:#EEF2FF;color:#4F46E5}
+
+/* ── QUICK ACTIONS ── */
+.qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px}
+.qa-btn{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;text-decoration:none;transition:.2s;color:var(--text)}
+.qa-btn:hover{background:#EEF2FF;border-color:#C7D3FF;transform:translateX(3px)}
+.qa-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.qa-text{font-size:13px;font-weight:600;color:var(--navy)}
+.qa-sub{font-size:11px;color:var(--text-2);margin-top:1px}
+
+/* ── PERIOD CARD ── */
+.period-card{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);border-radius:var(--radius);padding:22px;color:white;margin-bottom:16px}
+.period-name{font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;color:var(--gold);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.period-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.period-row:last-child{margin-bottom:0}
+.period-key{font-size:11px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.6px}
+.period-val{font-size:13px;font-weight:500;color:white}
+.period-active{display:inline-flex;align-items:center;gap:5px;background:rgba(15,175,122,.2);border:1px solid rgba(15,175,122,.4);color:#4DFFB8;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px}
+.period-dot{width:6px;height:6px;border-radius:50%;background:#0FAF7A;animation:pulse 1.4s infinite}
+
+/* ── DEPT STAT ── */
+.dept-info{padding:16px;display:flex;flex-direction:column;gap:12px}
+.dept-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg);border-radius:8px}
+.dept-label{font-size:12.5px;color:var(--text-2)}
+.dept-val{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;color:var(--navy)}
+
+/* ── SKELETON ── */
+.skel{background:linear-gradient(90deg,#E8EEF7 25%,#F3F6FB 50%,#E8EEF7 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:6px;display:inline-block}
+
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes countUp{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+
+.kpi-val.counting{animation:countUp .5s ease both}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1200px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .two-col{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+  .main{padding:16px}
+  .kpi-grid{grid-template-columns:1fr 1fr;gap:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-l">
+    <div class="hbg" onclick="toggleSidebar()">☰</div>
+    <div class="brand">
+      <div class="brand-badge">TEC<br>NM</div>
+      <div class="brand-name">Sistema Ámbar<span>Tecnológico Nacional de México</span></div>
+    </div>
+  </div>
+  <div class="topbar-r">
+    <span class="coord-tag">Coordinador</span>
+    <span id="coord-name" style="font-size:13px;color:rgba(255,255,255,.8);font-weight:500"></span>
+    <div class="avatar" id="coord-av">C</div>
+    <button class="logout-btn" onclick="logoutCoord()">Cerrar sesión</button>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="nav-section">Panel</div>
+    <a class="nav-item active" href="inicio_coord.html">
+      <span class="nav-icon">🏠</span><span class="nav-label">Inicio</span>
+    </a>
+    <div class="nav-divider"></div>
+    <div class="nav-section">Académico</div>
+    <a class="nav-item" href="grupos_coord.html">
+      <span class="nav-icon">📚</span><span class="nav-label">Grupos</span>
+    </a>
+    <a class="nav-item" href="alumnos_coord.html">
+      <span class="nav-icon">🎓</span><span class="nav-label">Alumnos</span>
+    </a>
+    <div class="nav-divider"></div>
+    <div class="nav-section">Sistema</div>
+    <a class="nav-item" href="SoporteM.html">
+      <span class="nav-icon">🔧</span><span class="nav-label">Soporte</span>
+    </a>
+    <div class="nav-bottom">
+      <div class="sidebar-user">
+        <div class="su-av" id="sidebar-av">C</div>
+        <div class="su-info">
+          <div class="su-name" id="sidebar-name">Coordinador</div>
+          <div class="su-role" id="sidebar-dept">Departamento</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <div class="page-header">
+      <div class="breadcrumb">Ámbar › <span>Dashboard</span></div>
+      <h1>Panel de Coordinación</h1>
+      <p id="subtitle-dept">Cargando información del departamento…</p>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid" id="kpi-grid">
+      <!-- Alumnos vigentes -->
+      <div class="kpi-card">
+        <div class="kpi-accent" style="background:var(--gold)"></div>
+        <div class="kpi-icon" style="background:var(--gold-lt);color:var(--gold)">🎓</div>
+        <div class="kpi-val skel" id="kpi-alumnos" style="width:60px;height:36px">‌</div>
+        <div class="kpi-label">Alumnos Vigentes</div>
+        <div class="kpi-sub" id="kpi-alumnos-sub"><span class="skel" style="width:80px;height:14px">‌</span></div>
+      </div>
+      <!-- Grupos activos -->
+      <div class="kpi-card">
+        <div class="kpi-accent" style="background:var(--info)"></div>
+        <div class="kpi-icon" style="background:#EFF6FF;color:var(--info)">📚</div>
+        <div class="kpi-val skel" id="kpi-grupos" style="width:60px;height:36px">‌</div>
+        <div class="kpi-label">Grupos Activos</div>
+        <div class="kpi-sub" id="kpi-grupos-sub"><span class="skel" style="width:80px;height:14px">‌</span></div>
+      </div>
+      <!-- Docentes -->
+      <div class="kpi-card">
+        <div class="kpi-accent" style="background:var(--success)"></div>
+        <div class="kpi-icon" style="background:#ECFDF5;color:var(--success)">👨‍🏫</div>
+        <div class="kpi-val skel" id="kpi-doc" style="width:60px;height:36px">‌</div>
+        <div class="kpi-label">Docentes Asignados</div>
+        <div class="kpi-sub" style="color:var(--success)">✓ Periodo activo</div>
+      </div>
+      <!-- Carreras -->
+      <div class="kpi-card">
+        <div class="kpi-accent" style="background:#8B5CF6"></div>
+        <div class="kpi-icon" style="background:#F5F3FF;color:#8B5CF6">🏛️</div>
+        <div class="kpi-val skel" id="kpi-carr" style="width:60px;height:36px">‌</div>
+        <div class="kpi-label">Carreras del Depto.</div>
+        <div class="kpi-sub" style="color:#8B5CF6">📋 Departamento activo</div>
+      </div>
+    </div>
+
+    <!-- TWO COL -->
+    <div class="two-col">
+
+      <!-- HISTORIAL -->
+      <div class="s-card">
+        <div class="s-head">
+          <div class="s-title">
+            <div class="s-title-icon" style="background:#EFF6FF;color:var(--info)">🕐</div>
+            Historial de Cambios
+          </div>
+          <a class="s-action" href="#">Ver todo →</a>
+        </div>
+        <div class="s-body">
+          <table class="h-table" id="historial-table">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Descripción</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody id="historial-body">
+              <tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-2)">
+                <span class="skel" style="width:200px;height:14px;display:inline-block">‌</span>
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <!-- PERIODO -->
+        <div class="period-card" id="period-card" style="animation:fadeUp .5s ease .3s both">
+          <div class="period-name">📅 Periodo Escolar</div>
+          <div class="period-row">
+            <span class="period-key">Período</span>
+            <span class="period-val" id="p-nombre">Cargando…</span>
+          </div>
+          <div class="period-row">
+            <span class="period-key">Inicio</span>
+            <span class="period-val" id="p-inicio">—</span>
+          </div>
+          <div class="period-row">
+            <span class="period-key">Cierre calificaciones</span>
+            <span class="period-val" id="p-fin">—</span>
+          </div>
+          <div class="period-row" style="margin-top:12px">
+            <span class="period-key">Estado</span>
+            <span class="period-active"><span class="period-dot"></span> En curso</span>
+          </div>
+        </div>
+
+        <!-- ACCIONES RÁPIDAS -->
+        <div class="s-card" style="animation-delay:.35s">
+          <div class="s-head">
+            <div class="s-title">
+              <div class="s-title-icon" style="background:var(--gold-lt);color:var(--gold)">⚡</div>
+              Acciones Rápidas
+            </div>
+          </div>
+          <div class="qa-grid">
+            <a class="qa-btn" href="grupos_coord.html">
+              <div class="qa-icon" style="background:#EFF6FF;color:var(--info)">📚</div>
+              <div>
+                <div class="qa-text">Gestionar Grupos</div>
+                <div class="qa-sub">Horarios · Docentes · Estatus</div>
+              </div>
+            </a>
+            <a class="qa-btn" href="alumnos_coord.html">
+              <div class="qa-icon" style="background:#ECFDF5;color:var(--success)">🎓</div>
+              <div>
+                <div class="qa-text">Gestionar Alumnos</div>
+                <div class="qa-sub">Grupos · Carrera · Especialidad</div>
+              </div>
+            </a>
+            <a class="qa-btn" href="grupos_coord.html?filter=cerrado">
+              <div class="qa-icon" style="background:#FEF2F2;color:var(--danger)">🔒</div>
+              <div>
+                <div class="qa-text">Grupos Cerrados</div>
+                <div class="qa-sub" id="qa-cerrados">0 grupos</div>
+              </div>
+            </a>
+            <a class="qa-btn" href="SoporteM.html">
+              <div class="qa-icon" style="background:#FFFBEB;color:var(--warn)">🔧</div>
+              <div>
+                <div class="qa-text">Soporte Técnico</div>
+                <div class="qa-sub">Tickets · Reportes</div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="../session.js"></script>
+<script>
+let sess;
+
+window.addEventListener('DOMContentLoaded', () => {
+  sess = getCoordSession();
+  if (!sess) return;
+
+  // Populate UI with session
+  const initials = (sess.nombre[0]||'') + (sess.apellidos[0]||'');
+  document.getElementById('coord-av').textContent = initials;
+  document.getElementById('sidebar-av').textContent = initials;
+  document.getElementById('coord-name').textContent = sess.nombre + ' ' + sess.apellidos;
+  document.getElementById('sidebar-name').textContent = sess.nombre + ' ' + sess.apellidos;
+  document.getElementById('sidebar-dept').textContent = sess.departamento;
+  document.getElementById('subtitle-dept').textContent = 'Departamento de ' + sess.departamento;
+
+  loadStats();
+  loadHistorial();
+  loadPeriodo();
+});
+
+async function loadStats() {
+  try {
+    const r = await fetch(`/coord/stats/${sess.idDepto}`);
+    const d = await r.json();
+
+    animateCount('kpi-alumnos', d.alumnosVigentes);
+    document.getElementById('kpi-alumnos-sub').innerHTML =
+      `<span class="badge badge-navy">Total: ${d.alumnosTotal}</span>`;
+
+    animateCount('kpi-grupos', d.gruposActivos);
+    document.getElementById('kpi-grupos-sub').innerHTML =
+      `<span class="badge badge-red">Cerrados: ${d.gruposCerrados}</span>`;
+
+    animateCount('kpi-doc', d.docentesActivos);
+    animateCount('kpi-carr', d.carreras);
+
+    document.getElementById('qa-cerrados').textContent = d.gruposCerrados + ' grupos';
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+async function loadHistorial() {
+  try {
+    const r = await fetch(`/coord/historial/${sess.ID_Coordinador}`);
+    const data = await r.json();
+    const tbody = document.getElementById('historial-body');
+    if (!data.length) {
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text-2)">Sin cambios registrados</td></tr>`;
+      return;
+    }
+    const typeMap = {
+      'GRUPO_EDIT':     ['badge-blue','📝 Grupo editado'],
+      'GRUPO_ESTATUS':  ['badge-yellow','🔒 Estatus grupo'],
+      'ALU_GRUPO':      ['badge-green','↔ Cambio grupo'],
+      'ALU_ESPECIALIDAD':['badge-navy','⭐ Especialidad'],
+      'ALU_CARRERA':    ['badge-yellow','🏛 Carrera'],
+    };
+    tbody.innerHTML = data.map((h,i) => {
+      const [cls, label] = typeMap[h.TipoCambio] || ['badge-blue', h.TipoCambio];
+      return `<tr style="animation-delay:${.3+i*.05}s">
+        <td><span class="badge ${cls}">${label}</span></td>
+        <td style="max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.Descripcion}</td>
+        <td style="font-size:12px;color:var(--text-2);white-space:nowrap">${h.Fecha}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+async function loadPeriodo() {
+  try {
+    const r = await fetch('/periodos');
+    const data = await r.json();
+    const activo = data.find(p => p.Activo == 1);
+    if (activo) {
+      document.getElementById('p-nombre').textContent = activo.Nombre || '—';
+      document.getElementById('p-inicio').textContent = activo.FechaInicio
+        ? new Date(activo.FechaInicio).toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'})
+        : '—';
+      document.getElementById('p-fin').textContent = activo.FechaFin
+        ? new Date(activo.FechaFin).toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'})
+        : '—';
+    }
+  } catch(e) {}
+}
+
+function animateCount(id, target) {
+  const el = document.getElementById(id);
+  el.classList.remove('skel');
+  el.style.width = 'auto'; el.style.height = 'auto';
+  el.classList.add('counting');
+  let cur = 0, steps = 30, step = Math.ceil(target / steps);
+  const iv = setInterval(() => {
+    cur = Math.min(cur + step, target);
+    el.textContent = cur;
+    if (cur >= target) clearInterval(iv);
+  }, 30);
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
+</script>
+</body>
+</html>

@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+ 
     body {
       font-family: 'Montserrat', sans-serif;
       min-height: 100vh;
@@ -15,7 +15,7 @@
       flex-direction: column;
       background: linear-gradient(to bottom, #1b3a6b 55%, #f0f0f0 55%);
     }
-
+ 
     .wrapper {
       flex: 1;
       display: flex;
@@ -23,7 +23,7 @@
       justify-content: center;
       padding: 40px 16px;
     }
-
+ 
     .card {
       background: #ffffff;
       border-radius: 10px;
@@ -35,16 +35,16 @@
       flex-direction: column;
       align-items: center;
     }
-
+ 
     .logo-area {
       display: flex;
       align-items: center;
       gap: 14px;
       margin-bottom: 18px;
     }
-
+ 
     .logo-svg { width: 66px; height: 66px; }
-
+ 
     .logo-label {
       display: flex;
       flex-direction: column;
@@ -64,7 +64,7 @@
       color: #777;
       letter-spacing: 0;
     }
-
+ 
     .app-title {
       font-size: 21px;
       font-weight: 700;
@@ -81,14 +81,14 @@
       text-align: center;
       margin-bottom: 18px;
     }
-
+ 
     .divider {
       width: 100%;
       border: none;
       border-top: 1px solid #ddd;
       margin-bottom: 18px;
     }
-
+ 
     .welcome {
       font-size: 12.5px;
       font-weight: 500;
@@ -97,18 +97,18 @@
       line-height: 1.55;
       margin-bottom: 22px;
     }
-
+ 
     .form { width: 100%; display: flex; flex-direction: column; gap: 15px; }
-
+ 
     .field { display: flex; flex-direction: column; gap: 5px; }
-
+ 
     label {
       font-size: 11.5px;
       font-weight: 700;
       color: #c0392b;
       letter-spacing: 0.01em;
     }
-
+ 
     input[type="text"],
     input[type="password"] {
       width: 100%;
@@ -126,7 +126,7 @@
       border-color: #1b3a6b;
       background: #eef1fb;
     }
-
+ 
     .pwd-wrap { position: relative; }
     .pwd-wrap input { padding-right: 40px; }
     .eye-btn {
@@ -143,7 +143,7 @@
       align-items: center;
     }
     .eye-btn:hover { color: #1b3a6b; }
-
+ 
     .btn-login {
       width: 100%;
       padding: 11.5px;
@@ -160,14 +160,14 @@
       transition: background .2s;
     }
     .btn-login:hover { background: #14305a; }
-
+ 
     .card-hr {
       width: 100%;
       border: none;
       border-top: 1px solid #ddd;
       margin: 22px 0 16px;
     }
-
+ 
     .btn-support {
       width: 100%;
       padding: 10.5px;
@@ -186,7 +186,7 @@
       transition: background .2s;
     }
     .btn-support:hover { background: #d4d4d4; }
-
+ 
     footer {
       text-align: center;
       padding: 12px 0 20px;
@@ -198,10 +198,10 @@
   </style>
 </head>
 <body>
-
+ 
 <div class="wrapper">
   <div class="card">
-
+ 
     <!-- Logo -->
     <div class="logo-area">
       <img src="img/logo.png" style="width: 100px ;height: 100px;">
@@ -211,18 +211,18 @@
         <span class="reg">®</span>
       </div>
     </div>
-
+ 
     <div class="app-title">AMBAR ESTUDIANTES</div>
     <div class="app-sub">TIJUANA</div>
     <hr class="divider"/>
     <p class="welcome">Bienvenido, ingresa tus credenciales para acceder a la plataforma</p>
     <div class="form">
-
+ 
       <div class="field">
         <label for="control">Número Control</label>
         <input type="text" id="control" placeholder="Número de control" autocomplete="off" oninput="this.value=this.value.replace(/\s/g,'')"/>
       </div>
-
+ 
       <div class="field">
         <label for="password">Contraseña</label>
         <div class="pwd-wrap">
@@ -236,12 +236,12 @@
           </button>
         </div>
       </div>
-
+ 
       <button class="btn-login" type="button" id="btn-login">Iniciar Sesion</button>
     </div>
-
+ 
     <div class="card-hr"></div>
-
+ 
     <button class="btn-support" type="button" id="btn-support">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
            stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -251,15 +251,15 @@
       </svg>
       Soporte AMBAR
     </button>
-
+ 
   </div>
 </div>
 <div id="mensaje" style="text-align:center; color:green; font-size:13px; margin-top:8px;"></div>
-
+ 
 <footer>
   &copy; 2026 by <a href="#">iFix</a> &ndash; <a href="#">Política de Privacidad</a>
 </footer>
-
+ 
 <script>
   function togglePwd() {
     const input = document.getElementById('password');
@@ -277,57 +277,93 @@
         <circle cx="12" cy="12" r="3"/>`;
     }
   }
-
+ 
+  // ── USUARIOS MOCK (demo sin BD) ──────────────────────────────────
+  // Contraseña siempre "1234" para estos usuarios especiales.
+  // Números de control puros van contra la BD real normalmente.
+  const MOCK_USERS = {
+    '100':  { rol: 'Coordinador',    nombre: 'Marco Antonio', apellidos: 'Rios Fuentes',
+              departamento: 'SISTEMAS Y COMPUTACION', idDepto: '1',
+              dest: 'Coordinador/inicio_coord.html' },
+    'P100': { rol: 'Docente',        nombre: 'Laura',         apellidos: 'Pérez Soto',
+              departamento: 'SISTEMAS Y COMPUTACION', idDepto: '1',
+              dest: 'maestro/home.html' },
+    'A100': { rol: 'Administración', nombre: 'Admin',         apellidos: 'Demo',
+              departamento: 'ADMINISTRACION',         idDepto: '0',
+              dest: 'Administracion/alumnosA.html' },
+  };
+ 
   document.getElementById("btn-login").addEventListener("click", function() {
-
-    // Guardar datos en las variables
-    let control  = document.getElementById("control").value;
+    let control  = document.getElementById("control").value.trim();
     let password = document.getElementById("password").value;
-
-    // Validar campos vacíos
+    const msg    = document.getElementById("mensaje");
+ 
     if (control === "" || password === "") {
-        document.getElementById("mensaje").innerText = "Debe llenar todos los campos!";
-        document.getElementById("mensaje").style.color = "orange";
-        return; 
+      msg.innerText    = "Debe llenar todos los campos!";
+      msg.style.color  = "orange";
+      return;
     }
-    else{
-
-    
-
-    // Enviar al servidor conexion.js
+ 
+    const controlUp = control.toUpperCase();
+ 
+    // ── RUTA MOCK: coordinador / docente / administración ──────────
+    if (MOCK_USERS[controlUp]) {
+      if (password !== '1234') {
+        msg.style.color = "red";
+        msg.innerText   = "Número de control o contraseña incorrectos";
+        return;
+      }
+      const u = MOCK_USERS[controlUp];
+      sessionStorage.setItem('rol',            u.rol);
+      sessionStorage.setItem('nombre',         u.nombre);
+      sessionStorage.setItem('apellidos',      u.apellidos);
+      sessionStorage.setItem('departamento',   u.departamento);
+      sessionStorage.setItem('idDepto',        u.idDepto);
+      sessionStorage.setItem('ID_Coordinador', '1');
+      sessionStorage.setItem('N_ctrl',         controlUp);
+      msg.style.color = "green";
+      msg.innerText   = "Bienvenido " + u.nombre;
+      setTimeout(() => window.location.href = u.dest, 1000);
+      return;
+    }
+ 
+    // ── RUTA REAL: alumnos (fetch a BD) ────────────────────────────
     fetch("/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ N_ctrl: control, pass: password })
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ N_ctrl: control, pass: password })
     })
     .then(res => res.json())
     .then(data => {
-        if (data.success) {
-            document.getElementById("mensaje").style.color = "green";
-            document.getElementById("mensaje").innerText = "Bienvenido " + data.nombre;
-            // Redirección con espera
-            
-          setTimeout(function(){
-            window.location.href = "alumnos/inicio.html";
-          },1500);
-
-            
-        } else {
-            document.getElementById("mensaje").style.color = "red";
-            document.getElementById("mensaje").innerText = "Número de control o contraseña incorrectos";
-        }
+      if (data.success) {
+        sessionStorage.setItem('N_ctrl',    data.N_ctrl);
+        sessionStorage.setItem('nombre',    data.nombre);
+        sessionStorage.setItem('apellidos', data.apellidos);
+        sessionStorage.setItem('email',     data.email);
+        sessionStorage.setItem('carrera',   data.carrera);
+        sessionStorage.setItem('semestre',  data.semestre);
+        sessionStorage.setItem('foto',      data.foto || '');
+        sessionStorage.setItem('rol',       'Alumno');
+        msg.style.color = "green";
+        msg.innerText   = "Bienvenido " + data.nombre;
+        setTimeout(() => window.location.href = "alumnos/inicio.html", 1500);
+      } else {
+        msg.style.color = "red";
+        msg.innerText   = "Número de control o contraseña incorrectos";
+      }
     })
-    .catch(error => {
-        document.getElementById("mensaje").innerText = "Error de conexión con el servidor";
-    });}
-});
-
+    .catch(() => {
+      msg.style.color = "red";
+      msg.innerText   = "Error de conexión con el servidor";
+    });
+  });
+ 
  //Comprobación de conexión a BD   
  document.getElementById("btn-support").addEventListener("click", function() {
     
     document.getElementById("mensaje").innerText = "Comprobando conexión...";
     document.getElementById("mensaje").style.color = "gray";
-
+ 
     fetch("/soporte")
     .then(res => res.json())
     .then(data => {
