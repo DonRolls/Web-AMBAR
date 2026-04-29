@@ -18,7 +18,7 @@
     ];
 
     const enlacesInferiores = [
-        { texto: 'Soporte',     icono: '❓', url: 'soporte.html', id: 'soporte' },
+        { texto: 'Soporte',     icono: '❓', url: 'soporteM.html', id: 'soporte' },
         { texto: 'Guía de uso', icono: '📖', url: 'guia.html',    id: 'guia' },
     ];
 
