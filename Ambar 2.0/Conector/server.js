@@ -9,7 +9,7 @@ const PORT = 3000;
 app.use(express.json());
 
 // Servir archivos estáticos (tu HTML, CSS, e imágenes)
-// Coloca tu index.html dentro de una carpeta llamada "public"
+// Coloca tu index.html dentro de una carpeta llamada "Conector"
 app.use(express.static(path.join(__dirname, 'Conector')));
 
 
