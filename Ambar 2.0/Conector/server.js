@@ -17,7 +17,7 @@ const dbConfig = {
     user: 'sa',                  // Cambia por tu usuario de SQL Server
     password: 'anotencontraseña',  // Cambia por tu contraseña
     server: 'localhost',         // Si usas una instancia con nombre: 'localhost\\SQLEXPRESS'
-    database: 'Ambar',         // El nombre de tu base de datos
+    database: 'ambar',         // El nombre de tu base de datos
     options: {
         encrypt: false,          // Falso para desarrollo local
         trustServerCertificate: true 
