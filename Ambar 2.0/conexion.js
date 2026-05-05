@@ -7,13 +7,14 @@ app.use(express.static("."));
  
 
 const config = {
-    user:     "emmanuel",          
-    password: "emmanuel3131",   
+    //user:     "emmanuel",          
+    //password: "emmanuel3131",   
     server:   "localhost",
     database: "ambar",
     options: {
         encrypt:                false,
         trustServerCertificate: true,
+        trustedConnection: true
     },
 };
  
@@ -30,11 +31,12 @@ conectar().catch(err => {
 });
  
 
-//  LOGIN
+// LOGIN UNIFICADO (Alumnos y Coordinadores)
 app.post("/login", async (req, res) => {
     const { N_ctrl, pass } = req.body;
     try {
-        const result = await pool.request()
+        // 1. Intentar validar como Alumno
+        const resultAlumno = await pool.request()
             .input("N_ctrl", sql.NVarChar, String(N_ctrl))
             .input("pass",   sql.NVarChar, pass)
             .query(`
@@ -42,28 +44,52 @@ app.post("/login", async (req, res) => {
                        c.Nombre AS Carrera, a.Semestre, a.Estatus, a.Foto
                 FROM   Alumnos  a
                 JOIN   carrera c ON a.ID_Carrera = c.ID_Carrera
-                WHERE  a.N_ctrl = @N_ctrl AND a.Pass = @pass
+                WHERE  a.N_ctrl = @N_ctrl 
+                  AND  a.Pass = CAST(HASHBYTES('SHA2_256', @pass) AS NVARCHAR(255))
             `);
- 
-        if (result.recordset.length > 0) {
-            const u = result.recordset[0];
-            res.json({
+
+        if (resultAlumno.recordset.length > 0) {
+            const u = resultAlumno.recordset[0];
+            return res.json({
                 success:   true,
+                rol:       'Alumno',
                 N_ctrl:    u.N_ctrl,
                 nombre:    u.Nombre,
                 apellidos: u.Apellidos,
                 email:     u.Email,
                 carrera:   u.Carrera,
                 semestre:  u.Semestre,
-                estatus:   u.Estatus,
-                foto:      u.Foto,
+                foto:      u.Foto
             });
-        } else {
-            res.json({ success: false });
         }
+
+        // 2. Si no es alumno, intentar validar como Coordinador
+        // Nota: El Coordinador usa su Email en lugar del N_ctrl para logearse
+        const resultCoord = await pool.request()
+            .input("Email", sql.NVarChar, String(N_ctrl)) 
+            .input("Pass",  sql.NVarChar, pass)
+            .execute('sp_LoginCoordinador');
+
+        if (resultCoord.recordset && resultCoord.recordset.length > 0) {
+            const c = resultCoord.recordset[0];
+            return res.json({
+                success:        true,
+                rol:            'Coordinador',
+                idCoordinador:  c.ID_Coordinador,
+                nombre:         c.Nombre,
+                apellidos:      c.Apellidos,
+                email:          c.Email,
+                departamento:   c.Departamento,
+                idDepto:        c.ID_Departamento
+            });
+        }
+
+        // 3. Si no se encuentra en ninguna de las dos tablas
+        res.json({ success: false, error: "Credenciales incorrectas" });
+
     } catch (err) {
         console.error("Error /login:", err.message);
-        res.status(500).json({ success: false, error: err.message });
+        res.status(500).json({ success: false, error: "Error interno del servidor" });
     }
 });
  

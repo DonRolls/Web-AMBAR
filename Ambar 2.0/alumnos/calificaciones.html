@@ -74,139 +74,50 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 </head>
 <body>
 <header class="topbar">
-  <div class="topbar-left">
-    <span class="hbg" onclick="toggleSidebar()">☰</span>
-    <div class="brand">
-      <div class="brand-badge">TEC<br>NM</div>
-      <div class="brand-name">Tecnológico Nacional de México<span>Portal Estudiantes</span></div>
+    <div class="topbar-left">
+        <span class="hbg">☰</span>
+        <div class="brand">
+            <div class="brand-badge">TEC<br>NM</div>
+            <div class="brand-name">Tecnológico Nacional de México<span>Portal Estudiantes</span></div>
+        </div>
     </div>
-  </div>
-  <div class="topbar-right">
-    <span class="stu-tag">Estudiante</span>
-    <div class="avatar">👤</div>
-    <button class="logout-btn">Cerrar sesión</button>
-  </div>
+    <div class="topbar-right">
+        <span class="stu-tag">Estudiante</span>
+        <div class="avatar">👤</div>
+        <button class="logout-btn">Cerrar sesión</button>
+    </div>
 </header>
+
 <div class="layout">
   <div id="main-sidebar"><div id="sidebar-container" style="display:flex;flex-direction:column;height:100%"></div></div>
   <script src="sidebar.js"></script>
   <main class="main">
     <div class="breadcrumb">Portal Estudiantes <span>›</span> <span>Calificaciones</span></div>
     <div class="page-header"><h1>Calificaciones</h1></div>
+    
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main class="main">
+        <div class="breadcrumb">Portal Estudiantes <span>›</span> <span>Calificaciones</span></div>
+        <div class="page-header"><h1>Calificaciones</h1></div>
 
-    <div class="boleta-bar">
-      <div class="periodo-wrap">
-        <label>Periodo</label>
-        <select>
-          <option value="">Seleccione periodo</option>
-          <option>2024 – Enero / Junio</option>
-          <option>2024 – Agosto / Diciembre</option>
-          <option>2025 – Enero / Junio</option>
-        </select>
-        <span class="periodo-arrow">▾</span>
-      </div>
-      <button class="btn-dl">⬇ Descargar Boleta</button>
-    </div>
-
-    <div class="sec-title"><div class="sec-icon">📋</div>Calificaciones por materia</div>
-
-    <!-- MATERIA 1 -->
-    <div class="acc-item">
-      <div class="acc-header open" onclick="toggleAcc(this)">
-        <span class="acc-header-title">SERVICIO SOCIAL</span><span class="chevron open">▾</span>
-      </div>
-      <div class="acc-body open">
-        <div class="sub-title">📊 Datos Generales</div>
-        <div class="datos-grid">
-          <div>Materia: <span>SERVICIO SOCIAL</span></div>
-          <div>Docente: <span>—</span></div>
-          <div>Créditos: <span>10</span></div>
-          <div>Grupo: <span>TI9A</span></div>
-          <div>Clave: <span>4IIF9</span></div>
+        <div class="boleta-bar">
+            <div class="periodo-wrap">
+                <label>Periodo</label>
+                <!-- Select vacío para ser llenado por el JS -->
+                <select id="selectPeriodo">
+                    <option value="">Cargando periodos...</option>
+                </select>
+                <span class="periodo-arrow">▾</span>
+            </div>
+            <button class="btn-dl">⬇ Descargar Boleta</button>
         </div>
-        <hr class="divider">
-        <div class="sub-title">📅 Horario</div>
-        <table class="h-mini"><thead><tr><th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th></tr></thead><tbody><tr><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr></tbody></table>
-        <hr class="divider">
-        <div class="sub-title">📈 Calificación Final</div>
-        <div class="cal-label">Final</div>
-        <span class="cal-badge cal-nc">0 — NC</span>
-      </div>
-    </div>
 
-    <!-- MATERIA 2 -->
-    <div class="acc-item">
-      <div class="acc-header" onclick="toggleAcc(this)">
-        <span class="acc-header-title">DESARROLLO DE APLICACIONES WEB</span><span class="chevron">▾</span>
-      </div>
-      <div class="acc-body">
-        <div class="sub-title">📊 Datos Generales</div>
-        <div class="datos-grid">
-          <div>Materia: <span>DESARROLLO DE APLICACIONES WEB</span></div>
-          <div>Docente: <span>PROF. MARTINEZ LOPEZ</span></div>
-          <div>Créditos: <span>5</span></div>
-          <div>Grupo: <span>06A</span></div>
-          <div>Clave: <span>DAW01</span></div>
-        </div>
-        <hr class="divider">
-        <div class="sub-title">📅 Horario</div>
-        <table class="h-mini"><thead><tr><th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th></tr></thead><tbody><tr><td>15:00–16:00</td><td>15:00–16:00</td><td>15:00–16:00</td><td>15:00–16:00</td><td>15:00–16:00</td><td>—</td><td>—</td></tr></tbody></table>
-        <hr class="divider">
-        <div class="sub-title">📈 Calificación Final</div>
-        <div class="cal-label">Final</div>
-        <span class="cal-badge cal-ok">92 — AC</span>
-      </div>
-    </div>
+        <div class="sec-title"><div class="sec-icon">📋</div>Calificaciones por materia</div>
 
-    <!-- MATERIA 3 -->
-    <div class="acc-item">
-      <div class="acc-header" onclick="toggleAcc(this)">
-        <span class="acc-header-title">DESARROLLO E IMPLEMENTACIÓN DE SISTEMAS DE INFORMACIÓN</span><span class="chevron">▾</span>
-      </div>
-      <div class="acc-body">
-        <div class="sub-title">📊 Datos Generales</div>
-        <div class="datos-grid">
-          <div>Materia: <span>DES. IMP. SIST. INF.</span></div>
-          <div>Docente: <span>PROF. GARCIA RUIZ</span></div>
-          <div>Créditos: <span>5</span></div>
-          <div>Grupo: <span>06A</span></div>
-          <div>Clave: <span>DISI2</span></div>
-        </div>
-        <hr class="divider">
-        <div class="sub-title">📅 Horario</div>
-        <table class="h-mini"><thead><tr><th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th></tr></thead><tbody><tr><td>14:00–15:00</td><td>14:00–15:00</td><td>14:00–15:00</td><td>14:00–15:00</td><td>14:00–15:00</td><td>—</td><td>—</td></tr></tbody></table>
-        <hr class="divider">
-        <div class="sub-title">📈 Calificación Final</div>
-        <div class="cal-label">Final</div>
-        <span class="cal-badge cal-ok">88 — AC</span>
-      </div>
-    </div>
+        <!-- Las materias se insertarán aquí dinámicamente -->
+        <div id="materias-container"></div>
 
-    <!-- MATERIA 4 -->
-    <div class="acc-item">
-      <div class="acc-header" onclick="toggleAcc(this)">
-        <span class="acc-header-title">ESTRATEGIA DE GESTIÓN DE SERVICIOS DE TI</span><span class="chevron">▾</span>
-      </div>
-      <div class="acc-body">
-        <div class="sub-title">📊 Datos Generales</div>
-        <div class="datos-grid">
-          <div>Materia: <span>ESTRATEG. GEST SERV.</span></div>
-          <div>Docente: <span>PROF. HERNANDEZ DIAZ</span></div>
-          <div>Créditos: <span>4</span></div>
-          <div>Grupo: <span>08A</span></div>
-          <div>Clave: <span>EGS03</span></div>
-        </div>
-        <hr class="divider">
-        <div class="sub-title">📅 Horario</div>
-        <table class="h-mini"><thead><tr><th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th></tr></thead><tbody><tr><td>16:00–17:00</td><td>16:00–17:00</td><td>16:00–17:00</td><td>16:00–17:00</td><td>16:00–17:00</td><td>—</td><td>—</td></tr></tbody></table>
-        <hr class="divider">
-        <div class="sub-title">📈 Calificación Final</div>
-        <div class="cal-label">Final</div>
-        <span class="cal-badge cal-re">55 — RE</span>
-      </div>
-    </div>
-
-  </main>
+    </main>
 </div>
 <script>
 function toggleAcc(header){
