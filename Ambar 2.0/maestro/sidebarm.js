@@ -13,7 +13,7 @@
     ];
 
     const bottomItems = [
-        { icon: "❓", label: "soporte",        href: "soporteM.html"},
+        { icon: "❓", label: "soporte",        href: "SoporteMa.html"},
         { icon: "⚙️", label: "Configuración",  href: "#" },
         { icon: "🚪", label: "Cerrar sesión",  href: "#", id: "btn-logout" },
     ];
