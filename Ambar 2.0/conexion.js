@@ -376,6 +376,361 @@ app.get("/periodo-carga", async (req, res) => {
 });
  
 
+//  ─────────────────────────────────────────────────────────────────
+//  ENDPOINTS — COORDINADOR  (/coord/...)
+//  ─────────────────────────────────────────────────────────────────
+
+// Helper: registrar historial
+async function registrarHistorial(idCoord, tipoCambio, descripcion) {
+    await pool.request()
+        .input("ID_Coordinador", sql.Int,      parseInt(idCoord))
+        .input("TipoCambio",     sql.NVarChar, tipoCambio)
+        .input("Descripcion",    sql.NVarChar, descripcion)
+        .query("INSERT INTO HistorialCambios (ID_Coordinador,TipoCambio,Descripcion) VALUES (@ID_Coordinador,@TipoCambio,@Descripcion)");
+}
+
+app.get("/coord/stats/:idDepto", async (req, res) => {
+    try {
+        const result = await pool.request()
+            .input("ID_Departamento", sql.Int, parseInt(req.params.idDepto))
+            .execute("sp_CoordStats");
+        res.json(result.recordset[0] || {});
+    } catch (err) {
+        console.error("Error /coord/stats:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get("/coord/historial/:idCoord", async (req, res) => {
+    try {
+        const result = await pool.request()
+            .input("ID_Coordinador", sql.Int, parseInt(req.params.idCoord))
+            .query(`
+                SELECT TOP 20
+                       TipoCambio, Descripcion,
+                       CONVERT(VARCHAR(16), Fecha, 120) AS Fecha
+                FROM HistorialCambios
+                WHERE ID_Coordinador = @ID_Coordinador
+                ORDER BY Fecha DESC
+            `);
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get("/coord/docentes", async (req, res) => {
+    try {
+        const result = await pool.request()
+            .query("SELECT ID_Docente, Nombre+' '+Apellidos AS NombreCompleto FROM Docentes ORDER BY Nombre");
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get("/coord/grupos/:idDepto", async (req, res) => {
+    try {
+        const result = await pool.request()
+            .input("ID_Departamento", sql.Int, parseInt(req.params.idDepto))
+            .query(`
+                SELECT g.ID_Grupo, g.Aula, g.Semestre, g.Estatus, g.ID_Docente,
+                       m.Clave AS ClaveMat, m.Nombre AS Materia, m.Creditos,
+                       d.Nombre+' '+d.Apellidos AS Docente,
+                       (SELECT COUNT(*) FROM Inscripciones WHERE ID_Grupo = g.ID_Grupo) AS Inscritos,
+                       (SELECT STRING_AGG(
+                           hg.DiaSemana+' '+
+                           CONVERT(VARCHAR(5),hg.HoraInicio,108)+'-'+
+                           CONVERT(VARCHAR(5),hg.HoraFin,   108), ' | ')
+                        FROM HorarioGrupo hg WHERE hg.ID_Grupo = g.ID_Grupo) AS Horario
+                FROM Grupos g
+                JOIN Materias m ON g.ID_Materia = m.ID_Materia
+                JOIN Docentes d ON g.ID_Docente = d.ID_Docente
+                JOIN carrera c  ON m.id_carrera = c.id_carrera
+                JOIN PeriodosEscolares pe ON g.ID_Periodo = pe.ID_Periodo
+                WHERE pe.Activo = 1
+                  AND c.ID_Departamento = @ID_Departamento
+                ORDER BY m.Nombre
+            `);
+        res.json(result.recordset);
+    } catch (err) {
+        console.error("Error /coord/grupos:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.put("/coord/grupos/:id/estatus", async (req, res) => {
+    const { Estatus, idCoord, descripcion } = req.body;
+    const gid = parseInt(req.params.id);
+
+    if (!['ABIERTO','CERRADO'].includes(Estatus))
+        return res.status(400).json({ success: false, error: "Estatus inválido" });
+
+    try {
+        await pool.request()
+            .input("ID_Grupo", sql.Int,      gid)
+            .input("Estatus",  sql.NVarChar, Estatus)
+            .query("UPDATE Grupos SET Estatus=@Estatus WHERE ID_Grupo=@ID_Grupo");
+
+        await registrarHistorial(idCoord, "GRUPO_ESTATUS", descripcion);
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Error PUT /coord/grupos/estatus:", err.message);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.put("/coord/grupos/:id", async (req, res) => {
+    const { ID_Docente, Aula, idCoord, descripcion } = req.body;
+    const gid = parseInt(req.params.id);
+
+    if (!ID_Docente || !Aula)
+        return res.status(400).json({ success: false, error: "Datos incompletos" });
+
+    try {
+        await pool.request()
+            .input("ID_Grupo",  sql.Int,      gid)
+            .input("ID_Docente",sql.Int,      parseInt(ID_Docente))
+            .input("Aula",      sql.NVarChar, Aula.trim())
+            .query("UPDATE Grupos SET ID_Docente=@ID_Docente, Aula=@Aula WHERE ID_Grupo=@ID_Grupo");
+
+        await registrarHistorial(idCoord, "GRUPO_EDIT", descripcion);
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Error PUT /coord/grupos:", err.message);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.put("/coord/grupos/:id/horario", async (req, res) => {
+    const { horarios, idCoord } = req.body;
+    const gid = parseInt(req.params.id);
+
+    if (!Array.isArray(horarios) || !horarios.length)
+        return res.status(400).json({ success: false, error: "Horarios vacíos" });
+
+    const transaction = new sql.Transaction(pool);
+    try {
+        await transaction.begin();
+
+        await new sql.Request(transaction)
+            .input("ID_Grupo", sql.Int, gid)
+            .query("DELETE FROM HorarioGrupo WHERE ID_Grupo=@ID_Grupo");
+
+        for (const h of horarios) {
+            await new sql.Request(transaction)
+                .input("ID_Grupo",   sql.Int,      gid)
+                .input("DiaSemana",  sql.NVarChar, h.DiaSemana)
+                .input("HoraInicio", sql.Time,     h.HoraInicio)
+                .input("HoraFin",    sql.Time,     h.HoraFin)
+                .query(`INSERT INTO HorarioGrupo (ID_Grupo,DiaSemana,HoraInicio,HoraFin)
+                        VALUES (@ID_Grupo,@DiaSemana,@HoraInicio,@HoraFin)`);
+        }
+
+        await transaction.commit();
+
+        const info = await pool.request()
+            .input("ID_Grupo", sql.Int, gid)
+            .query("SELECT m.Clave FROM Grupos g JOIN Materias m ON g.ID_Materia=m.ID_Materia WHERE g.ID_Grupo=@ID_Grupo");
+        const clave = info.recordset[0]?.Clave || gid;
+
+        await registrarHistorial(idCoord, "GRUPO_EDIT", `Horario del grupo ${clave} actualizado`);
+        res.json({ success: true });
+    } catch (err) {
+        await transaction.rollback().catch(() => {});
+        console.error("Error PUT /coord/grupos/horario:", err.message);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.get("/coord/alumnos/:idDepto", async (req, res) => {
+    try {
+        const result = await pool.request()
+            .input("ID_Departamento", sql.Int, parseInt(req.params.idDepto))
+            .query(`
+                SELECT a.N_ctrl, a.Nombre, a.Apellidos, a.Email,
+                       a.Semestre, a.Estatus, a.id_carrera,
+                       c.Nombre AS Carrera,
+                       e.Nombre AS Especialidad,
+                       e.id_especialidad AS ID_Especialidad,
+                       (SELECT COUNT(*) FROM Inscripciones i
+                        JOIN Grupos g ON i.ID_Grupo=g.ID_Grupo
+                        JOIN PeriodosEscolares pe ON g.ID_Periodo=pe.ID_Periodo
+                        WHERE i.N_ctrl=a.N_ctrl AND pe.Activo=1) AS GruposActivos
+                FROM Alumnos a
+                JOIN carrera c         ON a.id_carrera      = c.id_carrera
+                LEFT JOIN especialidad e ON a.ID_Especialidad = e.id_especialidad
+                WHERE c.ID_Departamento = @ID_Departamento
+                ORDER BY a.Apellidos, a.Nombre
+            `);
+        res.json(result.recordset);
+    } catch (err) {
+        console.error("Error /coord/alumnos:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get("/coord/grupos-disponibles/:nctrl", async (req, res) => {
+    try {
+        const result = await pool.request()
+            .input("N_ctrl", sql.NVarChar, req.params.nctrl)
+            .query(`
+                SELECT g.ID_Grupo, m.Clave, m.Nombre AS Materia,
+                       d.Nombre+' '+d.Apellidos AS Docente,
+                       g.Aula,
+                       (SELECT COUNT(*) FROM Inscripciones WHERE ID_Grupo=g.ID_Grupo) AS Inscritos,
+                       (SELECT STRING_AGG(
+                           hg.DiaSemana+' '+
+                           CONVERT(VARCHAR(5),hg.HoraInicio,108)+'-'+
+                           CONVERT(VARCHAR(5),hg.HoraFin,   108), ', ')
+                        FROM HorarioGrupo hg WHERE hg.ID_Grupo=g.ID_Grupo) AS Horario
+                FROM Grupos g
+                JOIN Materias m ON g.ID_Materia = m.ID_Materia
+                JOIN Docentes d ON g.ID_Docente = d.ID_Docente
+                JOIN PeriodosEscolares pe ON g.ID_Periodo = pe.ID_Periodo
+                WHERE pe.Activo = 1
+                  AND g.Estatus = 'ABIERTO'
+                  AND g.ID_Grupo NOT IN (
+                      SELECT i.ID_Grupo FROM Inscripciones i WHERE i.N_ctrl = @N_ctrl
+                  )
+                ORDER BY m.Nombre
+            `);
+        res.json(result.recordset);
+    } catch (err) {
+        console.error("Error /coord/grupos-disponibles:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post("/coord/alumnos/cambiar-grupo", async (req, res) => {
+    const { N_ctrl, ID_Grupo_Nuevo, idCoord } = req.body;
+
+    if (!N_ctrl || !ID_Grupo_Nuevo)
+        return res.status(400).json({ success: false, error: "Datos incompletos" });
+
+    try {
+        const check = await pool.request()
+            .input("ID_Grupo", sql.Int, parseInt(ID_Grupo_Nuevo))
+            .query("SELECT Estatus FROM Grupos WHERE ID_Grupo=@ID_Grupo");
+
+        if (!check.recordset.length || check.recordset[0].Estatus === 'CERRADO')
+            return res.json({ success: false, mensaje: "El grupo está cerrado o no existe" });
+
+        const dup = await pool.request()
+            .input("N_ctrl",   sql.NVarChar, N_ctrl)
+            .input("ID_Grupo", sql.Int,      parseInt(ID_Grupo_Nuevo))
+            .query("SELECT 1 FROM Inscripciones WHERE N_ctrl=@N_ctrl AND ID_Grupo=@ID_Grupo");
+
+        if (dup.recordset.length)
+            return res.json({ success: false, mensaje: "El alumno ya está inscrito en ese grupo" });
+
+        await pool.request()
+            .input("N_ctrl",   sql.NVarChar, N_ctrl)
+            .input("ID_Grupo", sql.Int,      parseInt(ID_Grupo_Nuevo))
+            .query("INSERT INTO Inscripciones (N_ctrl,ID_Grupo) VALUES (@N_ctrl,@ID_Grupo)");
+
+        const ins = await pool.request()
+            .input("N_ctrl",   sql.NVarChar, N_ctrl)
+            .input("ID_Grupo", sql.Int,      parseInt(ID_Grupo_Nuevo))
+            .query("SELECT ID_Inscripcion FROM Inscripciones WHERE N_ctrl=@N_ctrl AND ID_Grupo=@ID_Grupo");
+
+        if (ins.recordset.length) {
+            await pool.request()
+                .input("ID_Inscripcion", sql.Int, ins.recordset[0].ID_Inscripcion)
+                .query("INSERT INTO Calificaciones (ID_Inscripcion) VALUES (@ID_Inscripcion)");
+        }
+
+        const info = await pool.request()
+            .input("ID_Grupo", sql.Int, parseInt(ID_Grupo_Nuevo))
+            .query("SELECT m.Nombre AS Materia FROM Grupos g JOIN Materias m ON g.ID_Materia=m.ID_Materia WHERE g.ID_Grupo=@ID_Grupo");
+
+        const materia = info.recordset[0]?.Materia || ID_Grupo_Nuevo;
+        await registrarHistorial(idCoord, "ALU_GRUPO", `Alumno ${N_ctrl} inscrito en ${materia}`);
+
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Error POST /coord/alumnos/cambiar-grupo:", err.message);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.put("/coord/alumnos/:nctrl/especialidad", async (req, res) => {
+    const { ID_Especialidad, idCoord } = req.body;
+    const nctrl = req.params.nctrl;
+
+    try {
+        await pool.request()
+            .input("N_ctrl",         sql.NVarChar, nctrl)
+            .input("ID_Especialidad",sql.Int,      parseInt(ID_Especialidad))
+            .query("UPDATE Alumnos SET ID_Especialidad=@ID_Especialidad WHERE N_ctrl=@N_ctrl");
+
+        const info = await pool.request()
+            .input("ID_Especialidad", sql.Int, parseInt(ID_Especialidad))
+            .query("SELECT Nombre FROM especialidad WHERE id_especialidad=@ID_Especialidad");
+
+        const esp = info.recordset[0]?.Nombre || ID_Especialidad;
+        await registrarHistorial(idCoord, "ALU_ESPECIALIDAD", `Alumno ${nctrl} → especialidad: ${esp}`);
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Error PUT /especialidad:", err.message);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.put("/coord/alumnos/:nctrl/carrera", async (req, res) => {
+    const { id_carrera_nueva, idCoord, idDepto } = req.body;
+    const nctrl = req.params.nctrl;
+
+    try {
+        const check = await pool.request()
+            .input("id_carrera",       sql.Int, parseInt(id_carrera_nueva))
+            .input("ID_Departamento",  sql.Int, parseInt(idDepto))
+            .query("SELECT 1 FROM carrera WHERE id_carrera=@id_carrera AND ID_Departamento=@ID_Departamento");
+
+        if (!check.recordset.length)
+            return res.json({ success: false, mensaje: "La carrera no pertenece a tu departamento" });
+
+        await pool.request()
+            .input("N_ctrl",      sql.NVarChar, nctrl)
+            .input("id_carrera",  sql.Int,      parseInt(id_carrera_nueva))
+            .query("UPDATE Alumnos SET id_carrera=@id_carrera, ID_Especialidad=NULL WHERE N_ctrl=@N_ctrl");
+
+        const info = await pool.request()
+            .input("id_carrera", sql.Int, parseInt(id_carrera_nueva))
+            .query("SELECT Nombre FROM carrera WHERE id_carrera=@id_carrera");
+
+        const carr = info.recordset[0]?.Nombre || id_carrera_nueva;
+        await registrarHistorial(idCoord, "ALU_CARRERA", `Alumno ${nctrl} transferido a carrera: ${carr}`);
+        res.json({ success: true });
+    } catch (err) {
+        console.error("Error PUT /carrera:", err.message);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.get("/coord/carreras/:idDepto", async (req, res) => {
+    try {
+        const result = await pool.request()
+            .input("ID_Departamento", sql.Int, parseInt(req.params.idDepto))
+            .query("SELECT id_carrera, Nombre FROM carrera WHERE ID_Departamento=@ID_Departamento ORDER BY Nombre");
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get("/coord/especialidades/:idCarrera", async (req, res) => {
+    try {
+        const result = await pool.request()
+            .input("id_carrera", sql.Int, parseInt(req.params.idCarrera))
+            .query("SELECT id_especialidad, Nombre FROM especialidad WHERE id_carrera=@id_carrera ORDER BY Nombre");
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
 //  SERVIDOR
 app.listen(3000, () => {
     console.log("Servidor AMBAR en http://localhost:3000");
