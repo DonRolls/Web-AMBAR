@@ -61,6 +61,58 @@ th.criterion{width:40px;text-align:center;font-size:11px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
+<script>
+// ELIMINAR EVIDENCIA
+document.addEventListener("click", function(e) {
+  if (e.target.classList.contains("btn-delete")) {
+    if (confirm("¿Eliminar esta evidencia?")) {
+      const fila = e.target.closest("tr");
+      fila.remove();
+      actualizarContador();
+    }
+  }
+});
+// EDITAR EVIDENCIA
+document.addEventListener("click", function(e) {
+  if (e.target.classList.contains("btn-edit")) {
+    const fila = e.target.closest("tr");
+    const celda = fila.children[0];
+    // IMPORTANTE: usamos innerHTML para soportar listas
+    const contenidoActual = celda.innerHTML;
+    const nuevoContenido = prompt(
+      "Edita la evidencia (puedes usar HTML básico):",
+      contenidoActual
+    );
+    if (nuevoContenido !== null && nuevoContenido.trim() !== "") {
+      celda.innerHTML = nuevoContenido;
+    }
+  }
+});
+// AGREGAR NUEVA EVIDENCIA
+document.querySelector(".btn-add").addEventListener("click", function() {
+  const nuevaEvidencia = prompt("Escribe la nueva evidencia:");
+  if (nuevaEvidencia !== null && nuevaEvidencia.trim() !== "") {
+    const tbody = document.querySelector("tbody");
+    const nuevaFila = document.createElement("tr");
+    nuevaFila.innerHTML = `
+      <td>${nuevaEvidencia}</td>
+      <td>
+        <div class="btn-group">
+          <button class="btn-sm btn-edit">Editar</button>
+          <button class="btn-sm btn-delete">Eliminar</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(nuevaFila);
+    actualizarContador();
+  }
+});
+// ACTUALIZAR CONTADOR
+function actualizarContador() {
+  const total = document.querySelectorAll("tbody tr").length;
+  document.querySelector(".tc-count").textContent = total + " evidencias";
+}
+</script>
 <body>
 
 <header class="topbar">
