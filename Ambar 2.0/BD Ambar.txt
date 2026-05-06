@@ -1,0 +1,389 @@
+-- ============================================================
+-- ELIMINAR BASE DE DATOS EXISTENTE (¡CUIDADO! BORRA TODO)
+-- ============================================================
+USE master;
+GO
+ALTER DATABASE ambar SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+DROP DATABASE ambar;
+GO
+
+-- ============================================================
+-- CREAR NUEVA BASE DE DATOS
+-- ============================================================
+CREATE DATABASE ambar;
+GO
+USE ambar;
+GO
+
+-- ============================================================
+-- ESTRUCTURA DE TABLAS (Pass como NVARCHAR, TEXTO PLANO)
+-- ============================================================
+CREATE TABLE Departamentos (
+    ID_Departamento INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre NVARCHAR(200) NOT NULL
+);
+
+CREATE TABLE carrera (
+    id_carrera INT IDENTITY(1,1) PRIMARY KEY,
+    clave NVARCHAR(20) NOT NULL UNIQUE,
+    nombre NVARCHAR(150) NOT NULL,
+    ID_Departamento INT NULL,
+    CONSTRAINT FK_Carrera_Depto FOREIGN KEY (ID_Departamento) REFERENCES Departamentos(ID_Departamento)
+);
+
+CREATE TABLE especialidad (
+    id_especialidad INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre NVARCHAR(200) NOT NULL,
+    id_carrera INT NOT NULL,
+    CONSTRAINT FK_especialidad_Carrera FOREIGN KEY (id_carrera) REFERENCES carrera(id_carrera)
+);
+
+CREATE TABLE Alumnos (
+    N_ctrl NVARCHAR(10) NOT NULL PRIMARY KEY,
+    Nombre NVARCHAR(100) NOT NULL,
+    Apellidos NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(150) NOT NULL,
+    Pass NVARCHAR(255) NOT NULL,          -- TEXTO PLANO
+    id_carrera INT NOT NULL,
+    ID_Especialidad INT NULL,
+    Semestre INT NOT NULL DEFAULT 1,
+    Estatus NVARCHAR(20) NOT NULL DEFAULT 'VIGENTE',
+    Foto NVARCHAR(300) NULL,
+    FechaIngreso DATE NULL,
+    CONSTRAINT FK_Alumnos_Carrera FOREIGN KEY (id_carrera) REFERENCES carrera(id_carrera),
+    CONSTRAINT FK_Alumnos_Especialidad FOREIGN KEY (ID_Especialidad) REFERENCES especialidad(id_especialidad)
+);
+
+CREATE TABLE Docentes (
+    ID_Docente INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre NVARCHAR(100) NOT NULL,
+    Apellidos NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(150) NULL
+);
+
+CREATE TABLE Materias (
+    ID_Materia INT IDENTITY(1,1) PRIMARY KEY,
+    Clave NVARCHAR(20) NOT NULL UNIQUE,
+    Nombre NVARCHAR(150) NOT NULL,
+    Creditos INT NOT NULL DEFAULT 0,
+    EsOptativa BIT NOT NULL DEFAULT 0,
+    id_carrera INT NOT NULL,
+    CONSTRAINT FK_Materias_Carrera FOREIGN KEY (id_carrera) REFERENCES carrera(id_carrera)
+);
+
+CREATE TABLE PeriodosEscolares (
+    ID_Periodo INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre NVARCHAR(50) NOT NULL,
+    FechaInicio DATE NOT NULL,
+    FechaFin DATE NOT NULL,
+    Activo BIT NOT NULL DEFAULT 0
+);
+
+CREATE TABLE Grupos (
+    ID_Grupo INT IDENTITY(1,1) PRIMARY KEY,
+    ID_Materia INT NOT NULL,
+    ID_Docente INT NOT NULL,
+    ID_Periodo INT NOT NULL,
+    Aula NVARCHAR(20) NOT NULL,
+    Semestre INT NOT NULL,
+    Estatus NVARCHAR(20) NOT NULL DEFAULT 'ABIERTO',
+    CONSTRAINT FK_Grupos_Materia FOREIGN KEY (ID_Materia) REFERENCES Materias(ID_Materia),
+    CONSTRAINT FK_Grupos_Docente FOREIGN KEY (ID_Docente) REFERENCES Docentes(ID_Docente),
+    CONSTRAINT FK_Grupos_Periodo FOREIGN KEY (ID_Periodo) REFERENCES PeriodosEscolares(ID_Periodo)
+);
+
+CREATE TABLE HorarioGrupo (
+    ID_Horario INT IDENTITY(1,1) PRIMARY KEY,
+    ID_Grupo INT NOT NULL,
+    DiaSemana NVARCHAR(10) NOT NULL,
+    HoraInicio TIME NOT NULL,
+    HoraFin TIME NOT NULL,
+    CONSTRAINT FK_HorarioGrupo_Grupo FOREIGN KEY (ID_Grupo) REFERENCES Grupos(ID_Grupo)
+);
+
+CREATE TABLE Inscripciones (
+    ID_Inscripcion INT IDENTITY(1,1) PRIMARY KEY,
+    N_ctrl NVARCHAR(10) NOT NULL,
+    ID_Grupo INT NOT NULL,
+    FechaInscripcion DATE NOT NULL DEFAULT CAST(GETDATE() AS DATE),
+    CONSTRAINT FK_Inscripciones_Alumno FOREIGN KEY (N_ctrl) REFERENCES Alumnos(N_ctrl),
+    CONSTRAINT FK_Inscripciones_Grupo FOREIGN KEY (ID_Grupo) REFERENCES Grupos(ID_Grupo)
+);
+
+CREATE TABLE Calificaciones (
+    ID_Calificacion INT IDENTITY(1,1) PRIMARY KEY,
+    ID_Inscripcion INT NOT NULL UNIQUE,
+    Parcial1 DECIMAL(5,2) NULL,
+    Parcial2 DECIMAL(5,2) NULL,
+    Parcial3 DECIMAL(5,2) NULL,
+    CalFinal DECIMAL(5,2) NULL,
+    Estatus NVARCHAR(20) NOT NULL DEFAULT 'EN CURSO',
+    CONSTRAINT FK_Calificaciones_Inscripcion FOREIGN KEY (ID_Inscripcion) REFERENCES Inscripciones(ID_Inscripcion)
+);
+
+CREATE TABLE Kardex (
+    ID_Kardex INT IDENTITY(1,1) PRIMARY KEY,
+    N_ctrl NVARCHAR(10) NOT NULL,
+    ID_Materia INT NOT NULL,
+    ID_Periodo INT NOT NULL,
+    Semestre INT NOT NULL,
+    CalFinal DECIMAL(5,2) NULL,
+    Estatus NVARCHAR(20) NOT NULL DEFAULT 'APROBADO',
+    CONSTRAINT FK_Kardex_Alumno FOREIGN KEY (N_ctrl) REFERENCES Alumnos(N_ctrl),
+    CONSTRAINT FK_Kardex_Materia FOREIGN KEY (ID_Materia) REFERENCES Materias(ID_Materia),
+    CONSTRAINT FK_Kardex_Periodo FOREIGN KEY (ID_Periodo) REFERENCES PeriodosEscolares(ID_Periodo)
+);
+
+CREATE TABLE ActividadesComplementarias (
+    ID_Actividad INT IDENTITY(1,1) PRIMARY KEY,
+    N_ctrl NVARCHAR(10) NOT NULL,
+    Descripcion NVARCHAR(300) NOT NULL,
+    Fecha DATE NOT NULL,
+    Horas INT NOT NULL DEFAULT 0,
+    CONSTRAINT FK_ActComp_Alumno FOREIGN KEY (N_ctrl) REFERENCES Alumnos(N_ctrl)
+);
+
+CREATE TABLE ActividadesExtraescolares (
+    ID_Actividad INT IDENTITY(1,1) PRIMARY KEY,
+    N_ctrl NVARCHAR(10) NOT NULL,
+    Descripcion NVARCHAR(300) NOT NULL,
+    Fecha DATE NOT NULL,
+    Horas INT NOT NULL DEFAULT 0,
+    CONSTRAINT FK_ActExtra_Alumno FOREIGN KEY (N_ctrl) REFERENCES Alumnos(N_ctrl)
+);
+
+CREATE TABLE Tutorias (
+    ID_Tutoria INT IDENTITY(1,1) PRIMARY KEY,
+    N_ctrl NVARCHAR(10) NOT NULL,
+    ID_Docente INT NOT NULL,
+    Fecha DATE NOT NULL,
+    Observaciones NVARCHAR(500) NULL,
+    CONSTRAINT FK_Tutorias_Alumno FOREIGN KEY (N_ctrl) REFERENCES Alumnos(N_ctrl),
+    CONSTRAINT FK_Tutorias_Docente FOREIGN KEY (ID_Docente) REFERENCES Docentes(ID_Docente)
+);
+
+CREATE TABLE Recibos (
+    ID_Recibo INT IDENTITY(1,1) PRIMARY KEY,
+    N_ctrl NVARCHAR(10) NOT NULL,
+    Descripcion NVARCHAR(200) NOT NULL,
+    FechaEmision DATE NOT NULL,
+    FechaVigencia DATE NOT NULL,
+    Importe DECIMAL(10,2) NOT NULL,
+    Estatus NVARCHAR(20) NOT NULL DEFAULT 'PENDIENTE',
+    CONSTRAINT FK_Recibos_Alumno FOREIGN KEY (N_ctrl) REFERENCES Alumnos(N_ctrl)
+);
+
+CREATE TABLE Tickets (
+    ID_Ticket INT IDENTITY(1,1) PRIMARY KEY,
+    N_ctrl NVARCHAR(10) NOT NULL,
+    Fecha DATETIME NOT NULL DEFAULT GETDATE(),
+    Clave NVARCHAR(20) NOT NULL UNIQUE,
+    Descripcion NVARCHAR(500) NOT NULL,
+    Estatus NVARCHAR(20) NOT NULL DEFAULT 'ABIERTO',
+    Comentario NVARCHAR(500) NULL,
+    CONSTRAINT FK_Tickets_Alumno FOREIGN KEY (N_ctrl) REFERENCES Alumnos(N_ctrl)
+);
+
+CREATE TABLE PeriodoCargaMaterias (
+    ID_Periodo INT IDENTITY(1,1) PRIMARY KEY,
+    ID_Periodo_Escolar INT NOT NULL,
+    FechaInicio DATETIME NOT NULL,
+    FechaFin DATETIME NOT NULL,
+    Activo BIT NOT NULL DEFAULT 0,
+    CONSTRAINT FK_PeriodoCarga_Escolar FOREIGN KEY (ID_Periodo_Escolar) REFERENCES PeriodosEscolares(ID_Periodo)
+);
+
+CREATE TABLE Coordinadores (
+    ID_Coordinador INT IDENTITY(1,1) PRIMARY KEY,
+    N_ctrl NVARCHAR(10) NOT NULL UNIQUE,
+    Nombre NVARCHAR(100) NOT NULL,
+    Apellidos NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(150) NOT NULL UNIQUE,
+    Pass NVARCHAR(255) NOT NULL,          -- TEXTO PLANO
+    ID_Departamento INT NOT NULL,
+    CONSTRAINT FK_Coord_Depto FOREIGN KEY (ID_Departamento) REFERENCES Departamentos(ID_Departamento)
+);
+
+CREATE TABLE HistorialCambios (
+    ID_Historial INT IDENTITY(1,1) PRIMARY KEY,
+    ID_Coordinador INT NOT NULL,
+    TipoCambio NVARCHAR(50) NOT NULL,
+    Descripcion NVARCHAR(500) NOT NULL,
+    Fecha DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_Hist_Coord FOREIGN KEY (ID_Coordinador) REFERENCES Coordinadores(ID_Coordinador)
+);
+
+-- ============================================================
+-- DATOS INICIALES (CONTRASEÑAS EN TEXTO PLANO)
+-- ============================================================
+INSERT INTO Departamentos (Nombre) VALUES 
+('SISTEMAS Y COMPUTACION'), ('INGENIERIA INDUSTRIAL'), ('CIENCIAS BASICAS');
+
+INSERT INTO carrera (Clave, Nombre, ID_Departamento) VALUES
+('ISC',  'INGENIERIA EN SISTEMAS COMPUTACIONALES', 1),
+('IINF', 'INGENIERIA INFORMATICA', 1),
+('IElec', 'INGENIERIA ELECTRONICA', 1),
+('IIA',  'INGENIERIA INDUSTRIAL Y ADMINISTRACION', 2);
+
+INSERT INTO especialidad (Nombre, id_carrera) VALUES
+('DESARROLLO DE SOFTWARE USANDO COMPUTO EN LA NUBE', 2),
+('INTELIGENCIA ARTIFICIAL Y CIENCIA DE DATOS', 2),
+('REDES Y TELECOMUNICACIONES', 1);
+
+INSERT INTO PeriodosEscolares (Nombre, FechaInicio, FechaFin, Activo) VALUES
+('ENE-JUN 2025', '2025-01-13', '2025-06-27', 0),
+('AGO-DIC 2025', '2025-08-11', '2025-12-19', 0),
+('ENE-JUN 2026', '2026-01-12', '2026-06-26', 1);
+
+INSERT INTO Docentes (Nombre, Apellidos, Email) VALUES
+('Carlos', 'Mendoza Ruiz', 'c.mendoza@tijuana.tecnm.mx'),
+('Laura', 'Perez Soto', 'l.perez@tijuana.tecnm.mx'),
+('Roberto', 'Garcia Torres', 'r.garcia@tijuana.tecnm.mx'),
+('Patricia', 'Lopez Ibarra', 'p.lopez@tijuana.tecnm.mx'),
+('Eduardo', 'Vazquez Reyes', 'e.vazquez@tijuana.tecnm.mx');
+
+INSERT INTO Materias (Clave, Nombre, Creditos, EsOptativa, id_carrera) VALUES
+('ACD-1047', 'DESARROLLO DE APLICACIONES EN LA NUBE', 5, 0, 2),
+('ACD-1048', 'GESTION DE PROYECTOS DE SOFTWARE', 4, 0, 2),
+('ACD-1049', 'ARQUITECTURAS DE SOFTWARE', 5, 0, 2),
+('ACD-1050', 'SEGURIDAD EN APLICACIONES WEB', 4, 0, 2),
+('ACD-1051', 'INTEGRACION DE TECNOLOGIAS EMERGENTES', 4, 1, 2),
+('ACD-1052', 'RESIDENCIA PROFESIONAL', 10, 0, 2);
+
+-- Alumnos con contraseñas en texto claro
+INSERT INTO Alumnos (N_ctrl, Nombre, Apellidos, Email, Pass, id_carrera, ID_Especialidad, Semestre, Estatus, FechaIngreso) VALUES
+('21212680', 'JESUS ARMANDO', 'VILLA BARRAZA', 'l21212680@tijuana.tecnm.mx', '12345', 2, 1, 10, 'VIGENTE', '2021-08-09'),
+('23210202', 'DIANA FABIOLA', 'LUNA ESPINOZA', 'l23210202@tijuana.tecnm.mx', 'Pass1234', 2, 1, 4, 'VIGENTE', '2023-01-20'),
+('22210333', 'MANUEL',        'OCHOA BERNAL', 'l22210333@tijuana.tecnm.mx', 'Pass1234', 1, 3, 6, 'VIGENTE', '2022-08-15');
+
+INSERT INTO Grupos (ID_Materia, ID_Docente, ID_Periodo, Aula, Semestre) VALUES
+(1, 1, 3, 'A-301', 10), (2, 2, 3, 'A-302', 10), (3, 3, 3, 'B-101', 10), (4, 4, 3, 'B-102', 10), (5, 5, 3, 'C-201', 10);
+
+INSERT INTO HorarioGrupo (ID_Grupo, DiaSemana, HoraInicio, HoraFin)
+SELECT ID_Grupo, d.dia, '08:00', '09:00' FROM Grupos CROSS JOIN (VALUES ('Lunes'),('Martes'),('Miercoles'),('Jueves'),('Viernes')) AS d(dia) WHERE ID_Grupo = 1;
+
+-- Coordinadores con contraseñas en texto claro y N_ctrl
+INSERT INTO Coordinadores (N_ctrl, Nombre, Apellidos, Email, Pass, ID_Departamento) VALUES
+('C001', 'Marco Antonio', 'Rios Fuentes', 'coord.sistemas@tijuana.tecnm.mx', 'coord123', 1),
+('C003', 'Coordi', 'Demo', 'coordi@tijuana.tecnm.mx', '1234', 1);
+
+-- ============================================================
+-- PROCEDIMIENTO ALMACENADO PARA LOGIN DE COORDINADOR (SIN HASH)
+-- ============================================================
+GO
+CREATE OR ALTER PROCEDURE sp_LoginCoordinador
+    @N_ctrl NVARCHAR(10),
+    @Pass   NVARCHAR(255)
+AS
+BEGIN
+    SELECT c.ID_Coordinador, c.N_ctrl, c.Nombre, c.Apellidos, c.Email,
+           d.Nombre AS Departamento, c.ID_Departamento
+    FROM   Coordinadores c
+    JOIN   Departamentos d ON c.ID_Departamento = d.ID_Departamento
+    WHERE  c.N_ctrl = @N_ctrl
+      AND  c.Pass   = @Pass;      -- comparación directa, sin hash
+END;
+GO
+
+
+CREATE OR ALTER PROCEDURE sp_CoordStats
+    @ID_Departamento INT
+AS
+BEGIN
+    SELECT
+        -- Alumnos vigentes del departamento
+        (SELECT COUNT(*) FROM Alumnos a
+         JOIN carrera c ON a.id_carrera = c.id_carrera
+         WHERE c.ID_Departamento = @ID_Departamento AND a.Estatus = 'VIGENTE') AS alumnosVigentes,
+        -- Total alumnos
+        (SELECT COUNT(*) FROM Alumnos a
+         JOIN carrera c ON a.id_carrera = c.id_carrera
+         WHERE c.ID_Departamento = @ID_Departamento) AS alumnosTotal,
+        -- Grupos activos del periodo activo
+        (SELECT COUNT(*) FROM Grupos g
+         JOIN Materias m ON g.ID_Materia = m.ID_Materia
+         JOIN carrera c ON m.id_carrera = c.id_carrera
+         JOIN PeriodosEscolares pe ON g.ID_Periodo = pe.ID_Periodo
+         WHERE c.ID_Departamento = @ID_Departamento AND pe.Activo = 1 AND g.Estatus = 'ABIERTO') AS gruposActivos,
+        -- Grupos cerrados
+        (SELECT COUNT(*) FROM Grupos g
+         JOIN Materias m ON g.ID_Materia = m.ID_Materia
+         JOIN carrera c ON m.id_carrera = c.id_carrera
+         JOIN PeriodosEscolares pe ON g.ID_Periodo = pe.ID_Periodo
+         WHERE c.ID_Departamento = @ID_Departamento AND pe.Activo = 1 AND g.Estatus = 'CERRADO') AS gruposCerrados,
+        -- Docentes activos (distintos en grupos activos)
+        (SELECT COUNT(DISTINCT g.ID_Docente) FROM Grupos g
+         JOIN Materias m ON g.ID_Materia = m.ID_Materia
+         JOIN carrera c ON m.id_carrera = c.id_carrera
+         JOIN PeriodosEscolares pe ON g.ID_Periodo = pe.ID_Periodo
+         WHERE c.ID_Departamento = @ID_Departamento AND pe.Activo = 1) AS docentesActivos,
+        -- Carreras del departamento
+        (SELECT COUNT(*) FROM carrera WHERE ID_Departamento = @ID_Departamento) AS carreras
+END;
+GO
+--DOCENTES MODULO
+-- Agregar columna N_ctrl si no existe
+IF COL_LENGTH('Docentes', 'N_ctrl') IS NULL
+    ALTER TABLE Docentes ADD N_ctrl NVARCHAR(10) NULL;
+GO
+
+-- Agregar columna Pass (texto plano) si no existe
+IF COL_LENGTH('Docentes', 'Pass') IS NULL
+    ALTER TABLE Docentes ADD Pass NVARCHAR(255) NOT NULL DEFAULT 'docente123';
+GO
+
+-- Asignar N_ctrl a los docentes existentes (ajusta según quieras)
+UPDATE Docentes SET N_ctrl = 'D001' WHERE ID_Docente = 1;
+UPDATE Docentes SET N_ctrl = 'D002' WHERE ID_Docente = 2;
+UPDATE Docentes SET N_ctrl = 'D003' WHERE ID_Docente = 3;
+UPDATE Docentes SET N_ctrl = 'D004' WHERE ID_Docente = 4;
+UPDATE Docentes SET N_ctrl = 'D005' WHERE ID_Docente = 5;
+GO
+
+-- Hacer N_ctrl NOT NULL y UNIQUE
+ALTER TABLE Docentes ALTER COLUMN N_ctrl NVARCHAR(10) NOT NULL;
+GO
+ALTER TABLE Docentes ADD CONSTRAINT UQ_Docentes_Nctrl UNIQUE (N_ctrl);
+GO
+
+-- Actualizar contraseñas (si quieres cambiarlas, hazlo aquí)
+UPDATE Docentes SET Pass = 'docente123' WHERE ID_Docente IN (1,2,3,4,5);
+GO
+
+
+
+
+
+
+
+
+
+
+
+-- Agregar N_ctrl y Pass si no existen
+IF COL_LENGTH('Docentes', 'N_ctrl') IS NULL
+    ALTER TABLE Docentes ADD N_ctrl NVARCHAR(10) NULL;
+IF COL_LENGTH('Docentes', 'Pass') IS NULL
+    ALTER TABLE Docentes ADD Pass NVARCHAR(255) NULL;
+GO
+
+-- Asignar valores únicos
+UPDATE Docentes SET N_ctrl = 'D001', Pass = 'docente123' WHERE ID_Docente = 1;
+UPDATE Docentes SET N_ctrl = 'D002', Pass = 'docente123' WHERE ID_Docente = 2;
+UPDATE Docentes SET N_ctrl = 'D003', Pass = 'docente123' WHERE ID_Docente = 3;
+UPDATE Docentes SET N_ctrl = 'D004', Pass = 'docente123' WHERE ID_Docente = 4;
+UPDATE Docentes SET N_ctrl = 'D005', Pass = 'docente123' WHERE ID_Docente = 5;
+GO
+
+-- Hacer N_ctrl obligatorio y único
+ALTER TABLE Docentes ALTER COLUMN N_ctrl NVARCHAR(10) NOT NULL;
+GO
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'UQ_Docentes_Nctrl')
+    CREATE UNIQUE INDEX UQ_Docentes_Nctrl ON Docentes(N_ctrl);
+GO
+
+-- Asegurar permisos para los SP
+GRANT EXECUTE ON sp_LoginCoordinador TO public;
+GRANT EXECUTE ON sp_CoordStats TO public;
+GO
+PRINT 'Base de datos "ambar" creada con éxito (modo texto plano).';
