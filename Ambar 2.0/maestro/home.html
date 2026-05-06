@@ -257,4 +257,24 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 </div>
 
 </body>
+<script>
+// ABRIR / CERRAR ACORDEÓN
+function toggleAccordion(element) {
+  const content = element.nextElementSibling;
+
+  // cerrar otros (opcional pero más pro)
+  document.querySelectorAll(".accordion-content").forEach(c => {
+    if (c !== content) c.style.display = "none";
+  });
+
+  // abrir/cerrar actual
+  content.style.display =
+    content.style.display === "block" ? "none" : "block";
+}
+
+// DESCARGA SIMULADA
+function descargarHorario() {
+  alert("Descargando horario en PDF...");
+}
+</script>
 </html>
