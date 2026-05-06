@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AMBAR Estudiantes – Tijuana</title>
+  <title>AMBAR — Inicio de Sesión</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -42,8 +42,6 @@
       gap: 14px;
       margin-bottom: 18px;
     }
- 
-    .logo-svg { width: 66px; height: 66px; }
  
     .logo-label {
       display: flex;
@@ -99,7 +97,6 @@
     }
  
     .form { width: 100%; display: flex; flex-direction: column; gap: 15px; }
- 
     .field { display: flex; flex-direction: column; gap: 5px; }
  
     label {
@@ -157,9 +154,10 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: background .2s;
+      transition: background .2s, opacity .2s;
     }
-    .btn-login:hover { background: #14305a; }
+    .btn-login:hover:not(:disabled) { background: #14305a; }
+    .btn-login:disabled { opacity: .6; cursor: not-allowed; }
  
     .card-hr {
       width: 100%;
@@ -187,6 +185,14 @@
     }
     .btn-support:hover { background: #d4d4d4; }
  
+    #mensaje {
+      text-align: center;
+      font-size: 13px;
+      margin-top: 10px;
+      min-height: 20px;
+      font-family: 'Montserrat', sans-serif;
+    }
+ 
     footer {
       text-align: center;
       padding: 12px 0 20px;
@@ -204,7 +210,7 @@
  
     <!-- Logo -->
     <div class="logo-area">
-      <img src="img/logo.png" style="width: 100px ;height: 100px;">
+      <img src="img/logo.png" style="width:100px;height:100px;" onerror="this.style.display='none'">
       <div class="logo-label">
         <span>Tecnológico</span>
         <span>Nacional de México</span>
@@ -212,21 +218,24 @@
       </div>
     </div>
  
-    <div class="app-title">AMBAR ESTUDIANTES</div>
+    <div class="app-title">AMBAR</div>
     <div class="app-sub">TIJUANA</div>
     <hr class="divider"/>
     <p class="welcome">Bienvenido, ingresa tus credenciales para acceder a la plataforma</p>
-    <div class="form">
  
+    <div class="form">
       <div class="field">
-        <label for="control">Número Control</label>
-        <input type="text" id="control" placeholder="Número de control" autocomplete="off" oninput="this.value=this.value.replace(/\s/g,'')"/>
+        <label for="control">Número de Control</label>
+        <input type="text" id="control" placeholder="Número de control"
+               autocomplete="off" oninput="this.value=this.value.replace(/\s/g,'')"/>
       </div>
  
       <div class="field">
         <label for="password">Contraseña</label>
         <div class="pwd-wrap">
-          <input type="password" id="password" placeholder="Contraseña" oninput="this.value=this.value.replace(/\s/g,'')"/>
+          <input type="password" id="password" placeholder="Contraseña"
+                 oninput="this.value=this.value.replace(/\s/g,'')"
+                 onkeydown="if(event.key==='Enter') doLogin()"/>
           <button class="eye-btn" type="button" onclick="togglePwd()" title="Mostrar/ocultar">
             <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -237,8 +246,12 @@
         </div>
       </div>
  
-      <button class="btn-login" type="button" id="btn-login">Iniciar Sesion</button>
+      <button class="btn-login" type="button" id="btn-login">
+        Iniciar Sesión
+      </button>
     </div>
+ 
+    <div id="mensaje"></div>
  
     <div class="card-hr"></div>
  
@@ -254,16 +267,39 @@
  
   </div>
 </div>
-<div id="mensaje" style="text-align:center; color:green; font-size:13px; margin-top:8px;"></div>
  
 <footer>
   &copy; 2026 by <a href="#">iFix</a> &ndash; <a href="#">Política de Privacidad</a>
 </footer>
  
 <script>
+  const MOCK_USERS = {
+    '100':  {
+      rol: 'Coordinador', nombre: 'Marco Antonio', apellidos: 'Rios Fuentes',
+      departamento: 'SISTEMAS Y COMPUTACION', idDepto: '1', ID_Coordinador: '1',
+      dest: 'coordinador/inicio_coord.html'
+    },
+    'P100': {
+      rol: 'Docente', nombre: 'Laura', apellidos: 'Pérez Soto',
+      departamento: 'SISTEMAS Y COMPUTACION', idDepto: '1',
+      dest: 'maestro/home.html'
+    },
+    'A100': {
+      rol: 'Administración', nombre: 'Admin', apellidos: 'Demo',
+      departamento: 'ADMINISTRACION', idDepto: '0',
+      dest: 'administracion/alumnosA.html'
+    },
+    '100A': {
+      rol: 'Alumno', nombre: 'Jorge', apellidos: 'Copado Alcaraz',
+      carrera: 'Ingeniería Informática', semestre: '5to', email: 'jorge.copado@example.com',
+      dest: 'alumnos/inicio.html'
+    }
+  };
+
   function togglePwd() {
     const input = document.getElementById('password');
-    const icon  = document.getElementById('eye-icon');
+    const icon = document.getElementById('eye-icon');
+
     if (input.type === 'password') {
       input.type = 'text';
       icon.innerHTML = `
@@ -277,113 +313,116 @@
         <circle cx="12" cy="12" r="3"/>`;
     }
   }
- 
-  // ── USUARIOS MOCK (demo sin BD) ──────────────────────────────────
-  // Contraseña siempre "1234" para estos usuarios especiales.
-  // Números de control puros van contra la BD real normalmente.
-  const MOCK_USERS = {
-    '100':  { rol: 'Coordinador',    nombre: 'Marco Antonio', apellidos: 'Rios Fuentes',
-              departamento: 'SISTEMAS Y COMPUTACION', idDepto: '1',
-              dest: 'Coordinador/inicio_coord.html' },
-    'P100': { rol: 'Docente',        nombre: 'Laura',         apellidos: 'Pérez Soto',
-              departamento: 'SISTEMAS Y COMPUTACION', idDepto: '1',
-              dest: 'maestro/home.html' },
-    'A100': { rol: 'Administración', nombre: 'Admin',         apellidos: 'Demo',
-              departamento: 'ADMINISTRACION',         idDepto: '0',
-              dest: 'Administracion/alumnosA.html' },
-    '100A': { rol: 'Alumno',         nombre: 'jorge',        apellidos: 'copado alcaraz',
-              carrera: 'Ingeniería Informática', semestre: '5to', email: 'jorge.copado@example.com',
-              dest: 'alumnos/inicio.html' },
-  };
- 
-  document.getElementById("btn-login").addEventListener("click", function() {
-    let control  = document.getElementById("control").value.trim();
-    let password = document.getElementById("password").value;
-    const msg    = document.getElementById("mensaje");
- 
-    if (control === "" || password === "") {
-      msg.innerText    = "Debe llenar todos los campos!";
-      msg.style.color  = "orange";
+
+  function setMsg(text, color) {
+    const msg = document.getElementById('mensaje');
+    msg.textContent = text;
+    msg.style.color = color;
+  }
+
+  async function doLogin() {
+    const control = document.getElementById('control').value.trim();
+    const password = document.getElementById('password').value;
+    const btn = document.getElementById('btn-login');
+
+    if (!control || !password) {
+      setMsg('Debe llenar todos los campos.', 'orange');
       return;
     }
- 
+
+    btn.disabled = true;
+    btn.textContent = 'Verificando…';
+    setMsg('', '');
+
     const controlUp = control.toUpperCase();
- 
-    // ── RUTA MOCK: coordinador / docente / administración ──────────
+
     if (MOCK_USERS[controlUp]) {
       if (password !== '1234') {
-        msg.style.color = "red";
-        msg.innerText   = "Número de control o contraseña incorrectos";
+        setMsg('Contraseña de usuario de prueba incorrecta.', 'red');
+        btn.disabled = false;
+        btn.textContent = 'Iniciar Sesión';
         return;
       }
+
       const u = MOCK_USERS[controlUp];
-      sessionStorage.setItem('rol',            u.rol);
-      sessionStorage.setItem('nombre',         u.nombre);
-      sessionStorage.setItem('apellidos',      u.apellidos);
-      sessionStorage.setItem('departamento',   u.departamento);
-      sessionStorage.setItem('idDepto',        u.idDepto);
-      sessionStorage.setItem('ID_Coordinador', '1');
-      sessionStorage.setItem('N_ctrl',         controlUp);
-      msg.style.color = "green";
-      msg.innerText   = "Bienvenido " + u.nombre;
+      sessionStorage.setItem('rol', u.rol);
+      sessionStorage.setItem('nombre', u.nombre);
+      sessionStorage.setItem('apellidos', u.apellidos);
+      sessionStorage.setItem('N_ctrl', controlUp);
+
+      if (u.rol === 'Alumno') {
+        sessionStorage.setItem('carrera', u.carrera);
+        sessionStorage.setItem('semestre', u.semestre);
+        sessionStorage.setItem('email', u.email);
+      } else {
+        sessionStorage.setItem('departamento', u.departamento);
+        sessionStorage.setItem('idDepto', u.idDepto);
+        if (u.ID_Coordinador) sessionStorage.setItem('ID_Coordinador', u.ID_Coordinador);
+      }
+
+      setMsg(`Bienvenido ${u.nombre}`, 'green');
       setTimeout(() => window.location.href = u.dest, 1000);
       return;
     }
- 
-    // ── RUTA REAL: alumnos (fetch a BD) ────────────────────────────
-    fetch("/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ N_ctrl: control, pass: password })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        sessionStorage.setItem('N_ctrl',    data.N_ctrl);
-        sessionStorage.setItem('nombre',    data.nombre);
-        sessionStorage.setItem('apellidos', data.apellidos);
-        sessionStorage.setItem('email',     data.email);
-        sessionStorage.setItem('carrera',   data.carrera);
-        sessionStorage.setItem('semestre',  data.semestre);
-        sessionStorage.setItem('foto',      data.foto || '');
-        sessionStorage.setItem('rol',       'Alumno');
-        msg.style.color = "green";
-        msg.innerText   = "Bienvenido " + data.nombre;
-        setTimeout(() => window.location.href = "alumnos/inicio.html", 1500);
-      } else {
-        msg.style.color = "red";
-        msg.innerText   = "Número de control o contraseña incorrectos";
+
+    try {
+      const res = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ N_ctrl: control, pass: password })
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        setMsg('Número de control o contraseña incorrectos.', 'red');
+        return;
       }
-    })
-    .catch(() => {
-      msg.style.color = "red";
-      msg.innerText   = "Error de conexión con el servidor";
-    });
+
+      sessionStorage.setItem('rol', data.rol || 'Alumno');
+      sessionStorage.setItem('N_ctrl', data.N_ctrl);
+      sessionStorage.setItem('nombre', data.nombre);
+      sessionStorage.setItem('apellidos', data.apellidos);
+      sessionStorage.setItem('email', data.email || '');
+
+      if (data.rol === 'Coordinador') {
+        sessionStorage.setItem('ID_Coordinador', data.ID_Coordinador);
+        sessionStorage.setItem('departamento', data.departamento);
+        sessionStorage.setItem('idDepto', data.idDepto);
+        setMsg(`Bienvenido, ${data.nombre}`, 'green');
+        setTimeout(() => window.location.href = 'coordinador/inicio_coord.html', 1200);
+      } else {
+        sessionStorage.setItem('carrera', data.carrera || '');
+        sessionStorage.setItem('semestre', data.semestre || '');
+        sessionStorage.setItem('foto', data.foto || '');
+        setMsg(`Bienvenido, ${data.nombre}`, 'green');
+        setTimeout(() => window.location.href = 'alumnos/inicio.html', 1200);
+      }
+    } catch {
+      setMsg('Error de conexión con el servidor.', 'red');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Iniciar Sesión';
+    }
+  }
+
+  document.getElementById('btn-login').addEventListener('click', doLogin);
+
+  document.getElementById('btn-support').addEventListener('click', async () => {
+    setMsg('Comprobando conexión…', 'gray');
+
+    try {
+      const res = await fetch('/soporte');
+      const data = await res.json();
+      setMsg(
+        data.conectado ? 'Base de datos conectada correctamente.' : 'No se pudo conectar a la base de datos.',
+        data.conectado ? 'green' : 'red'
+      );
+    } catch {
+      setMsg('Servidor no disponible.', 'red');
+    }
   });
- 
- //Comprobación de conexión a BD   
- document.getElementById("btn-support").addEventListener("click", function() {
-    
-    document.getElementById("mensaje").innerText = "Comprobando conexión...";
-    document.getElementById("mensaje").style.color = "gray";
- 
-    fetch("/soporte")
-    .then(res => res.json())
-    .then(data => {
-        if (data.conectado) {
-            document.getElementById("mensaje").style.color = "green";
-            document.getElementById("mensaje").innerText = "Base de datos conectada correctamente";
-        } else {
-            document.getElementById("mensaje").style.color = "red";
-            document.getElementById("mensaje").innerText = "No se pudo conectar a la base de datos";
-        }
-    })
-    .catch(function() {
-        document.getElementById("mensaje").style.color = "red";
-        document.getElementById("mensaje").innerText = "Servidor no disponible";
-    });
-});
-    
 </script>
 </body>
 </html>
+ 
