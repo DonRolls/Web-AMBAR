@@ -1,14 +1,25 @@
 document.addEventListener("DOMContentLoaded", () => {
-    cargarRecibos(); // Carga inicial (pendientes/cubiertos)
+    // Protección de sesión y logout
+    const nctrl = localStorage.getItem("N_ctrl");
+    if (!nctrl) {
+        window.location.href = "login.html";
+        return;
+    }
 
-    // Evento para el botón de Histórico
+    document.querySelector(".logout-btn")?.addEventListener("click", () => {
+        localStorage.clear();
+        window.location.href = "login.html";
+    });
+
+    cargarRecibos(); // Carga inicial
+
     const btnHist = document.querySelector(".btn-hist");
     let viendoHistorico = false;
 
     btnHist.addEventListener("click", () => {
         viendoHistorico = !viendoHistorico;
         btnHist.textContent = viendoHistorico ? "🔙 Ver Actuales" : "⟳ Ver Histórico";
-        document.querySelector(".tc-title").innerHTML = viendoHistorico 
+        document.getElementById("table-title").innerHTML = viendoHistorico 
             ? '<div class="tc-icon">📚</div> Historial de Recibos' 
             : '<div class="tc-icon">🧾</div> Recibos actuales';
         
@@ -18,10 +29,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function cargarRecibos(historico = false) {
     const nctrl = localStorage.getItem("N_ctrl");
-    const tbody = document.querySelector("table tbody");
+    const tbody = document.querySelector("#recibos-table tbody");
     
-    // Limpiar tabla y mostrar cargando
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">Cargando recibos...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:40px;">Cargando recibos...</td></tr>';
 
     try {
         const url = `http://localhost:3000/recibos/${nctrl}${historico ? '?historico=1' : ''}`;
@@ -29,17 +39,22 @@ async function cargarRecibos(historico = false) {
         const recibos = await res.json();
 
         if (recibos.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">No se encontraron registros.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:40px;">No se encontraron registros.</td></tr>';
             return;
         }
 
-        tbody.innerHTML = ""; // Limpiar mensaje de carga
+        tbody.innerHTML = ""; 
+
         recibos.forEach(r => {
+            // Formatear fechas de la DB (YYYY-MM-DD) a local (DD/MM/YYYY)
+            const fEmision = new Date(r.FechaEmision).toLocaleDateString('es-MX');
+            const fVigencia = new Date(r.FechaVigencia).toLocaleDateString('es-MX');
+            
             const trData = document.createElement("tr");
             trData.innerHTML = `
-                <td>${r.Descripcion}</td>
-                <td>${r.FechaEmision}</td>
-                <td>${r.FechaVigencia}</td>
+                <td style="font-weight:500">${r.Descripcion}</td>
+                <td>${fEmision}</td>
+                <td>${fVigencia}</td>
                 <td style="font-family:'Outfit',sans-serif;font-weight:700;color:var(--navy)">
                     $${parseFloat(r.Importe).toLocaleString('es-MX', {minimumFractionDigits: 2})}
                 </td>
@@ -47,11 +62,15 @@ async function cargarRecibos(historico = false) {
             
             const trEstado = document.createElement("tr");
             trEstado.className = "estado-row";
-            const badgeClass = r.Estatus === 'CUBIERTO' ? 'badge-cubierto' : 'badge-pendiente'; 
-            // Nota: Puedes agregar .badge-pendiente a tu CSS con color naranja
+            
+            // Determinar clase y texto del badge
+            const isCubierto = r.Estatus.toUpperCase() === 'CUBIERTO';
+            const badgeClass = isCubierto ? 'badge-cubierto' : 'badge-pendiente'; 
+            const statusLabel = isCubierto ? '✓ CUBIERTO' : '● PENDIENTE';
+
             trEstado.innerHTML = `
                 <td colspan="4">
-                    <span class="${badgeClass}">${r.Estatus === 'CUBIERTO' ? '✓ CUBIERTO' : '● PENDIENTE'}</span>
+                    <span class="${badgeClass}">${statusLabel}</span>
                 </td>
             `;
 
@@ -60,6 +79,6 @@ async function cargarRecibos(historico = false) {
         });
     } catch (err) {
         console.error("Error:", err);
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red">Error al conectar con el servidor</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:40px; color:red">Error al conectar con el servidor</td></tr>';
     }
 }

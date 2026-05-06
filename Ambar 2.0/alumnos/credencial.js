@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 1. Obtener el número de control del localStorage
     const nctrl = localStorage.getItem("N_ctrl");
     if (!nctrl) {
-        window.location.href = "index.html"; // Redirigir si no hay sesión
+        window.location.href = "login.html"; // Redirigir si no hay sesión
         return;
     }
 

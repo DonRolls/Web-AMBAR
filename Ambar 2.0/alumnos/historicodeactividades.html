@@ -60,17 +60,21 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
   <main class="main">
     <div class="breadcrumb">Portal Estudiantes <span>›</span> <span>Histórico de Actividades</span></div>
     <div class="page-header"><h1>Histórico de Actividades</h1></div>
-    <div class="seccion">
+    
+    <!-- IDs añadidos para asegurar que el JS inyecte donde corresponde -->
+    <div class="seccion" id="sec-complementarias">
       <div class="seccion-titulo"><div class="sec-icon">📄</div>Actividades complementarias</div>
-      <div class="seccion-mensaje">No cuenta con actividades complementarias registradas.</div>
+      <div class="seccion-mensaje">Cargando información...</div>
     </div>
-    <div class="seccion">
-      <div class="seccion-titulo"><div class="sec-icon">📄</div>Actividades extraescolares</div>
-      <div class="seccion-mensaje">No cuenta con actividades extraescolares registradas.</div>
+
+    <div class="seccion" id="sec-extraescolares">
+      <div class="seccion-titulo"><div class="sec-icon">🏀</div>Actividades extraescolares</div>
+      <div class="seccion-mensaje">Cargando información...</div>
     </div>
-    <div class="seccion">
-      <div class="seccion-titulo"><div class="sec-icon">📄</div>Tutorías</div>
-      <div class="seccion-mensaje">No cuenta con tutorías registradas.</div>
+
+    <div class="seccion" id="sec-tutorias">
+      <div class="seccion-titulo"><div class="sec-icon">👥</div>Tutorías</div>
+      <div class="seccion-mensaje">Cargando información...</div>
     </div>
   </main>
 </div>

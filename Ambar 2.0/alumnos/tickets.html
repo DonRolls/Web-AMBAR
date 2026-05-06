@@ -72,39 +72,31 @@ tbody tr:last-child td{border-bottom:none}
   <main class="main">
     <div class="breadcrumb">Portal Estudiantes <span>›</span> <span>Tickets</span></div>
     <div class="header-row">
-      <div class="page-h1">Tickets</div>
+      <div class="page-h1">Tickets de Soporte</div>
       <button class="btn-generar">🎫 Generar Ticket</button>
     </div>
     <div class="table-card">
       <div class="tabs">
-        <div class="tab active" onclick="switchTab(this)">Abiertos</div>
-        <div class="tab" onclick="switchTab(this)">Finalizados</div>
+        <div class="tab active" data-estatus="ABIERTO">Abiertos</div>
+        <div class="tab" data-estatus="FINALIZADO">Finalizados</div>
       </div>
       <table>
         <thead>
           <tr>
-            <th>Fecha ↓</th>
-            <th>Clave</th>
-            <th>Descripción</th>
-            <th>Estatus</th>
-            <th>Editar</th>
-            <th>Comentario</th>
+            <th style="width:15%">Fecha</th>
+            <th style="width:12%">Clave</th>
+            <th style="width:25%">Descripción</th>
+            <th style="width:12%">Estatus</th>
+            <th style="width:8%; text-align:center">Acción</th>
+            <th style="width:28%">Comentario</th>
           </tr>
         </thead>
         <tbody id="tabla-body">
-          <tr>
-            <td colspan="6" style="padding:28px;font-style:italic">No hay datos disponibles</td>
-          </tr>
+          <tr><td colspan="6" style="padding:40px;text-align:center">Cargando tickets...</td></tr>
         </tbody>
       </table>
       <div class="pagination">
-        <span>Elementos por página:</span>
-        <select class="per-page"><option>10</option><option>25</option><option>50</option></select>
-        <span class="page-info">0–0 de 0</span>
-        <button class="page-btn disabled">|&lt;</button>
-        <button class="page-btn disabled">&lt;</button>
-        <button class="page-btn disabled">&gt;</button>
-        <button class="page-btn disabled">&gt;|</button>
+        <span class="page-info" id="ticket-count">Mostrando 0 tickets</span>
       </div>
     </div>
   </main>

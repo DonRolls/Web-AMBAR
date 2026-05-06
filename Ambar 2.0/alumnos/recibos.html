@@ -60,7 +60,7 @@ tbody td{font-size:13px;padding:14px 20px;border-bottom:1px solid #F1F5FB;color:
 <div class="layout">
   <div id="main-sidebar"><div id="sidebar-container" style="display:flex;flex-direction:column;height:100%"></div></div>
   <script src="sidebar.js"></script>
-  <main class="main">
+  <<main class="main">
     <div class="breadcrumb">Portal Estudiantes <span>›</span> <span>Recibos</span></div>
     <div class="header-row">
       <div class="page-h1">Recibos</div>
@@ -68,22 +68,14 @@ tbody td{font-size:13px;padding:14px 20px;border-bottom:1px solid #F1F5FB;color:
     </div>
     <div class="table-card">
       <div class="tc-head">
-        <div class="tc-title"><div class="tc-icon">🧾</div>Recibos actuales</div>
+        <div class="tc-title" id="table-title"><div class="tc-icon">🧾</div> Recibos actuales</div>
       </div>
-      <table>
+      <table id="recibos-table">
         <thead>
           <tr><th style="width:50%">Descripción</th><th style="width:16%">Emisión</th><th style="width:16%">Vigencia</th><th style="width:18%">Importe</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td>APORTACIÓN VOLUNTARIA REINSCRIPCIÓN</td>
-            <td>03/02/2026</td>
-            <td>13/02/2026</td>
-            <td style="font-family:'Outfit',sans-serif;font-weight:700;color:var(--navy)">$3,100.00</td>
-          </tr>
-          <tr class="estado-row">
-            <td colspan="4"><span class="badge-cubierto">✓ CUBIERTO</span></td>
-          </tr>
+            <!-- Los datos se inyectan aquí -->
         </tbody>
       </table>
     </div>
