@@ -1,4 +1,4 @@
-// services/auth.service.js
+
 const alumnoRepository = require("../repositories/alumno_repository");
 const coordinadorRepository = require("../repositories/coordinador_repository"); // Lo creamos después
 const docenteRepository = require("../repositories/docente_repository");

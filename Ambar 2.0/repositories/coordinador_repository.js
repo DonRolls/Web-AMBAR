@@ -1,6 +1,14 @@
-// repositories/coordinador.repository.js
-const { getPool, sql } = require("../config/database");
 
+const { getPool, sql } = require("../config/database");
+function normalizarHora(hora) {
+    if (!hora) return '00:00:00';
+    const partes = hora.split(':');
+    // Garantiza 3 partes: hora, minuto, segundo
+    const hh = (partes[0] || '00').padStart(2, '0');
+    const mm = (partes[1] || '00').padStart(2, '0');
+    const ss = (partes[2] || '00').padStart(2, '0');
+    return `${hh}:${mm}:${ss}`;
+}
 const coordinadorRepository = {
     loginCoordinador: async (nctrl, pass) => {
         const pool = await getPool();
@@ -10,7 +18,7 @@ const coordinadorRepository = {
             .execute("sp_LoginCoordinador");
         return result.recordset[0] || null;
     },
-
+ 
     getStats: async (idDepto) => {
         const pool = await getPool();
         const result = await pool.request()
@@ -18,7 +26,7 @@ const coordinadorRepository = {
             .execute("sp_CoordStats");
         return result.recordset[0] || {};
     },
-
+ 
     getHistorial: async (idCoord) => {
         const pool = await getPool();
         const result = await pool.request()
@@ -33,14 +41,14 @@ const coordinadorRepository = {
             `);
         return result.recordset;
     },
-
+ 
     getDocentes: async () => {
         const pool = await getPool();
         const result = await pool.request()
             .query("SELECT ID_Docente, Nombre+' '+Apellidos AS NombreCompleto FROM Docentes ORDER BY Nombre");
         return result.recordset;
     },
-
+ 
     getGrupos: async (idDepto) => {
         const pool = await getPool();
         const result = await pool.request()
@@ -66,7 +74,7 @@ const coordinadorRepository = {
             `);
         return result.recordset;
     },
-
+ 
     updateGrupoEstatus: async (gid, estatus) => {
         const pool = await getPool();
         await pool.request()
@@ -74,7 +82,7 @@ const coordinadorRepository = {
             .input("Estatus", sql.NVarChar, estatus)
             .query("UPDATE Grupos SET Estatus=@Estatus WHERE ID_Grupo=@ID_Grupo");
     },
-
+ 
     updateGrupo: async (gid, idDocente, aula) => {
         const pool = await getPool();
         await pool.request()
@@ -83,31 +91,35 @@ const coordinadorRepository = {
             .input("Aula", sql.NVarChar, aula.trim())
             .query("UPDATE Grupos SET ID_Docente=@ID_Docente, Aula=@Aula WHERE ID_Grupo=@ID_Grupo");
     },
-
-    updateHorario: async (gid, horarios) => {
-        const pool = await getPool();
-        const transaction = new sql.Transaction(pool);
-        await transaction.begin();
-        try {
+ 
+updateHorario: async (gid, horarios) => {
+    const pool = await getPool();
+    const transaction = new sql.Transaction(pool);
+    await transaction.begin();
+    try {
+        await new sql.Request(transaction)
+            .input("ID_Grupo", sql.Int, gid)
+            .query("DELETE FROM HorarioGrupo WHERE ID_Grupo=@ID_Grupo");
+        for (const h of horarios) {
+            const horaInicio = normalizarHora(h.HoraInicio);
+            const horaFin = normalizarHora(h.HoraFin);
             await new sql.Request(transaction)
-                .input("ID_Grupo", sql.Int, gid)
-                .query("DELETE FROM HorarioGrupo WHERE ID_Grupo=@ID_Grupo");
-            for (const h of horarios) {
-                await new sql.Request(transaction)
-                    .input("ID_Grupo", sql.Int, gid)
-                    .input("DiaSemana", sql.NVarChar, h.DiaSemana)
-                    .input("HoraInicio", sql.Time, h.HoraInicio)
-                    .input("HoraFin", sql.Time, h.HoraFin)
-                    .query(`INSERT INTO HorarioGrupo (ID_Grupo,DiaSemana,HoraInicio,HoraFin)
-                            VALUES (@ID_Grupo,@DiaSemana,@HoraInicio,@HoraFin)`);
-            }
-            await transaction.commit();
-        } catch (err) {
-            await transaction.rollback();
-            throw err;
+                .input("ID_Grupo",   sql.Int,        gid)
+                .input("DiaSemana",  sql.NVarChar,   h.DiaSemana)
+                .input("HoraInicio", sql.VarChar(8), horaInicio)
+                .input("HoraFin",    sql.VarChar(8), horaFin)
+                .query(`INSERT INTO HorarioGrupo (ID_Grupo, DiaSemana, HoraInicio, HoraFin)
+                        VALUES (@ID_Grupo, @DiaSemana,
+                                CAST(@HoraInicio AS TIME),
+                                CAST(@HoraFin    AS TIME))`);
         }
-    },
-
+        await transaction.commit();
+    } catch (err) {
+        await transaction.rollback();
+        throw err;
+    }
+},
+ 
     getAlumnos: async (idDepto) => {
         const pool = await getPool();
         const result = await pool.request()
@@ -130,7 +142,7 @@ const coordinadorRepository = {
             `);
         return result.recordset;
     },
-
+ 
     getGruposDisponibles: async (nctrl) => {
         const pool = await getPool();
         const result = await pool.request()
@@ -158,7 +170,7 @@ const coordinadorRepository = {
             `);
         return result.recordset;
     },
-
+ 
     cambiarGrupoAlumno: async (nctrl, idGrupoNuevo) => {
         const pool = await getPool();
         const check = await pool.request()
@@ -166,19 +178,19 @@ const coordinadorRepository = {
             .query("SELECT Estatus FROM Grupos WHERE ID_Grupo=@ID_Grupo");
         if (!check.recordset.length || check.recordset[0].Estatus === 'CERRADO')
             return { success: false, mensaje: "El grupo está cerrado o no existe" };
-
+ 
         const dup = await pool.request()
             .input("N_ctrl", sql.NVarChar, nctrl)
             .input("ID_Grupo", sql.Int, idGrupoNuevo)
             .query("SELECT 1 FROM Inscripciones WHERE N_ctrl=@N_ctrl AND ID_Grupo=@ID_Grupo");
         if (dup.recordset.length)
             return { success: false, mensaje: "El alumno ya está inscrito en ese grupo" };
-
+ 
         await pool.request()
             .input("N_ctrl", sql.NVarChar, nctrl)
             .input("ID_Grupo", sql.Int, idGrupoNuevo)
             .query("INSERT INTO Inscripciones (N_ctrl,ID_Grupo) VALUES (@N_ctrl,@ID_Grupo)");
-
+ 
         const ins = await pool.request()
             .input("N_ctrl", sql.NVarChar, nctrl)
             .input("ID_Grupo", sql.Int, idGrupoNuevo)
@@ -190,7 +202,7 @@ const coordinadorRepository = {
         }
         return { success: true };
     },
-
+ 
     cambiarEspecialidad: async (nctrl, idEspecialidad) => {
         const pool = await getPool();
         await pool.request()
@@ -198,7 +210,7 @@ const coordinadorRepository = {
             .input("ID_Especialidad", sql.Int, parseInt(idEspecialidad))
             .query("UPDATE Alumnos SET ID_Especialidad=@ID_Especialidad WHERE N_ctrl=@N_ctrl");
     },
-
+ 
     cambiarCarrera: async (nctrl, idCarrera) => {
         const pool = await getPool();
         await pool.request()
@@ -206,7 +218,7 @@ const coordinadorRepository = {
             .input("id_carrera", sql.Int, parseInt(idCarrera))
             .query("UPDATE Alumnos SET id_carrera=@id_carrera, ID_Especialidad=NULL WHERE N_ctrl=@N_ctrl");
     },
-
+ 
     getCarreras: async (idDepto) => {
         const pool = await getPool();
         const result = await pool.request()
@@ -214,7 +226,7 @@ const coordinadorRepository = {
             .query("SELECT id_carrera, Nombre FROM carrera WHERE ID_Departamento=@ID_Departamento ORDER BY Nombre");
         return result.recordset;
     },
-
+ 
     getEspecialidades: async (idDepto) => {
         const pool = await getPool();
         const result = await pool.request()
@@ -226,7 +238,7 @@ const coordinadorRepository = {
                     ORDER BY e.Nombre`);
         return result.recordset;
     },
-
+ 
     registrarHistorial: async (idCoord, tipoCambio, descripcion) => {
         const pool = await getPool();
         await pool.request()
@@ -236,5 +248,5 @@ const coordinadorRepository = {
             .query("INSERT INTO HistorialCambios (ID_Coordinador,TipoCambio,Descripcion) VALUES (@ID_Coordinador,@TipoCambio,@Descripcion)");
     }
 };
-
+ 
 module.exports = coordinadorRepository;

@@ -1,4 +1,4 @@
-// repositories/alumno.repository.js
+
 const { getPool, sql } = require("../config/database");
 
 const alumnoRepository = {

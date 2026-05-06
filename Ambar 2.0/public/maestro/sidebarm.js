@@ -10,17 +10,20 @@
         { icon: "📝", label: "Evidencias",             href: "evidencias.html" },
         { icon: "📚", label: "Fuentes de Información", href: "fuentes.html" },
         { icon: "🎓", label: "Apoyo Didáctico",        href: "apoyo.html" },
+        { icon: "🏆", label: "Calificaciones",         href: "home.html#grupos" },
     ];
 
     const bottomItems = [
-        { icon: "❓", label: "soporte",        href: "SoporteMa.html"},
+        { icon: "❓", label: "Soporte",        href: "SoporteMa.html" },
         { icon: "⚙️", label: "Configuración",  href: "#" },
         { icon: "🚪", label: "Cerrar sesión",  href: "#", id: "btn-logout" },
     ];
 
     function isActive(href) {
         const current = window.location.pathname.split("/").pop() || "home.html";
-        return current === href;
+        // también detectar calificaciones.html como active cuando viene del grupo
+        const hrefBase = href.split("#")[0];
+        return current === hrefBase;
     }
 
     function buildItem(item) {
@@ -90,7 +93,9 @@
                 border-top: 1px solid rgba(255,255,255,.07);
                 padding: 8px 0;
             }
-            #sidebar-container .nav-main { flex: 1; }
+            #sidebar-container .nav-main { flex: 1; overflow-y: auto; }
+            #sidebar-container .nav-main::-webkit-scrollbar { width: 3px; }
+            #sidebar-container .nav-main::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
         </style>
 
         <div class="nav-section-label">Menú principal</div>
@@ -110,12 +115,8 @@
         if (btnLogout) {
             btnLogout.addEventListener("click", function (e) {
                 e.preventDefault();
-                if (typeof logoutCoord === "function") {
-                    logoutCoord();
-                } else {
-                    sessionStorage.clear();
-                    window.location.href = "../login.html";
-                }
+                sessionStorage.clear();
+                window.location.href = "../login.html";
             });
         }
     }

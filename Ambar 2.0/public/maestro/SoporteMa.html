@@ -1,150 +1,267 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soporte Técnico - Sistema Ámbar</title>
-    <style>
-        :root {
-            --tecnm-blue: #1B396A;
-            --tecnm-gold: #B8860B;
-            --light-gray: #f4f4f4;
-            --white: #ffffff;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soporte Técnico — TecNM Ámbar</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0D1B3E;--navy-light:#152347;--navy-mid:#1D3461;--gold:#E8A100;--gold-lt:#FFF3D0;--gold-glow:rgba(232,161,0,.18);--bg:#F0F4FA;--card:#FFFFFF;--text:#1A1F36;--text-2:#5A6488;--border:#E2E8F0;--success:#0FAF7A;--danger:#E84040;--warn:#F59E0B;--info:#3B82F6;--radius:14px;--shadow:0 4px 24px rgba(13,27,62,.09);--shadow-md:0 8px 40px rgba(13,27,62,.14)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{background:var(--navy);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:fixed;inset:0 0 auto 0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.3)}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.hbg{color:white;font-size:22px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:.2s}
+.hbg:hover{background:rgba(255,255,255,.12)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-badge{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:11px;font-weight:800;color:var(--navy);line-height:1.1;text-align:center}
+.brand-name{color:white;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;line-height:1.3}
+.brand-name span{display:block;font-size:10px;font-weight:300;opacity:.7;letter-spacing:.6px;text-transform:uppercase}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.doc-tag{background:rgba(232,161,0,.2);border:1px solid rgba(232,161,0,.4);color:var(--gold);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:.4px;text-transform:uppercase}
+.avatar{width:34px;height:34px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--navy)}
+.logout-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.8);font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif}
+.logout-btn:hover{background:rgba(255,255,255,.15);color:white}
+.layout{display:flex;margin-top:58px;height:calc(100vh - 58px);overflow:hidden}
+.sidebar{width:235px;background:var(--navy);display:flex;flex-direction:column;transition:width .28s cubic-bezier(.4,0,.2,1);overflow:hidden;flex-shrink:0}
+.sidebar.collapsed{width:60px}
+.main{flex:1;overflow-y:auto;padding:28px 32px;background:var(--bg)}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);margin-bottom:8px}
+.breadcrumb span{color:var(--gold);font-weight:600}
+.page-header{margin-bottom:28px;animation:fadeUp .5s ease both}
+.page-header h1{font-family:'Outfit',sans-serif;font-size:26px;font-weight:700;color:var(--navy);letter-spacing:-.3px}
+.page-header p{font-size:13.5px;color:var(--text-2);margin-top:3px}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light-gray);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
+/* FORM CARD */
+.form-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);padding:28px 32px;max-width:640px;animation:fadeUp .5s ease .08s both}
+.form-card-title{font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin-bottom:24px;display:flex;align-items:center;gap:10px}
+.form-card-icon{width:32px;height:32px;border-radius:8px;background:var(--gold-lt);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:16px}
 
-        .container {
-            background-color: var(--white);
-            width: 100%;
-            max-width: 600px;
-            padding: 2rem;
-            border-top: 8px solid var(--tecnm-blue);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border-radius: 8px;
-        }
+/* FORM GROUPS */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.form-row.single{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group label{font-size:11.5px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px}
+.form-group input,
+.form-group select,
+.form-group textarea{
+    width:100%;
+    padding:10px 14px;
+    border:1px solid var(--border);
+    border-radius:9px;
+    font-size:13px;
+    font-family:'DM Sans',sans-serif;
+    color:var(--text);
+    background:var(--bg);
+    transition:.15s;
+    outline:none;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
+    border-color:var(--gold);
+    background:#FFF8E6;
+    box-shadow:0 0 0 3px var(--gold-glow);
+}
+.form-group textarea{resize:vertical;min-height:110px}
+.form-group input.valid{border-color:var(--success);background:#F0FDF4}
+.form-group input.invalid{border-color:var(--danger);background:#FEF2F2}
 
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
+/* PRIORIDAD PILLS */
+.prioridad-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+.prioridad-pill{display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;background:var(--bg);transition:.15s;user-select:none}
+.prioridad-pill:hover{border-color:var(--gold);background:var(--gold-lt)}
+.prioridad-pill.selected{background:var(--gold-lt);border-color:var(--gold);color:var(--navy)}
+.prioridad-pill input[type="radio"]{display:none}
 
-        .header h1 {
-            color: var(--tecnm-blue);
-            font-size: 1.5rem;
-            margin: 0;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+/* SUBMIT */
+.btn-submit{background:var(--gold);color:var(--navy);font-size:14px;font-weight:700;padding:12px 28px;border-radius:9px;border:none;cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif;width:100%;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-submit:hover:not(:disabled){background:#d4930a;box-shadow:0 4px 16px rgba(232,161,0,.4)}
+.btn-submit:disabled{opacity:.6;cursor:not-allowed}
 
-        .header p {
-            color: #666;
-            font-size: 0.9rem;
-        }
+/* SUCCESS STATE */
+.success-banner{display:none;background:#ECFDF5;border:1px solid rgba(5,150,105,.3);border-radius:var(--radius);padding:20px 24px;text-align:center;margin-top:18px;animation:fadeUp .4s ease both}
+.success-banner span{font-size:32px;display:block;margin-bottom:8px}
+.success-banner p{font-size:14px;color:#065F46;font-weight:600}
+.success-banner small{font-size:12px;color:#6B7280}
 
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
+/* FOOTER NOTE */
+.footer-note{font-size:11.5px;color:var(--text-2);text-align:center;margin-top:16px}
 
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
-            color: #333;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box; /* Asegura que el padding no afecte el ancho */
-            font-size: 1rem;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .btn-submit {
-            background-color: var(--tecnm-blue);
-            color: white;
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: bold;
-            width: 100%;
-            transition: background-color 0.3s;
-        }
-
-        .btn-submit:hover {
-            background-color: #12264a;
-        }
-
-        .footer-note {
-            font-size: 0.8rem;
-            color: #888;
-            text-align: center;
-            margin-top: 1.5rem;
-        }
-    </style>
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1>Soporte Técnico Ámbar</h1>
-        <p>Tecnológico Nacional de México</p>
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="hbg" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">☰</span>
+    <div class="brand">
+      <div class="brand-badge">TEC<br>NM</div>
+      <div class="brand-name">Tecnológico Nacional de México<span>Portal Docentes</span></div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="doc-tag">Docente</span>
+    <div class="avatar">👨‍🏫</div>
+    <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div id="sidebar-container" style="display:flex;flex-direction:column;height:100%"></div>
+    <script src="sidebarm.js"></script>
+  </aside>
+
+  <main class="main">
+    <div class="breadcrumb">Portal Docentes <span>›</span> <span>Soporte</span></div>
+    <div class="page-header">
+      <h1>Soporte Técnico</h1>
+      <p>Reporta un problema o solicita ayuda al equipo de soporte del sistema Ámbar</p>
     </div>
 
-    <form action="#" method="POST">
+    <div class="form-card" id="form-card">
+      <div class="form-card-title">
+        <div class="form-card-icon">❓</div>
+        Nueva Solicitud de Soporte
+      </div>
+
+      <div class="form-row">
         <div class="form-group">
-            <label for="nombre">Nombre Completo</label>
-            <input type="text" id="nombre" name="nombre" placeholder="Ej. Juan Pérez López" required>
+          <label>Nombre Completo</label>
+          <input type="text" id="inp-nombre" placeholder="Ej. Juan Pérez López" oninput="validarCampo(this)">
         </div>
-
         <div class="form-group">
-            <label for="correo">Correo Institucional</label>
-            <input type="email" id="correo" name="correo" placeholder="usuario@itjiquilpan.edu.mx" required>
+          <label>Correo Institucional</label>
+          <input type="email" id="inp-correo" placeholder="usuario@tijuana.tecnm.mx" oninput="validarCorreo(this)">
         </div>
+      </div>
 
+      <div class="form-row">
         <div class="form-group">
-            <label for="categoria">Área de Incidencia</label>
-            <select id="categoria" name="categoria" required>
-                <option value="">Seleccione una opción...</option>
-                <option value="red">Redes y Conectividad</option>
-                <option value="software">Software / Plataforma Ámbar</option>
-                <option value="hardware">Mantenimiento de Equipo</option>
-                <option value="cuentas">Acceso y Contraseñas</option>
-            </select>
+          <label>Área de Incidencia</label>
+          <select id="inp-categoria">
+            <option value="">Seleccione una opción…</option>
+            <option value="red">Redes y Conectividad</option>
+            <option value="software">Software / Plataforma Ámbar</option>
+            <option value="hardware">Mantenimiento de Equipo</option>
+            <option value="cuentas">Acceso y Contraseñas</option>
+            <option value="calificaciones">Módulo de Calificaciones</option>
+            <option value="otro">Otro</option>
+          </select>
         </div>
-
         <div class="form-group">
-            <label for="descripcion">Descripción del Problema</label>
-            <textarea id="descripcion" name="descripcion" placeholder="Describa detalladamente su solicitud..." required></textarea>
+          <label>Prioridad</label>
+          <div class="prioridad-group">
+            <label class="prioridad-pill" onclick="selPrioridad(this, 'baja')">
+              <input type="radio" name="prioridad" value="baja"> 🟢 Baja
+            </label>
+            <label class="prioridad-pill" onclick="selPrioridad(this, 'media')">
+              <input type="radio" name="prioridad" value="media"> 🟡 Media
+            </label>
+            <label class="prioridad-pill" onclick="selPrioridad(this, 'alta')">
+              <input type="radio" name="prioridad" value="alta"> 🔴 Alta
+            </label>
+          </div>
         </div>
+      </div>
 
-        <button type="submit" class="btn-submit">Enviar Solicitud</button>
-    </form>
+      <div class="form-row single">
+        <div class="form-group">
+          <label>Descripción del Problema</label>
+          <textarea id="inp-desc" placeholder="Describe detalladamente el problema o solicitud. Incluye pasos para reproducirlo si aplica…" oninput="validarCampo(this)"></textarea>
+        </div>
+      </div>
 
-    <div class="footer-note">
-        Este es un sistema de gestión interna. Todos los tickets son monitoreados.
+      <button class="btn-submit" id="btn-enviar" onclick="enviarTicket()" disabled>
+        📩 Enviar Solicitud
+      </button>
     </div>
+
+    <div class="success-banner" id="success-banner">
+      <span>✅</span>
+      <p>¡Solicitud enviada correctamente!</p>
+      <small>El equipo de soporte recibirá tu ticket y te contactará a la brevedad.</small>
+      <br><br>
+      <button class="btn-submit" style="max-width:220px;margin:0 auto" onclick="nuevaSolicitud()">+ Nueva Solicitud</button>
+    </div>
+
+    <p class="footer-note">Este es un sistema de gestión interna. Todos los tickets son monitoreados por el equipo de TI.</p>
+  </main>
 </div>
 
+<script>
+function logout() { sessionStorage.clear(); window.location.href = "../login.html"; }
+
+// Pre-llenar con datos de sesión si existen
+window.addEventListener("load", () => {
+    const nombre = sessionStorage.getItem("Nombre") || "";
+    const correo = sessionStorage.getItem("Email")  || "";
+    if (nombre) document.getElementById("inp-nombre").value = nombre;
+    if (correo) document.getElementById("inp-correo").value = correo;
+    revisarFormulario();
+});
+
+let prioridadSel = "";
+
+function selPrioridad(el, val) {
+    document.querySelectorAll(".prioridad-pill").forEach(p => p.classList.remove("selected"));
+    el.classList.add("selected");
+    prioridadSel = val;
+    revisarFormulario();
+}
+
+function validarCampo(input) {
+    const ok = input.value.trim().length >= 2;
+    input.classList.toggle("valid",   ok);
+    input.classList.toggle("invalid", !ok && input.value.length > 0);
+    revisarFormulario();
+}
+
+function validarCorreo(input) {
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim());
+    input.classList.toggle("valid",   ok);
+    input.classList.toggle("invalid", !ok && input.value.length > 0);
+    revisarFormulario();
+}
+
+function revisarFormulario() {
+    const nombre   = document.getElementById("inp-nombre").value.trim().length >= 2;
+    const correo   = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(document.getElementById("inp-correo").value.trim());
+    const categoria = document.getElementById("inp-categoria").value !== "";
+    const desc      = document.getElementById("inp-desc").value.trim().length >= 10;
+    const prio      = prioridadSel !== "";
+    document.getElementById("btn-enviar").disabled = !(nombre && correo && categoria && desc && prio);
+}
+
+document.getElementById("inp-categoria").addEventListener("change", revisarFormulario);
+
+function enviarTicket() {
+    const btn = document.getElementById("btn-enviar");
+    btn.disabled = true;
+    btn.textContent = "Enviando…";
+
+    // Simulamos envío (aquí podrías hacer fetch a /tickets o similar)
+    setTimeout(() => {
+        document.getElementById("form-card").style.display = "none";
+        document.getElementById("success-banner").style.display = "block";
+    }, 900);
+}
+
+function nuevaSolicitud() {
+    document.getElementById("form-card").style.display = "block";
+    document.getElementById("success-banner").style.display = "none";
+    ["inp-nombre","inp-correo","inp-desc"].forEach(id => {
+        const el = document.getElementById(id);
+        el.value = "";
+        el.classList.remove("valid","invalid");
+    });
+    document.getElementById("inp-categoria").value = "";
+    prioridadSel = "";
+    document.querySelectorAll(".prioridad-pill").forEach(p => p.classList.remove("selected"));
+    revisarFormulario();
+}
+</script>
 </body>
 </html>

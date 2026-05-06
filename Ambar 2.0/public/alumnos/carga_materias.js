@@ -75,11 +75,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Redirección a Tickets
     btnTicket.addEventListener("click", () => {
-        window.location.href = "/tickets.html"; 
+        window.location.href = "tickets.html"; 
     });
 
     // Redirección a Horario
     btnHorario.addEventListener("click", () => {
-        window.location.href = "/horario.html"; 
+        window.location.href = "horario.html"; 
     });
 });

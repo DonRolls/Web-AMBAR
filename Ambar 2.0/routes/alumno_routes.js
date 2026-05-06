@@ -1,4 +1,4 @@
-// routes/alumno.routes.js
+
 const express = require("express");
 const router = express.Router();
 const alumnoRepository = require("../repositories/alumno_repository");

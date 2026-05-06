@@ -1,58 +1,82 @@
 document.addEventListener("DOMContentLoaded", async () => {
     const nctrl = sessionStorage.getItem("N_ctrl");
-    const tableBody = document.querySelector(".horario-table tbody");
-
-    // Definimos el rango de horas que queremos mostrar
-    const horas = ["14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
-    // Mapeo de días para iterar la tabla
+    const tableBody = document.getElementById("horario-tbody");
+    const periodoText = document.getElementById("periodo-text");
+ 
     const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"];
-    // Colores disponibles para las materias
     const colores = ["pink", "purple", "green", "salmon", "yellow"];
-
+ 
+    // Color consistente por materia
+    const colorMap = {};
+    let colorIdx = 0;
+    function getColor(materia) {
+        if (!colorMap[materia]) {
+            colorMap[materia] = colores[colorIdx % colores.length];
+            colorIdx++;
+        }
+        return colorMap[materia];
+    }
+ 
+    const toMinutes = h => { const [hh, mm] = h.split(":").map(Number); return hh * 60 + mm; };
+    const toHHMM = m => `${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`;
+ 
     try {
-        // Asumiendo que crearás este endpoint o usarás uno existente
-        const res = await fetch(`http://localhost:3000/horario/${nctrl}`);
-        const data = await res.json(); 
-        
-        // Limpiar tabla
+        // 1. Periodo activo para el encabezado
+        const resPeriodos = await fetch("/periodos");
+        const periodos = await resPeriodos.json();
+        const periodoActivo = periodos.find(p => p.Activo);
+        periodoText.textContent = periodoActivo ? `Periodo: ${periodoActivo.Nombre}` : "Sin periodo activo";
+ 
+        // 2. Horario del alumno
+        const res = await fetch(`/horario/${nctrl}`);
+        const data = await res.json();
+ 
+        if (!data || data.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-2)">No tienes materias inscritas en el periodo actual.</td></tr>`;
+            return;
+        }
+ 
+        // 3. Rango de horas dinámico desde datos reales
+        const horaMin = Math.floor(Math.min(...data.map(c => toMinutes(c.HoraInicio))) / 60) * 60;
+        const horaMax = Math.ceil( Math.max(...data.map(c => toMinutes(c.HoraFin)))    / 60) * 60;
+        const horas = [];
+        for (let m = horaMin; m < horaMax; m += 60) horas.push(toHHMM(m));
+ 
+        // 4. Construir tabla
         tableBody.innerHTML = "";
-
-        // Generar filas dinámicamente
         horas.forEach(hora => {
             const tr = document.createElement("tr");
-            
-            // Celda de la hora
             tr.innerHTML = `<td class="hora-cell">${hora}</td>`;
-
-            // Celdas para cada día
+ 
             dias.forEach(dia => {
                 const td = document.createElement("td");
-                
-                // Buscamos si hay una materia en esta hora y día
-                const clase = data.find(c => c.Hora === hora && c.Dia === dia);
-
+                // DiaSemana y HoraInicio/HoraFin vienen del backend como strings "HH:MM"
+                const clase = data.find(c => {
+                    const diaOk   = c.DiaSemana.trim() === dia;
+                    const slotMin = toMinutes(hora);
+                    return diaOk && slotMin >= toMinutes(c.HoraInicio) && slotMin < toMinutes(c.HoraFin);
+                });
+ 
                 if (clase) {
-                    // Asignar un color basado en el nombre de la materia (consistencia)
-                    const colorIndex = clase.Materia.length % colores.length;
-                    const color = colores[colorIndex];
-
+                    const color = getColor(clase.Materia);
                     td.innerHTML = `
                         <div class="materia ${color}">
                             <strong>${clase.Materia}</strong>
-                            Paquete: ${clase.Paquete || 'N/A'}
-                            <span class="room">${clase.Aula}</span>
-                        </div>
-                    `;
+                            ${clase.Docente ? `<span style="font-size:10.5px;opacity:.85">${clase.Docente}</span>` : ""}
+                            <span class="room">${clase.Aula || "—"}</span>
+                            <span style="font-size:10px;opacity:.7;display:block">${clase.HoraInicio}–${clase.HoraFin}</span>
+                        </div>`;
                 } else {
                     td.className = "empty-cell";
                 }
                 tr.appendChild(td);
             });
-
+ 
             tableBody.appendChild(tr);
         });
-
+ 
     } catch (err) {
         console.error("Error al cargar horario:", err);
+        tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:red">Error al conectar con el servidor.</td></tr>`;
     }
 });
