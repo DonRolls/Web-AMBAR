@@ -1,14 +1,15 @@
 const sql     = require("mssql");
 const express = require("express");
+const crypto  = require("crypto");
 const app     = express();
  
 app.use(express.json());
 app.use(express.static("."));
  
-
+ 
 const config = {
-    //user:     "emmanuel",          
-    //password: "emmanuel3131",   
+    user:     "emmanuel",          
+    password: "emmanuel3131",   
     server:   "localhost",
     database: "ambar",
     options: {
@@ -34,54 +35,81 @@ conectar().catch(err => {
 // LOGIN UNIFICADO (Alumnos y Coordinadores)
 app.post("/login", async (req, res) => {
     const { N_ctrl, pass } = req.body;
+
+    if (!N_ctrl || !pass) {
+        return res.status(400).json({ success: false, error: "Faltan credenciales" });
+    }
+
+    const hashPass = crypto.createHash("sha256").update(pass, "utf8").digest();
+
     try {
         // 1. Intentar validar como Alumno
         const resultAlumno = await pool.request()
             .input("N_ctrl", sql.NVarChar, String(N_ctrl))
-            .input("pass",   sql.NVarChar, pass)
             .query(`
                 SELECT a.N_ctrl, a.Nombre, a.Apellidos, a.Email,
-                       c.Nombre AS Carrera, a.Semestre, a.Estatus, a.Foto
+                       c.Nombre AS Carrera, a.Semestre, a.Estatus, a.Foto,
+                       CONVERT(VARBINARY(64), a.Pass) AS PassRaw,
+                       a.Pass AS PassPlain
                 FROM   Alumnos  a
                 JOIN   carrera c ON a.ID_Carrera = c.ID_Carrera
-                WHERE  a.N_ctrl = @N_ctrl 
-                  AND  a.Pass = CAST(HASHBYTES('SHA2_256', @pass) AS NVARCHAR(255))
+                WHERE  a.N_ctrl = @N_ctrl
             `);
 
         if (resultAlumno.recordset.length > 0) {
             const u = resultAlumno.recordset[0];
-            return res.json({
-                success:   true,
-                rol:       'Alumno',
-                N_ctrl:    u.N_ctrl,
-                nombre:    u.Nombre,
-                apellidos: u.Apellidos,
-                email:     u.Email,
-                carrera:   u.Carrera,
-                semestre:  u.Semestre,
-                foto:      u.Foto
-            });
+            const storedHash = u.PassRaw;
+            const storedPlain = u.PassPlain;
+            const plainMatch = storedPlain === pass;
+            const hashMatch = Buffer.isBuffer(storedHash) && Buffer.compare(storedHash, hashPass) === 0;
+
+            if (plainMatch || hashMatch) {
+                return res.json({
+                    success:   true,
+                    rol:       'Alumno',
+                    N_ctrl:    u.N_ctrl,
+                    nombre:    u.Nombre,
+                    apellidos: u.Apellidos,
+                    email:     u.Email,
+                    carrera:   u.Carrera,
+                    semestre:  u.Semestre,
+                    foto:      u.Foto
+                });
+            }
         }
 
         // 2. Si no es alumno, intentar validar como Coordinador
-        // Nota: El Coordinador usa su Email en lugar del N_ctrl para logearse
         const resultCoord = await pool.request()
-            .input("Email", sql.NVarChar, String(N_ctrl)) 
-            .input("Pass",  sql.NVarChar, pass)
-            .execute('sp_LoginCoordinador');
+            .input("N_ctrl", sql.NVarChar, String(N_ctrl))
+            .query(`
+                SELECT c.ID_Coordinador, c.Nombre, c.Apellidos, c.Email,
+                       d.Nombre AS Departamento, c.ID_Departamento,
+                       CONVERT(VARBINARY(64), c.Pass) AS PassRaw,
+                       c.Pass AS PassPlain
+                FROM   Coordinadores c
+                JOIN   Departamentos d ON c.ID_Departamento = d.ID_Departamento
+                WHERE  c.N_ctrl = @N_ctrl OR c.Email = @N_ctrl
+            `);
 
         if (resultCoord.recordset && resultCoord.recordset.length > 0) {
             const c = resultCoord.recordset[0];
-            return res.json({
-                success:        true,
-                rol:            'Coordinador',
-                idCoordinador:  c.ID_Coordinador,
-                nombre:         c.Nombre,
-                apellidos:      c.Apellidos,
-                email:          c.Email,
-                departamento:   c.Departamento,
-                idDepto:        c.ID_Departamento
-            });
+            const storedHash = c.PassRaw;
+            const storedPlain = c.PassPlain;
+            const plainMatch = storedPlain === pass;
+            const hashMatch = Buffer.isBuffer(storedHash) && Buffer.compare(storedHash, hashPass) === 0;
+
+            if (plainMatch || hashMatch) {
+                return res.json({
+                    success:        true,
+                    rol:            'Coordinador',
+                    ID_Coordinador: c.ID_Coordinador,
+                    nombre:         c.Nombre,
+                    apellidos:      c.Apellidos,
+                    email:          c.Email,
+                    departamento:   c.Departamento,
+                    idDepto:        c.ID_Departamento
+                });
+            }
         }
 
         // 3. Si no se encuentra en ninguna de las dos tablas

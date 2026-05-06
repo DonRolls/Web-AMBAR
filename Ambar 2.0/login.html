@@ -346,18 +346,31 @@
 
       const u = MOCK_USERS[controlUp];
       sessionStorage.setItem('rol', u.rol);
+      localStorage.setItem('rol', u.rol);
       sessionStorage.setItem('nombre', u.nombre);
+      localStorage.setItem('nombre', u.nombre);
+      localStorage.setItem('Nombre', u.nombre);
       sessionStorage.setItem('apellidos', u.apellidos);
+      localStorage.setItem('apellidos', u.apellidos);
       sessionStorage.setItem('N_ctrl', controlUp);
+      localStorage.setItem('N_ctrl', controlUp);
 
       if (u.rol === 'Alumno') {
         sessionStorage.setItem('carrera', u.carrera);
+        localStorage.setItem('carrera', u.carrera);
         sessionStorage.setItem('semestre', u.semestre);
+        localStorage.setItem('semestre', u.semestre);
         sessionStorage.setItem('email', u.email);
+        localStorage.setItem('email', u.email);
       } else {
         sessionStorage.setItem('departamento', u.departamento);
+        localStorage.setItem('departamento', u.departamento);
         sessionStorage.setItem('idDepto', u.idDepto);
-        if (u.ID_Coordinador) sessionStorage.setItem('ID_Coordinador', u.ID_Coordinador);
+        localStorage.setItem('idDepto', u.idDepto);
+        if (u.ID_Coordinador) {
+          sessionStorage.setItem('ID_Coordinador', u.ID_Coordinador);
+          localStorage.setItem('ID_Coordinador', u.ID_Coordinador);
+        }
       }
 
       setMsg(`Bienvenido ${u.nombre}`, 'green');
@@ -380,21 +393,33 @@
       }
 
       sessionStorage.setItem('rol', data.rol || 'Alumno');
+      localStorage.setItem('rol', data.rol || 'Alumno');
       sessionStorage.setItem('N_ctrl', data.N_ctrl);
+      localStorage.setItem('N_ctrl', data.N_ctrl);
       sessionStorage.setItem('nombre', data.nombre);
+      localStorage.setItem('nombre', data.nombre);
+      localStorage.setItem('Nombre', data.nombre);
       sessionStorage.setItem('apellidos', data.apellidos);
+      localStorage.setItem('apellidos', data.apellidos);
       sessionStorage.setItem('email', data.email || '');
+      localStorage.setItem('email', data.email || '');
 
       if (data.rol === 'Coordinador') {
         sessionStorage.setItem('ID_Coordinador', data.ID_Coordinador);
+        localStorage.setItem('ID_Coordinador', data.ID_Coordinador);
         sessionStorage.setItem('departamento', data.departamento);
+        localStorage.setItem('departamento', data.departamento);
         sessionStorage.setItem('idDepto', data.idDepto);
+        localStorage.setItem('idDepto', data.idDepto);
         setMsg(`Bienvenido, ${data.nombre}`, 'green');
         setTimeout(() => window.location.href = 'coordinador/inicio_coord.html', 1200);
       } else {
         sessionStorage.setItem('carrera', data.carrera || '');
+        localStorage.setItem('carrera', data.carrera || '');
         sessionStorage.setItem('semestre', data.semestre || '');
+        localStorage.setItem('semestre', data.semestre || '');
         sessionStorage.setItem('foto', data.foto || '');
+        localStorage.setItem('foto', data.foto || '');
         setMsg(`Bienvenido, ${data.nombre}`, 'green');
         setTimeout(() => window.location.href = 'alumnos/inicio.html', 1200);
       }
