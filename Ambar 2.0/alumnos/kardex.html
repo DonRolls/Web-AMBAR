@@ -92,26 +92,37 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
   <main class="main">
     <div class="breadcrumb">Portal Estudiantes <span>›</span> <span>Kárdex</span></div>
     <div class="page-header"><h1>Kárdex Académico</h1></div>
-    <div class="stu-nombre">JESUS ARMANDO VILLA BARRAZA</div>
-    <div class="stu-id">21212680</div>
+    
+    <!-- IDs añadidos para facilitar la inyección de JS -->
+    <div class="stu-nombre" id="nombre-el">Cargando...</div>
+    <div class="stu-id" id="id-el">--</div>
+    
     <div class="dept-selector">
-      <div><div class="dept-label">Carrera</div><div class="dept-value">INGENIERÍA INFORMÁTICA</div></div>
+      <div>
+        <div class="dept-label">Carrera</div>
+        <div class="dept-value" id="carrera-el">Cargando...</div>
+      </div>
       <span class="dept-arrow">▾</span>
     </div>
+
     <div class="info-bar">
-      <span>Especialidad: <strong>DESARROLLO DE SOFTWARE USANDO CÓMPUTO EN LA NUBE</strong></span>
-      <span>Semestre: <strong>10</strong></span>
-      <span>Situación: <strong>VIGENTE</strong></span>
+      <span>Especialidad: <strong id="esp-el">--</strong></span>
+      <span>Semestre: <strong id="sem-el">--</strong></span>
+      <span>Situación: <strong id="estatus-el">--</strong></span>
     </div>
+
     <div class="stats-bar">
-      <span>Créditos acumulados: <strong>173</strong></span>
-      <span>Créditos totales: <strong>260</strong></span>
-      <span>Ingreso: <strong>2021SEM3</strong></span>
+      <span>Créditos acumulados: <strong id="cred-acum-el">0</strong></span>
+      <span>Créditos totales: <strong id="cred-tot-el">260</strong></span>
+      <!-- Ingreso eliminado o manejado desde BD, dejaremos este por si lo usas -->
+      <span id="ingreso-container" style="display:none;">Ingreso: <strong id="ingreso-el">--</strong></span>
     </div>
+
     <div class="progress-wrap">
-      <div class="progress-label"><span>Avance curricular</span><span>66.54%</span></div>
-      <div class="progress-bar"><div class="progress-fill"></div></div>
+      <div class="progress-label"><span>Avance curricular</span><span id="progreso-texto">0.00%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progreso-fill"></div></div>
     </div>
+
     <div class="leyenda">
       <div class="ley-item"><div class="ley-box lb-ap"></div>Aprobada</div>
       <div class="ley-item"><div class="ley-box lb-re"></div>Reprobada</div>
@@ -119,46 +130,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
       <div class="ley-item"><div class="ley-box lb-pc"></div>Por cursar</div>
       <div class="ley-item"><div class="ley-box lb-op"></div>Optativa</div>
     </div>
-    <div class="kardex-grid">
-      <div class="mc ap"><div class="clave">IFE-1004</div><div class="nombre">ADMON PARA INFORMAT</div><div class="detalle">Cal: 93 · Cr: 4</div></div>
-      <div class="mc ap"><div class="clave">IFC-1001</div><div class="nombre">ADMON DE REC Y FU IN</div><div class="detalle">Cal: 82 · Cr: 4</div></div>
-      <div class="mc ap"><div class="clave">IFD-1015</div><div class="nombre">FUNDAM D SIST D INF</div><div class="detalle">Cal: 89 · Cr: 4</div></div>
-      <div class="mc ap"><div class="clave">ACA-0909</div><div class="nombre">TALL DE INVESTIG I</div><div class="detalle">Cal: 92 · Cr: 4</div><div class="icon">⇄</div></div>
-      <div class="mc ap"><div class="clave">IFF-1005</div><div class="nombre">AN Y MOD DE SIST INF</div><div class="detalle">Cal: 93 · Cr: 5</div></div>
-      <div class="mc ac"><div class="clave">IFD-1011</div><div class="nombre">DES. IMP. SIST. INF.</div><div class="detalle">Cr: 5</div></div>
-      <div class="mc re"><div class="clave">IFC-1008</div><div class="nombre">CALID. SIST. INFORMA</div><div class="detalle">Cal: 0 · Cr: 4</div></div>
-      <div class="mc ac"><div class="clave">IFF-1012</div><div class="nombre">ESTRATEG. GEST SERV.</div><div class="detalle">Cr: 5</div></div>
-      <div class="mc ap"><div class="clave">3IIF9</div><div class="nombre">RESIDENCIA PROFESION</div><div class="detalle">Cr: 10</div></div>
 
-      <div class="mc ap"><div class="clave">ACC-0906</div><div class="nombre">FUNDAM D INVESTIG.</div><div class="detalle">Cal: 91 · Cr: 4</div></div>
-      <div class="mc ap"><div class="clave">IFD-1013</div><div class="nombre">FISICA PARA INFORMAT</div><div class="detalle">Cal: 93 · Cr: 4</div></div>
-      <div class="mc ap"><div class="clave">IFC-1022</div><div class="nombre">SIST ELECTRON P INF</div><div class="detalle">Cal: 82 · Cr: 4</div></div>
-      <div class="mc ap"><div class="clave">IFD-1006</div><div class="nombre">ARQ DE COMPUTADORAS</div><div class="detalle">Cal: 91 · Cr: 5</div><div class="icon">⇄</div></div>
-      <div class="mc ap"><div class="clave">IFC-1025</div><div class="nombre">TECNOL INTERF D COMP</div><div class="detalle">Cal: 99 · Cr: 4</div></div>
-      <div class="mc ap"><div class="clave">IFH-1007</div><div class="nombre">AUDITORIA INFORM.</div><div class="detalle">Cr: 4</div></div>
-      <div class="mc ap"><div class="clave">IFE-1014</div><div class="nombre">FUND. GEST. SERV.</div><div class="detalle">Cal: 97 · Cr: 4</div></div>
-      <div class="mc ac"><div class="clave">IFF-1016</div><div class="nombre">INTELIG. NEGOCIOS</div><div class="detalle">Cr: 5</div></div>
-      <div class="mc pc"><div class="clave">SCF-2504</div><div class="nombre">TEMAS AVAN DESAR SOFT NUBE</div><div class="detalle">Cr: 5</div></div>
-
-      <div class="mc ap"><div class="clave">AEF-1032</div><div class="nombre">FUNDAM D PROGRAM</div><div class="detalle">Cal: 86 · Cr: 5</div></div>
-      <div class="mc ap"><div class="clave">AEB-1054</div><div class="nombre">PROG ORIENTADA A OBJ</div><div class="detalle">Cal: 85 · Cr: 5</div></div>
-      <div class="mc ap"><div class="clave">AED-1026</div><div class="nombre">ESTRUCTURA DE DATOS</div><div class="detalle">Cal: 82 · Cr: 5</div><div class="icon">⇄</div></div>
-      <div class="mc ap"><div class="clave">IFF-1003</div><div class="nombre">ADMON Y ORG DE DATOS</div><div class="detalle">Cal: 84 · Cr: 5</div><div class="icon">⇄</div></div>
-      <div class="mc ap"><div class="clave">AEF-1031</div><div class="nombre">FUNDAM D BASES D DAT</div><div class="detalle">Cal: 86 · Cr: 5</div></div>
-      <div class="mc ap"><div class="clave">AEH-1063</div><div class="nombre">TALL DE BASE D DATOS</div><div class="detalle">Cal: 96 · Cr: 4</div><div class="icon">⇄</div></div>
-      <div class="mc ap"><div class="clave">IFF-1026</div><div class="nombre">TOPICOS B. DATOS</div><div class="detalle">Cal: 99 · Cr: 5</div></div>
-      <div class="mc ac"><div class="clave">IFD-1023</div><div class="nombre">TALLER EMPRENDED.</div><div class="detalle">Cr: 5</div></div>
-      <div class="mc pc"><div class="clave">SCD-2505</div><div class="nombre">APLIC MÓVILES NUBE</div><div class="detalle">Cr: 5</div></div>
-
-      <div class="mc ap"><div class="clave">ACA-0907</div><div class="nombre">TALL DE ETICA</div><div class="detalle">Cal: 75 · Cr: 4</div></div>
-      <div class="mc ap"><div class="clave">AEC-1008</div><div class="nombre">CONTAB FINANCIERA</div><div class="detalle">Cal: 77 · Cr: 4</div></div>
-      <div class="mc ap"><div class="clave">IFC-1009</div><div class="nombre">COSTOS EMPRESARIALES</div><div class="detalle">Cal: 75 · Cr: 4</div></div>
-      <div class="mc ap"><div class="clave">AEC-1034</div><div class="nombre">FUNDAM D TELECOMUNIC</div><div class="detalle">Cal: 72 · Cr: 4</div></div>
-      <div class="mc ap"><div class="clave">IFD-1020</div><div class="nombre">REDES D COMPUTADORAS</div><div class="detalle">Cal: 86 · Cr: 5</div></div>
-      <div class="mc ap"><div class="clave">IFM-1017</div><div class="nombre">INTERCON. REDES</div><div class="detalle">Cal: 92 · Cr: 6</div></div>
-      <div class="mc ap"><div class="clave">IFH-1002</div><div class="nombre">ADMIN. SERVIDORES</div><div class="detalle">Cal: 96 · Cr: 5</div></div>
-      <div class="mc ac"><div class="clave">SCF-2501</div><div class="nombre">SOFT CON APLIC NUBE</div><div class="detalle">Cr: 5</div></div>
-      <div class="mc pc"><div class="clave">SCD-2506</div><div class="nombre">INNOVACIÓN TECN NUBE</div><div class="detalle">Cr: 5</div></div>
+    <!-- Contenedor vacío esperando datos -->
+    <div class="kardex-grid" id="kardex-grid">
+      <p style="grid-column: 1 / -1; color: var(--text-2); padding: 20px 0;">Cargando kárdex...</p>
     </div>
   </main>
 </div>

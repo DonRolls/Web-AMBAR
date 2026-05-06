@@ -14,11 +14,10 @@
         { texto: 'Credencial',              icono: '🪪', url: 'credencial.html',             id: 'credencial' },
         { texto: 'Recibos',                 icono: '🧾', url: 'recibos.html',                id: 'recibos' },
         { texto: 'Carga de Materias',       icono: '📚', url: 'cargadematerias.html',        id: 'cargadematerias' },
-        { texto: 'Tickets',                 icono: '🎫', url: 'tickets.html',                id: 'tickets' },
     ];
 
     const enlacesInferiores = [
-        { texto: 'Soporte',     icono: '❓', url: 'SoporteAl.html', id: 'soporte' },
+        { texto: 'Soporte',     icono: '❓', url: 'tickets.html', id: 'tickets' },
         { texto: 'Guía de uso', icono: '📖', url: 'guia.html',    id: 'guia' },
     ];
 

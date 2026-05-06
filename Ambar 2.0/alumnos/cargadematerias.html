@@ -71,21 +71,27 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
   <main class="main">
     <div class="breadcrumb">Portal Estudiantes <span>›</span> <span>Carga de Materias</span></div>
     <div class="page-header"><h1>Carga Académica</h1></div>
-    <div class="stu-nombre">JESUS ARMANDO VILLA BARRAZA</div>
-    <div class="stu-id">21212680</div>
+    
+    <!-- Elementos vacíos que el JS llenará -->
+    <div class="stu-nombre">Cargando...</div>
+    <div class="stu-id">--</div>
+
     <div class="dept-selector">
       <label>Selecciona una carrera</label>
-      <span class="dept-value">INGENIERÍA INFORMÁTICA</span>
+      <span class="dept-value">...</span>
       <span class="dept-arrow">▾</span>
     </div>
+
     <hr class="divider">
+
     <div class="btn-row" style="justify-content:flex-end;margin-bottom:16px">
       <button class="btn-ticket">🎫 Ticket</button>
     </div>
-    <div class="aviso">
-      <span class="aviso-icon">ℹ️</span>
-      <span>Fuera de horario de carga de materias.</span>
+
+    <div class="aviso" id="aviso-periodo">
+      <span>Verificando periodo de carga...</span>
     </div>
+
     <div class="btn-row">
       <button class="btn-horario">📅 Horario</button>
     </div>

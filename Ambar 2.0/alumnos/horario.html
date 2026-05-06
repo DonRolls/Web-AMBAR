@@ -74,57 +74,32 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
   <script src="sidebar.js"></script>
   <main class="main">
     <div class="breadcrumb">Portal Estudiantes <span>›</span> <span>Horario</span></div>
-    <div class="page-header"><h1>Horario Semestral</h1><p>Enero – Junio 2026</p></div>
+    <div class="page-header">
+      <h1>Horario Semestral</h1>
+      <p id="periodo-text">Cargando periodo...</p>
+    </div>
+
     <div class="s-card">
-      <div class="s-head"><div class="s-title"><div class="s-title-icon">📅</div>Distribución semanal</div></div>
+      <div class="s-head">
+        <div class="s-title"><div class="s-title-icon">📅</div>Distribución semanal</div>
+      </div>
       <div class="t-wrap">
         <table class="horario-table">
-          <thead><tr><th>Hora</th><th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th></tr></thead>
-          <tbody>
+          <thead>
             <tr>
-              <td class="hora-cell">14:00</td>
-              <td><div class="materia pink"><strong>DES. IMP. SIST. INF.</strong>Paquete: 06A<span class="room">LAB-D</span></div></td>
-              <td><div class="materia pink"><strong>DES. IMP. SIST. INF.</strong>Paquete: 06A<span class="room">0308</span></div></td>
-              <td><div class="materia pink"><strong>DES. IMP. SIST. INF.</strong>Paquete: 06A<span class="room">LAB-D</span></div></td>
-              <td><div class="materia pink"><strong>DES. IMP. SIST. INF.</strong>Paquete: 06A<span class="room">0308</span></div></td>
-              <td><div class="materia pink"><strong>DES. IMP. SIST. INF.</strong>Paquete: 06A<span class="room">LAB-D</span></div></td>
-              <td class="empty-cell"></td><td class="empty-cell"></td>
+              <th>Hora</th>
+              <th>Lun</th>
+              <th>Mar</th>
+              <th>Mié</th>
+              <th>Jue</th>
+              <th>Vie</th>
+              <th>Sáb</th>
+              <th>Dom</th>
             </tr>
-            <tr>
-              <td class="hora-cell">15:00</td>
-              <td><div class="materia purple"><strong>DES. APLIC. WEB</strong>Paquete: 06A<span class="room">LAB-I</span></div></td>
-              <td><div class="materia purple"><strong>DES. APLIC. WEB</strong>Paquete: 06A<span class="room">LAB-I</span></div></td>
-              <td><div class="materia purple"><strong>DES. APLIC. WEB</strong>Paquete: 06A<span class="room">0306</span></div></td>
-              <td><div class="materia purple"><strong>DES. APLIC. WEB</strong>Paquete: 06A<span class="room">0306</span></div></td>
-              <td><div class="materia purple"><strong>DES. APLIC. WEB</strong>Paquete: 06A<span class="room">LAB-I</span></div></td>
-              <td class="empty-cell"></td><td class="empty-cell"></td>
-            </tr>
-            <tr>
-              <td class="hora-cell">16:00</td>
-              <td><div class="materia green"><strong>ESTRATEG. GEST SERV.</strong>Paquete: 08A<span class="room">9203</span></div></td>
-              <td><div class="materia green"><strong>ESTRATEG. GEST SERV.</strong>Paquete: 08A<span class="room">9203</span></div></td>
-              <td><div class="materia green"><strong>ESTRATEG. GEST SERV.</strong>Paquete: 08A<span class="room">9203</span></div></td>
-              <td><div class="materia green"><strong>ESTRATEG. GEST SERV.</strong>Paquete: 08A<span class="room">9203</span></div></td>
-              <td><div class="materia green"><strong>ESTRATEG. GEST SERV.</strong>Paquete: 08A<span class="room">9203</span></div></td>
-              <td class="empty-cell"></td><td class="empty-cell"></td>
-            </tr>
-            <tr>
-              <td class="hora-cell">17:00</td>
-              <td><div class="materia salmon"><strong>AUDITORIA INFORM.</strong>Paquete: 06A<span class="room">0308</span></div></td>
-              <td><div class="materia salmon"><strong>AUDITORIA INFORM.</strong>Paquete: 06A<span class="room">0308</span></div></td>
-              <td><div class="materia salmon"><strong>AUDITORIA INFORM.</strong>Paquete: 06A<span class="room">0308</span></div></td>
-              <td><div class="materia salmon"><strong>AUDITORIA INFORM.</strong>Paquete: 06A<span class="room">0308</span></div></td>
-              <td class="empty-cell"></td><td class="empty-cell"></td><td class="empty-cell"></td>
-            </tr>
-            <tr>
-              <td class="hora-cell">18:00</td>
-              <td><div class="materia yellow"><strong>SOFT EN LA NUBE</strong>Paquete: 08A<span class="room">0305</span></div></td>
-              <td><div class="materia yellow"><strong>SOFT EN LA NUBE</strong>Paquete: 08A<span class="room">LAB-A</span></div></td>
-              <td><div class="materia yellow"><strong>SOFT EN LA NUBE</strong>Paquete: 08A<span class="room">0305</span></div></td>
-              <td><div class="materia yellow"><strong>SOFT EN LA NUBE</strong>Paquete: 08A<span class="room">LAB-A</span></div></td>
-              <td><div class="materia yellow"><strong>SOFT EN LA NUBE</strong>Paquete: 08A<span class="room">LAB-A</span></div></td>
-              <td class="empty-cell"></td><td class="empty-cell"></td>
-            </tr>
+          </thead>
+          <!-- Este tbody empieza vacío para ser llenado por el JS -->
+          <tbody id="horario-tbody">
+            <tr><td colspan="8" style="text-align:center; padding:20px;">Cargando horario...</td></tr>
           </tbody>
         </table>
         <div class="scroll-hint"><span>‹</span><span>›</span></div>
