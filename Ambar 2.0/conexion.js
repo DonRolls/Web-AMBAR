@@ -13,6 +13,7 @@ const authService = require("./services/auth_service");
 const alumnoRoutes     = require("./routes/alumno_routes");
 const coordinadorRoutes = require("./routes/coordinador_routes");
 const docenteRoutes    = require("./routes/docente_routes");
+const administradorRoutes = require("./routes/administrador_routes");
  
 // ── LOGIN UNIFICADO ───────────────────────────────────────────────────────────
 // Detecta automáticamente si es alumno, docente o coordinador
@@ -30,12 +31,13 @@ app.post("/login", async (req, res) => {
     }
 });
  
-// ── RUTAS ─────────────────────────────────────────────────────────────────────
-app.use(alumnoRoutes);                  // /horario, /calificaciones, etc.
-app.use("/coord",    coordinadorRoutes); // /coord/grupos, /coord/alumnos, etc.
-app.use("/docente",  docenteRoutes);    // /docente/perfil, /docente/grupos, etc.
+//RUTAS 
+app.use(alumnoRoutes);                  
+app.use("/coord",    coordinadorRoutes); 
+app.use("/docente",  docenteRoutes);    
+app.use("/admin", administradorRoutes);
  
-// ── INICIAR SERVIDOR ──────────────────────────────────────────────────────────
+//INICIAR SERVIDOR 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Servidor AMBAR en http://localhost:${PORT}`);

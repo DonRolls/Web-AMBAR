@@ -346,13 +346,21 @@
         setMsg(`Bienvenido, ${data.nombre}`, 'green');
         debugger;
         setTimeout(() => window.location.href = 'maestro/home.html', 1200);
-      } else {
+      } else if (data.rol === 'Administrador') {
+    sessionStorage.setItem('ID_Administrador', data.ID_Administrador);
+    sessionStorage.setItem('N_ctrl', data.N_ctrl);
+    sessionStorage.setItem('nombre', data.nombre);
+    sessionStorage.setItem('apellidos', data.apellidos);
+    sessionStorage.setItem('email', data.email);
+    sessionStorage.setItem('rol', 'Administrador');
+    window.location.href = 'administracion/inicio_admin.html';
+    } else {
         sessionStorage.setItem('carrera', data.carrera || '');
         sessionStorage.setItem('semestre', data.semestre || '');
         sessionStorage.setItem('foto', data.foto || '');
         setMsg(`Bienvenido, ${data.nombre}`, 'green');
         setTimeout(() => window.location.href = 'alumnos/inicio.html', 1200);
-      }
+      } 
     } catch {
       setMsg('Error de conexión con el servidor.', 'red');
     } finally {

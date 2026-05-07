@@ -2,6 +2,7 @@
 const alumnoRepository = require("../repositories/alumno_repository");
 const coordinadorRepository = require("../repositories/coordinador_repository"); // Lo creamos después
 const docenteRepository = require("../repositories/docente_repository");
+const administradorRepository = require("../repositories/administrador_repository");
 
 const authService = {
     login: async (nctrl, pass) => {
@@ -49,6 +50,20 @@ const authService = {
                 email: docente.Email
             };
         }   
+                // 4. Intentar como Administrador
+        const admin = await administradorRepository.loginAdministrador(nctrl, pass);
+        if (admin) {
+            return {
+                success: true,
+                rol: "Administrador",
+                ID_Administrador: admin.ID_Administrador,
+                N_ctrl: admin.N_ctrl,
+                nombre: admin.Nombre,
+                apellidos: admin.Apellidos,
+                email: admin.Email
+            };
+        }
+
         return { success: false, error: "Credenciales incorrectas" };
     }
 };

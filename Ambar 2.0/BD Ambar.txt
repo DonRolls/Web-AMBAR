@@ -352,7 +352,21 @@ GO
 
 
 
-
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Administradores')
+BEGIN
+    CREATE TABLE Administradores (
+        ID_Administrador INT IDENTITY(1,1) PRIMARY KEY,
+        N_ctrl NVARCHAR(10) NOT NULL UNIQUE,
+        Nombre NVARCHAR(100) NOT NULL,
+        Apellidos NVARCHAR(100) NOT NULL,
+        Email NVARCHAR(150) NOT NULL UNIQUE,
+        Pass NVARCHAR(255) NOT NULL,          -- texto plano
+        Activo BIT NOT NULL DEFAULT 1
+    );
+    INSERT INTO Administradores (N_ctrl, Nombre, Apellidos, Email, Pass)
+    VALUES ('A001', 'Admin', 'Principal', 'admin@tijuana.tecnm.mx', 'admin123');
+END
+GO
 
 
 

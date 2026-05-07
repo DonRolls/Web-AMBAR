@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo de Materias — Admin Ámbar</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0D1B3E;--navy-mid:#1D3461;--gold:#E8A100;--gold-lt:#FFF3D0;--bg:#F0F4FA;--card:#FFFFFF;--text:#1A1F36;--text-2:#5A6488;--border:#E2E8F0;--success:#0FAF7A;--danger:#E84040;--radius:14px;--shadow:0 4px 24px rgba(13,27,62,.09)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+/* TOPBAR */
+.topbar{background:var(--navy);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:fixed;inset:0 0 auto 0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.3)}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.hbg{color:white;font-size:22px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:.2s}
+.hbg:hover{background:rgba(255,255,255,.12)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-badge{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:11px;font-weight:800;color:var(--navy);line-height:1.1;text-align:center}
+.brand-name{color:white;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;line-height:1.3}
+.brand-name span{display:block;font-size:10px;font-weight:300;opacity:.7;letter-spacing:.6px;text-transform:uppercase}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.rol-tag{background:rgba(232,161,0,.2);border:1px solid rgba(232,161,0,.4);color:var(--gold);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:.4px;text-transform:uppercase}
+.avatar{width:34px;height:34px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;font-weight:700;color:var(--navy)}
+.logout-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.8);font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;transition:.2s}
+.logout-btn:hover{background:rgba(255,255,255,.15);color:white}
+/* LAYOUT */
+.layout{display:flex;margin-top:58px;height:calc(100vh - 58px);overflow:hidden}
+#main-sidebar{width:235px;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0}
+.main{flex:1;overflow-y:auto;padding:28px 32px;background:var(--bg)}
+/* PAGE */
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);margin-bottom:8px}
+.breadcrumb span{color:var(--gold);font-weight:600}
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:16px}
+.page-header h1{font-family:'Outfit',sans-serif;font-size:26px;font-weight:700;color:var(--navy);letter-spacing:-.3px}
+/* TOOLBAR */
+.toolbar{display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.search-input{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-size:13px;font-family:'DM Sans',sans-serif;width:260px;outline:none;transition:.18s}
+.search-input:focus{border-color:var(--gold)}
+.filter-select{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
+/* BUTTONS */
+.btn-primary{background:var(--navy);color:white;border:none;padding:9px 18px;border-radius:10px;font-weight:600;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.2s;font-family:'DM Sans',sans-serif}
+.btn-primary:hover{background:var(--navy-mid);transform:translateY(-1px)}
+.btn-edit{background:#EAB308;color:white;border:none;padding:5px 13px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s}
+.btn-edit:hover{background:#CA9A07}
+.btn-delete{background:var(--danger);color:white;border:none;padding:5px 13px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;margin-left:6px}
+.btn-delete:hover{background:#C03030}
+/* TABLE */
+.table-container{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto;box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse}
+th,td{padding:14px 16px;text-align:left;border-bottom:1px solid var(--border);font-size:13px}
+th{background:#F8FAFE;font-weight:600;color:var(--navy);font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFBFF}
+.badge-optativa{background:#F0F4FF;color:#3B5BDB;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-obligatoria{background:#F3F4F6;color:#6B7280;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+/* EMPTY / LOADER */
+.empty-state{text-align:center;padding:52px;color:var(--text-2)}
+.empty-state .icon{font-size:40px;margin-bottom:10px}
+.loader-row td{text-align:center;padding:44px;color:var(--text-2)}
+/* MODAL */
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);justify-content:center;align-items:center;z-index:1000}
+.modal.open{display:flex}
+.modal-content{background:var(--card);border-radius:var(--radius);padding:30px;width:90%;max-width:480px;animation:fadeUp .25s ease}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.modal-header h2{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;color:var(--navy)}
+.close-modal{font-size:26px;cursor:pointer;color:var(--text-2);line-height:1}
+.close-modal:hover{color:var(--text)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.form-group input,.form-group select{width:100%;padding:9px 13px;border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:.18s}
+.form-group input:focus,.form-group select:focus{border-color:var(--gold)}
+.form-group.checkbox-group{display:flex;align-items:center;gap:10px}
+.form-group.checkbox-group label{margin-bottom:0;text-transform:none;font-size:13px;font-weight:500;color:var(--text);letter-spacing:0}
+.form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.btn-cancel{background:var(--border);color:var(--text-2);border:none;padding:9px 18px;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500}
+.btn-cancel:hover{background:#D5DBE8}
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--navy);color:white;padding:13px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transform:translateY(10px);transition:.3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.error{background:var(--danger)}
+.toast.success{background:var(--success)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+ 
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="hbg" onclick="toggleSidebar()">☰</span>
+    <div class="brand">
+      <div class="brand-badge">TEC<br>NM</div>
+      <div class="brand-name">Tecnológico Nacional de México<span>Portal Administrador</span></div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="rol-tag">Administrador</span>
+    <div class="avatar">👤</div>
+    <button class="logout-btn" id="btn-logout">Cerrar sesión</button>
+  </div>
+</header>
+ 
+<!-- LAYOUT -->
+<div class="layout">
+  <div id="main-sidebar">
+    <div id="sidebar-container" style="display:flex;flex-direction:column;height:100%"></div>
+  </div>
+  <script src="sidebaradmi.js"></script>
+ 
+  <main class="main">
+    <div class="breadcrumb">Portal Administrador <span>›</span> <span>Catálogo de Materias</span></div>
+    <div class="page-header">
+      <h1><span style="color:var(--gold);">📚</span> Catálogo de Materias</h1>
+      <button class="btn-primary" onclick="abrirModalNuevo()"><span>+</span> Nueva Materia</button>
+    </div>
+ 
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <input type="text" class="search-input" id="busqueda" placeholder="Buscar por clave o nombre…" oninput="filtrar()">
+      <select class="filter-select" id="filtro-carrera" onchange="filtrar()">
+        <option value="">Todas las carreras</option>
+        <option value="1">ISC</option>
+        <option value="2">IINF</option>
+        <option value="3">IElec</option>
+        <option value="4">IIA</option>
+      </select>
+      <select class="filter-select" id="filtro-tipo" onchange="filtrar()">
+        <option value="">Todos los tipos</option>
+        <option value="0">Obligatoria</option>
+        <option value="1">Optativa</option>
+      </select>
+    </div>
+ 
+    <!-- TABLA -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Clave</th><th>Materia</th><th>Créditos</th>
+            <th>Carrera</th><th>Tipo</th><th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-body">
+          <tr class="loader-row"><td colspan="7">Cargando materias…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+ 
+<!-- MODAL MATERIA -->
+<div id="modal-materia" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modal-titulo">Nueva Materia</h2>
+      <span class="close-modal" onclick="cerrarModal()">&times;</span>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Clave *</label>
+        <input type="text" id="f-clave" placeholder="Ej: ACD-1053">
+      </div>
+      <div class="form-group">
+        <label>Créditos *</label>
+        <input type="number" id="f-creditos" min="1" max="20" value="4">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Nombre de la materia *</label>
+      <input type="text" id="f-nombre" placeholder="Ej: Programación Avanzada">
+    </div>
+    <div class="form-group">
+      <label>Carrera *</label>
+      <select id="f-carrera">
+        <option value="">Seleccionar…</option>
+        <option value="1">ISC – Ing. en Sistemas Computacionales</option>
+        <option value="2">IINF – Ing. Informática</option>
+        <option value="3">IElec – Ing. Electrónica</option>
+        <option value="4">IIA – Ing. Industrial y Administración</option>
+      </select>
+    </div>
+    <div class="form-group checkbox-group">
+      <input type="checkbox" id="f-optativa">
+      <label for="f-optativa">Materia optativa</label>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn-primary" onclick="guardarMateria()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+ 
+<script>
+/* ═══════════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════════ */
+const API = '/admin';
+const HEADERS = () => ({
+  'Content-Type': 'application/json',
+  'x-admin-id': sessionStorage.getItem('ID_Administrador') || '1'
+});
+ 
+const CARRERA_LABEL = { 1:'ISC', 2:'IINF', 3:'IElec', 4:'IIA' };
+ 
+let materias   = [];
+let editandoId = null;
+ 
+/* ─── Auth ─── */
+(function() {
+  const id = sessionStorage.getItem('ID_Administrador');
+  if (!id) window.location.href = '/login.html';
+  document.getElementById('btn-logout').addEventListener('click', () => {
+    sessionStorage.clear(); window.location.href = '/login.html';
+  });
+})();
+ 
+/* ═══════════════════════════════════════════════════
+   CARGA
+═══════════════════════════════════════════════════ */
+async function cargarMaterias() {
+  try {
+    const res = await fetch(`${API}/materias`, { headers: HEADERS() });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    materias = await res.json();
+    renderTabla(materias);
+  } catch (e) {
+    document.getElementById('tabla-body').innerHTML =
+      `<tr><td colspan="7" class="empty-state">
+        <div class="icon">⚠️</div>
+        <p>No se pudo conectar al servidor.<br><small>${e.message}</small></p>
+      </td></tr>`;
+    toast('Error al cargar: ' + e.message, 'error');
+  }
+}
+ 
+/* ═══════════════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════════════ */
+function renderTabla(data) {
+  const tbody = document.getElementById('tabla-body');
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty-state">
+      <div class="icon">🔍</div><p>No hay materias registradas</p></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map(m => {
+    const tipoBadge = m.EsOptativa
+      ? '<span class="badge-optativa">Optativa</span>'
+      : '<span class="badge-obligatoria">Obligatoria</span>';
+    return `<tr>
+      <td>${m.ID_Materia}</td>
+      <td><strong>${m.Clave}</strong></td>
+      <td>${m.Nombre}</td>
+      <td style="text-align:center">${m.Creditos}</td>
+      <td>${CARRERA_LABEL[m.id_carrera] || m.id_carrera}</td>
+      <td>${tipoBadge}</td>
+      <td>
+        <button class="btn-edit" onclick="editarMateria(${m.ID_Materia})">✏️ Editar</button>
+        <button class="btn-delete" onclick="eliminarMateria(${m.ID_Materia})">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+ 
+/* ═══════════════════════════════════════════════════
+   FILTRO LOCAL
+═══════════════════════════════════════════════════ */
+function filtrar() {
+  const q       = document.getElementById('busqueda').value.toLowerCase();
+  const carrera = document.getElementById('filtro-carrera').value;
+  const tipo    = document.getElementById('filtro-tipo').value;
+ 
+  const filtrado = materias.filter(m => {
+    const matchQ       = !q || m.Clave.toLowerCase().includes(q) || m.Nombre.toLowerCase().includes(q);
+    const matchCarrera = !carrera || String(m.id_carrera) === carrera;
+    const matchTipo    = tipo === '' || String(m.EsOptativa ? 1 : 0) === tipo;
+    return matchQ && matchCarrera && matchTipo;
+  });
+  renderTabla(filtrado);
+}
+ 
+/* ═══════════════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════════════ */
+function abrirModalNuevo() {
+  editandoId = null;
+  document.getElementById('modal-titulo').textContent = 'Nueva Materia';
+  document.getElementById('f-clave').value    = '';
+  document.getElementById('f-nombre').value   = '';
+  document.getElementById('f-creditos').value = '4';
+  document.getElementById('f-carrera').value  = '';
+  document.getElementById('f-optativa').checked = false;
+  document.getElementById('f-clave').disabled = false;
+  document.getElementById('modal-materia').classList.add('open');
+}
+ 
+function editarMateria(id) {
+  const m = materias.find(x => x.ID_Materia === id);
+  if (!m) { toast('Materia no encontrada', 'error'); return; }
+ 
+  editandoId = id;
+  document.getElementById('modal-titulo').textContent = 'Editar Materia';
+  document.getElementById('f-clave').value     = m.Clave;
+  document.getElementById('f-nombre').value    = m.Nombre;
+  document.getElementById('f-creditos').value  = m.Creditos;
+  document.getElementById('f-carrera').value   = m.id_carrera;
+  document.getElementById('f-optativa').checked = !!m.EsOptativa;
+  document.getElementById('f-clave').disabled  = true; // clave es unique key, no cambiar
+  document.getElementById('modal-materia').classList.add('open');
+}
+ 
+function cerrarModal() {
+  document.getElementById('modal-materia').classList.remove('open');
+  document.getElementById('f-clave').disabled = false;
+}
+ 
+/* ═══════════════════════════════════════════════════
+   GUARDAR
+═══════════════════════════════════════════════════ */
+async function guardarMateria() {
+  const clave    = document.getElementById('f-clave').value.trim().toUpperCase();
+  const nombre   = document.getElementById('f-nombre').value.trim();
+  const creditos = parseInt(document.getElementById('f-creditos').value);
+  const carrera  = parseInt(document.getElementById('f-carrera').value);
+  const optativa = document.getElementById('f-optativa').checked ? 1 : 0;
+ 
+  if (!nombre || !carrera || !creditos) { toast('Completa todos los campos requeridos', 'error'); return; }
+  if (!editandoId && !clave) { toast('La clave es obligatoria', 'error'); return; }
+ 
+  const body = { Nombre: nombre, Creditos: creditos, id_carrera: carrera, EsOptativa: optativa };
+  if (!editandoId) body.Clave = clave;
+ 
+  const url    = editandoId ? `${API}/materias/${editandoId}` : `${API}/materias`;
+  const method = editandoId ? 'PUT' : 'POST';
+ 
+  try {
+    const res = await fetch(url, { method, headers: HEADERS(), body: JSON.stringify(body) });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    cerrarModal();
+    toast(editandoId ? 'Materia actualizada ✓' : 'Materia creada ✓', 'success');
+    cargarMaterias();
+  } catch (e) {
+    toast('Error al guardar: ' + e.message, 'error');
+  }
+}
+ 
+/* ═══════════════════════════════════════════════════
+   ELIMINAR
+═══════════════════════════════════════════════════ */
+async function eliminarMateria(id) {
+  if (!confirm('¿Eliminar esta materia?\nVerifica que no tenga inscripciones asociadas.')) return;
+  try {
+    const res = await fetch(`${API}/materias/${id}`, { method: 'DELETE', headers: HEADERS() });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    toast('Materia eliminada', 'success');
+    cargarMaterias();
+  } catch (e) {
+    toast('Error al eliminar: ' + e.message, 'error');
+  }
+}
+ 
+/* ─── TOAST ─── */
+function toast(msg, tipo = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast ' + tipo;
+  void el.offsetWidth;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3200);
+}
+ 
+/* ─── Init ─── */
+cargarMaterias();
+</script>
+</body>
+</html>
