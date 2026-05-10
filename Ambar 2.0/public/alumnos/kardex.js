@@ -1,85 +1,113 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    const nctrl = sessionStorage.getItem("N_ctrl");
-    if (!nctrl) { window.location.href = "/login.html"; return; }
- 
-    // Referencias al DOM
-    const nombreEl = document.querySelector(".stu-nombre");
-    const idEl = document.querySelector(".stu-id");
-    const especialidadEl = document.querySelector(".info-bar span:nth-child(1) strong");
-    const semestreEl = document.querySelector(".info-bar span:nth-child(2) strong");
-    const estatusEl = document.querySelector(".info-bar span:nth-child(3) strong");
-    const creditosAcumEl = document.querySelector(".stats-bar span:nth-child(1) strong");
-    const progresoFill = document.querySelector(".progress-fill");
-    const progresoTexto = document.querySelector(".progress-label span:nth-child(2)");
-    const kardexGrid = document.querySelector(".kardex-grid");
- 
-    const CREDITOS_TOTALES = 260; // Valor base del plan de estudios
- 
-    // 1. CARGAR INFORMACIÓN GENERAL Y ESTADÍSTICAS
+
+    // ERROR 2 y 7 CORREGIDOS: usar getSession() que valida N_ctrl + rol === 'Alumno'
+    const sess = getSession();
+    if (!sess) return;
+    const nctrl = sess.N_ctrl;
+
+    // ERROR 3 CORREGIDO: iniciales reales en avatar
+    const iniciales = ((sess.nombre || '').charAt(0) + (sess.apellidos || '').charAt(0)).toUpperCase();
+    document.getElementById('avatar-initials').textContent = iniciales || '?';
+
+    // Logout
+    document.getElementById('btn-logout').addEventListener('click', logoutSession);
+
+    // ERROR 5 CORREGIDO: usar los IDs definidos en el HTML, no selectores frágiles
+    const nombreEl      = document.getElementById('nombre-el');
+    const idEl          = document.getElementById('id-el');
+    const carreraEl     = document.getElementById('carrera-el');
+    const espEl         = document.getElementById('esp-el');
+    const semEl         = document.getElementById('sem-el');
+    const estatusEl     = document.getElementById('estatus-el');
+    const credAcumEl    = document.getElementById('cred-acum-el');
+    const progresoFill  = document.getElementById('progreso-fill');
+    const progresoTexto = document.getElementById('progreso-texto');
+    const kardexGrid    = document.getElementById('kardex-grid');
+
+    const CREDITOS_TOTALES = 260;
+
+    // 1. INFORMACIÓN GENERAL DEL ALUMNO
     try {
-        const res = await fetch(`http://localhost:3000/alumno/${nctrl}`);
-        if (res.ok) {
-            const a = await res.json();
-            nombreEl.textContent = `${a.Nombre} ${a.Apellidos}`.toUpperCase();
-            idEl.textContent = a.N_ctrl;
-            especialidadEl.textContent = a.Especialidad || "TRONCO COMÚN";
-            semestreEl.textContent = a.Semestre;
-            estatusEl.textContent = a.Estatus.toUpperCase();
-            
-            // Cálculo de créditos y progreso
-            // (Asumiendo que tu API devuelve los créditos acumulados o los calculamos del kardex)
-            // Para este ejemplo, usaremos un valor dinámico si lo agregas a tu SP de alumno
+        // ERROR 4 CORREGIDO: ruta relativa, sin localhost:3000
+        const res = await fetch(`/alumno/${nctrl}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const a = await res.json();
+
+        nombreEl.textContent  = `${a.Nombre} ${a.Apellidos}`.toUpperCase();
+        idEl.textContent      = a.N_ctrl;
+        carreraEl.textContent = a.Carrera  || '—';
+        espEl.textContent     = a.Especialidad || 'TRONCO COMÚN';
+        semEl.textContent     = a.Semestre ?? '—';
+        estatusEl.textContent = (a.Estatus || '—').toUpperCase();
+
+    } catch (err) {
+        console.error('Error cargando info del alumno:', err);
+        nombreEl.textContent = 'Error al cargar datos';
+    }
+
+    // 2. KÁRDEX
+    try {
+        // ERROR 4 CORREGIDO: ruta relativa
+        const res = await fetch(`/kardex/${nctrl}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const materias = await res.json();
+
+        kardexGrid.innerHTML = '';
+
+        if (!materias.length) {
+            kardexGrid.innerHTML = '<p class="empty-msg">No hay materias registradas en el kárdex.</p>';
+            return;
         }
-    } catch (err) { console.error("Error en info general:", err); }
- 
-    // 2. CARGAR MATERIAS DEL KÁRDEX
-    try {
-        const resKardex = await fetch(`http://localhost:3000/kardex/${nctrl}`);
-        const materias = await resKardex.json();
- 
-        // Limpiamos el grid estático
-        kardexGrid.innerHTML = "";
- 
+
         let creditosAprobados = 0;
- 
+
         materias.forEach(m => {
-            // Determinar clase de color según estatus
-            let statusClass = "pc"; // Por cursar (default)
-            if (m.Estatus === "APROBADO") {
-                statusClass = "ap";
-                creditosAprobados += m.Creditos;
-            } else if (m.Estatus === "REPROBADO") {
-                statusClass = "re";
-            } else if (m.Estatus === "CURSANDO") {
-                statusClass = "ac"; // Carga actual
+            // ERROR 6 CORREGIDO: lógica de clases sin concatenación
+            // Una materia optativa tiene su propia clase; si además está aprobada/reprobada
+            // la clase base define el color principal y 'op' solo añade el ícono de estrella
+            let claseBase;
+            const esOptativa = m.EsOptativa === true || m.EsOptativa === 1;
+
+            switch ((m.Estatus || '').toUpperCase()) {
+                case 'APROBADO':
+                    claseBase = esOptativa ? 'op' : 'ap';
+                    // ERROR 7 CORREGIDO: verificar que Creditos sea número antes de sumar
+                    creditosAprobados += Number(m.Creditos) || 0;
+                    break;
+                case 'REPROBADO':
+                    claseBase = 're';
+                    break;
+                case 'CURSANDO':
+                case 'EN CURSO':
+                    claseBase = 'ac';
+                    break;
+                default:
+                    claseBase = 'pc'; // Por cursar
             }
- 
-            if (m.EsOptativa) statusClass += " op";
- 
-            const card = document.createElement("div");
-            card.className = `mc ${statusClass}`;
+
+            const calDisplay = m.CalFinal != null
+                ? `Cal: ${Number(m.CalFinal).toFixed(2)} · `
+                : '';
+
+            const card = document.createElement('div');
+            card.className = `mc ${claseBase}`;
             card.innerHTML = `
                 <div class="clave">${m.Clave}</div>
                 <div class="nombre">${m.Materia}</div>
-                <div class="detalle">
-                    ${m.CalFinal !== null ? `Cal: ${m.CalFinal} · ` : ""}Cr: ${m.Creditos}
-                </div>
-                ${m.EsOptativa ? '<div class="icon">★</div>' : ""}
+                <div class="detalle">${calDisplay}Cr: ${m.Creditos ?? '—'}</div>
+                ${esOptativa ? '<div class="icon">★ Optativa</div>' : ''}
             `;
             kardexGrid.appendChild(card);
         });
- 
-        // 3. ACTUALIZAR BARRA DE PROGRESO REAL
-        creditosAcumEl.textContent = creditosAprobados;
-        const porcentaje = ((creditosAprobados / CREDITOS_TOTALES) * 100).toFixed(2);
-        progresoFill.style.width = `${porcentaje}%`;
+
+        // 3. BARRA DE PROGRESO
+        credAcumEl.textContent = creditosAprobados;
+        const porcentaje = Math.min((creditosAprobados / CREDITOS_TOTALES) * 100, 100).toFixed(2);
+        progresoFill.style.width  = `${porcentaje}%`;
         progresoTexto.textContent = `${porcentaje}%`;
- 
-    } catch (err) { console.error("Error al cargar kárdex:", err); }
- 
-    // Logout
-    document.querySelector(".logout-btn").addEventListener("click", () => {
-        sessionStorage.clear();
-        window.location.href = "/login.html";
-    });
+
+    } catch (err) {
+        console.error('Error al cargar kárdex:', err);
+        kardexGrid.innerHTML = '<p class="empty-msg" style="color:var(--danger)">Error al cargar el kárdex. Intenta recargar la página.</p>';
+    }
 });

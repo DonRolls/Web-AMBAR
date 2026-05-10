@@ -82,45 +82,48 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
   </div>
   <div class="topbar-right">
     <span class="stu-tag">Estudiante</span>
-    <div class="avatar">👤</div>
+    <div class="avatar" id="avatar-initials">—</div>
     <button class="logout-btn">Cerrar sesión</button>
   </div>
 </header>
+
 <div class="layout">
   <div id="main-sidebar"><div id="sidebar-container" style="display:flex;flex-direction:column;height:100%"></div></div>
   <script src="sidebar.js"></script>
   <main class="main">
     <div class="breadcrumb">Portal Estudiantes <span>›</span> <span>Kárdex</span></div>
     <div class="page-header"><h1>Kárdex Académico</h1></div>
-    
-    <!-- IDs añadidos para facilitar la inyección de JS -->
-    <div class="stu-nombre" id="nombre-el">Cargando...</div>
-    <div class="stu-id" id="id-el">--</div>
-    
+
+    <div class="stu-nombre" id="nombre-el">Cargando…</div>
+    <div class="stu-id"    id="id-el">—</div>
+
     <div class="dept-selector">
       <div>
         <div class="dept-label">Carrera</div>
-        <div class="dept-value" id="carrera-el">Cargando...</div>
+        <div class="dept-value" id="carrera-el">Cargando…</div>
       </div>
       <span class="dept-arrow">▾</span>
     </div>
 
     <div class="info-bar">
-      <span>Especialidad: <strong id="esp-el">--</strong></span>
-      <span>Semestre: <strong id="sem-el">--</strong></span>
-      <span>Situación: <strong id="estatus-el">--</strong></span>
+      <span>Especialidad: <strong id="esp-el">—</strong></span>
+      <span>Semestre: <strong id="sem-el">—</strong></span>
+      <span>Situación: <strong id="estatus-el">—</strong></span>
     </div>
 
     <div class="stats-bar">
       <span>Créditos acumulados: <strong id="cred-acum-el">0</strong></span>
       <span>Créditos totales: <strong id="cred-tot-el">260</strong></span>
-      <!-- Ingreso eliminado o manejado desde BD, dejaremos este por si lo usas -->
-      <span id="ingreso-container" style="display:none;">Ingreso: <strong id="ingreso-el">--</strong></span>
     </div>
 
     <div class="progress-wrap">
-      <div class="progress-label"><span>Avance curricular</span><span id="progreso-texto">0.00%</span></div>
-      <div class="progress-bar"><div class="progress-fill" id="progreso-fill"></div></div>
+      <div class="progress-label">
+        <span>Avance curricular</span>
+        <span id="progreso-texto">0.00%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progreso-fill"></div>
+      </div>
     </div>
 
     <div class="leyenda">
@@ -131,12 +134,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
       <div class="ley-item"><div class="ley-box lb-op"></div>Optativa</div>
     </div>
 
-    <!-- Contenedor vacío esperando datos -->
     <div class="kardex-grid" id="kardex-grid">
-      <p style="grid-column: 1 / -1; color: var(--text-2); padding: 20px 0;">Cargando kárdex...</p>
+      <p class="empty-msg">Cargando kárdex…</p>
     </div>
   </main>
 </div>
+
 <script src="../session.js"></script>
 <script src="kardex.js"></script>
 <script>
