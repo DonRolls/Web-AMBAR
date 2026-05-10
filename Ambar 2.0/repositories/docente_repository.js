@@ -163,5 +163,5 @@ const docenteRepository = {
         return result.recordset[0] || null;
     }
 };
-
+//zeus deja de romper todo por favor, ya casi acabamos :c
 module.exports = docenteRepository;

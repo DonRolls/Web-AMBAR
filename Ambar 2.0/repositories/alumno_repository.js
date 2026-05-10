@@ -268,5 +268,5 @@ const alumnoRepository = {
         return result.recordset.length > 0;
     }
 };
-
+//zeus deja de romper todo por favor, ya casi acabamos :c
 module.exports = alumnoRepository;

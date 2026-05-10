@@ -379,5 +379,5 @@ const coordinadorRepository = {
                     VALUES (@ID_Coordinador, @TipoCambio, @Descripcion)`);
     }
 };
- 
+ //zeus deja de romper todo por favor, ya casi acabamos :c
 module.exports = coordinadorRepository;

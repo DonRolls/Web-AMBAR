@@ -269,3 +269,4 @@ router.get("/especialidades/:idDepto", async (req, res) => {
 });
 
 module.exports = router;
+//zeus deja de romper todo por favor, ya casi acabamos :c
