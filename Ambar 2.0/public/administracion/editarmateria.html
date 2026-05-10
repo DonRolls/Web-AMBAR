@@ -1,3 +1,6 @@
+Editarmateria · HTML
+Copiar
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -111,6 +114,9 @@ tr:hover td{background:#FAFBFF}
   <main class="main">
     <div class="breadcrumb">Portal Administrador <span>›</span> <span>Catálogo de Materias</span></div>
     <div class="page-header">
+      <button class="btn-primary" onclick="abrirModalImportar()" style="margin-left:auto;">
+    📥 Importar desde CSV
+      </button>
       <h1><span style="color:var(--gold);">📚</span> Catálogo de Materias</h1>
       <button class="btn-primary" onclick="abrirModalNuevo()"><span>+</span> Nueva Materia</button>
     </div>
@@ -164,6 +170,16 @@ tr:hover td{background:#FAFBFF}
       <div class="form-group">
         <label>Créditos *</label>
         <input type="number" id="f-creditos" min="1" max="20" value="4">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Número de Unidades</label>
+        <input type="number" id="f-unidades" min="1" max="5" value="3">
+      </div>
+      <div class="form-group">
+        <label>Semestre</label>
+        <input type="number" id="f-semestre" min="1" max="12" value="1">
       </div>
     </div>
     <div class="form-group">
@@ -256,6 +272,8 @@ function renderTabla(data) {
       <td><strong>${m.Clave}</strong></td>
       <td>${m.Nombre}</td>
       <td style="text-align:center">${m.Creditos}</td>
+      <td style="text-align:center">${m.NumUnidades ?? 3}</td>
+      <td style="text-align:center">${m.Semestre ?? 1}</td>
       <td>${CARRERA_LABEL[m.id_carrera] || m.id_carrera}</td>
       <td>${tipoBadge}</td>
       <td>
@@ -291,7 +309,9 @@ function abrirModalNuevo() {
   document.getElementById('modal-titulo').textContent = 'Nueva Materia';
   document.getElementById('f-clave').value    = '';
   document.getElementById('f-nombre').value   = '';
-  document.getElementById('f-creditos').value = '4';
+  document.getElementById('f-creditos').value  = '4';
+  document.getElementById('f-unidades').value  = '3';
+  document.getElementById('f-semestre').value  = '1';
   document.getElementById('f-carrera').value  = '';
   document.getElementById('f-optativa').checked = false;
   document.getElementById('f-clave').disabled = false;
@@ -307,6 +327,8 @@ function editarMateria(id) {
   document.getElementById('f-clave').value     = m.Clave;
   document.getElementById('f-nombre').value    = m.Nombre;
   document.getElementById('f-creditos').value  = m.Creditos;
+  document.getElementById('f-unidades').value  = m.NumUnidades ?? 3;
+  document.getElementById('f-semestre').value  = m.Semestre ?? 1;
   document.getElementById('f-carrera').value   = m.id_carrera;
   document.getElementById('f-optativa').checked = !!m.EsOptativa;
   document.getElementById('f-clave').disabled  = true; // clave es unique key, no cambiar
@@ -331,7 +353,9 @@ async function guardarMateria() {
   if (!nombre || !carrera || !creditos) { toast('Completa todos los campos requeridos', 'error'); return; }
   if (!editandoId && !clave) { toast('La clave es obligatoria', 'error'); return; }
  
-  const body = { Nombre: nombre, Creditos: creditos, id_carrera: carrera, EsOptativa: optativa };
+  const numUnidades = parseInt(document.getElementById('f-unidades').value);
+  const semestre    = parseInt(document.getElementById('f-semestre').value);
+  const body = { Nombre: nombre, Creditos: creditos, id_carrera: carrera, EsOptativa: optativa, NumUnidades: numUnidades, Semestre: semestre };
   if (!editandoId) body.Clave = clave;
  
   const url    = editandoId ? `${API}/materias/${editandoId}` : `${API}/materias`;
@@ -378,6 +402,134 @@ function toast(msg, tipo = '') {
  
 /* ─── Init ─── */
 cargarMaterias();
+
+
+
+/* ═══════════════════════════════════════════════════
+   IMPORTAR CSV
+═══════════════════════════════════════════════════ */
+let datosPrevisualizacion = [];
+
+function abrirModalImportar() {
+    document.getElementById('modal-importar').classList.add('open');
+    document.getElementById('paso-upload').style.display = 'block';
+    document.getElementById('paso-preview').style.display = 'none';
+    document.getElementById('csv-file').value = '';
+    document.getElementById('upload-error').textContent = '';
+}
+
+function cerrarModalImportar() {
+    document.getElementById('modal-importar').classList.remove('open');
+}
+
+async function previsualizarCSV() {
+    const fileInput = document.getElementById('csv-file');
+    const file = fileInput.files[0];
+    if (!file) {
+        document.getElementById('upload-error').textContent = 'Selecciona un archivo CSV.';
+        return;
+    }
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const res = await fetch(`${API}/materias/import/preview`, {
+            method: 'POST',
+            headers: { 'x-admin-id': sessionStorage.getItem('ID_Administrador') || '1' },
+            body: formData
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+
+        datosPrevisualizacion = data.preview;
+        renderPreviewTable(datosPrevisualizacion);
+        document.getElementById('preview-errors').textContent = data.errors.join('\n') || '';
+
+        document.getElementById('paso-upload').style.display = 'none';
+        document.getElementById('paso-preview').style.display = 'block';
+    } catch (e) {
+        document.getElementById('upload-error').textContent = 'Error: ' + e.message;
+    }
+}
+
+function renderPreviewTable(arr) {
+    const tbody = document.getElementById('preview-table').querySelector('tbody');
+    tbody.innerHTML = arr.map((m, i) => `
+        <tr>
+            <td><input value="${m.clave}" onchange="datosPrevisualizacion[${i}].clave=this.value"></td>
+            <td><input value="${m.nombre}" onchange="datosPrevisualizacion[${i}].nombre=this.value"></td>
+            <td><input type="number" value="${m.creditos}" onchange="datosPrevisualizacion[${i}].creditos=parseInt(this.value)"></td>
+            <td><input type="number" value="${m.id_carrera}" onchange="datosPrevisualizacion[${i}].id_carrera=parseInt(this.value)"></td>
+            <td><select onchange="datosPrevisualizacion[${i}].esOptativa=parseInt(this.value)">
+                <option value="0" ${m.esOptativa===0?'selected':''}>No</option>
+                <option value="1" ${m.esOptativa===1?'selected':''}>Sí</option>
+            </select></td>
+            <td><input type="number" value="${m.numUnidades}" onchange="datosPrevisualizacion[${i}].numUnidades=parseInt(this.value)"></td>
+            <td><input type="number" value="${m.semestre}" onchange="datosPrevisualizacion[${i}].semestre=parseInt(this.value)"></td>
+        </tr>
+    `).join('');
+}
+
+async function confirmarImportacion() {
+    if (!confirm('¿Estás seguro de que deseas importar estas materias? Se insertarán en la base de datos.')) return;
+
+    try {
+        const res = await fetch(`${API}/materias/import/save`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-admin-id': sessionStorage.getItem('ID_Administrador') || '1'
+            },
+            body: JSON.stringify({ materias: datosPrevisualizacion })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+
+        let msg = `✅ ${data.inserted} materias importadas correctamente.`;
+        if (data.errores.length > 0) msg += '\nErrores:\n' + data.errores.join('\n');
+        alert(msg);
+        cerrarModalImportar();
+        cargarMaterias(); // refrescar tabla
+    } catch (e) {
+        alert('Error al importar: ' + e.message);
+    }
+}
 </script>
+
+<div id="modal-importar" class="modal">
+  <div class="modal-content" style="max-width: 900px;">
+    <div class="modal-header">
+      <h2>Importar Materias desde CSV</h2>
+      <span class="close-modal" onclick="cerrarModalImportar()">&times;</span>
+    </div>
+    <!-- PASO 1: subir archivo -->
+    <div id="paso-upload">
+      <p style="margin-bottom: 16px;">Selecciona un archivo CSV con las columnas: <b>clave, nombre, creditos, id_carrera, optativa (si/no), num_unidades, semestre</b></p>
+      <input type="file" id="csv-file" accept=".csv">
+      <button class="btn-primary" onclick="previsualizarCSV()" style="margin-top: 12px;">👁 Previsualizar</button>
+      <div id="upload-error" style="color: var(--danger); margin-top: 12px;"></div>
+    </div>
+    <!-- PASO 2: previsualización -->
+    <div id="paso-preview" style="display: none;">
+      <p style="margin-bottom: 10px;">Revisa y edita los datos si es necesario. Luego confirma la importación.</p>
+      <div style="max-height: 400px; overflow-y: auto;">
+        <table id="preview-table" style="width: 100%;">
+          <thead>
+            <tr>
+              <th>Clave</th><th>Nombre</th><th>Créd.</th><th>Carrera</th><th>Optativa</th><th>Unid.</th><th>Sem.</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="preview-errors" style="color: var(--danger); margin: 10px 0;"></div>
+      <div class="form-actions">
+        <button class="btn-cancel" onclick="cerrarModalImportar()">Cancelar</button>
+        <button class="btn-primary" onclick="confirmarImportacion()">💾 Guardar todas</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

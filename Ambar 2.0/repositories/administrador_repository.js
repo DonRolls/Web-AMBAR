@@ -162,16 +162,18 @@ const administradorRepository = {
         return result.recordset;
     },
 
-    crearMateria: async (clave, nombre, creditos, idCarrera, esOptativa = 0) => {
+    crearMateria: async (clave, nombre, creditos, idCarrera, esOptativa = 0, numUnidades = 3, semestre = 1) => {
         const pool = await getPool();
         await pool.request()
-            .input("Clave",      sql.NVarChar, clave)
-            .input("Nombre",     sql.NVarChar, nombre)
-            .input("Creditos",   sql.Int,      creditos)
-            .input("id_carrera", sql.Int,      idCarrera)
-            .input("EsOptativa", sql.Bit,      esOptativa)
-            .query(`INSERT INTO Materias (Clave, Nombre, Creditos, id_carrera, EsOptativa)
-                    VALUES (@Clave, @Nombre, @Creditos, @id_carrera, @EsOptativa)`);
+            .input("Clave",        sql.NVarChar, clave)
+            .input("Nombre",       sql.NVarChar, nombre)
+            .input("Creditos",     sql.Int,      creditos)
+            .input("id_carrera",   sql.Int,      idCarrera)
+            .input("EsOptativa",   sql.Bit,      esOptativa)
+            .input("NumUnidades",  sql.Int,      numUnidades)
+            .input("Semestre",     sql.Int,      semestre)
+            .query(`INSERT INTO Materias (Clave, Nombre, Creditos, id_carrera, EsOptativa, NumUnidades, Semestre)
+                    VALUES (@Clave, @Nombre, @Creditos, @id_carrera, @EsOptativa, @NumUnidades, @Semestre)`);
     },
 
     actualizarMateria: async (id, campos) => {
@@ -181,7 +183,9 @@ const administradorRepository = {
         if (campos.Nombre     !== undefined) { updates.push("Nombre = @Nombre");         request.input("Nombre",     sql.NVarChar, campos.Nombre); }
         if (campos.Creditos   !== undefined) { updates.push("Creditos = @Creditos");     request.input("Creditos",   sql.Int,      campos.Creditos); }
         if (campos.id_carrera !== undefined) { updates.push("id_carrera = @id_carrera"); request.input("id_carrera", sql.Int,      campos.id_carrera); }
-        if (campos.EsOptativa !== undefined) { updates.push("EsOptativa = @EsOptativa"); request.input("EsOptativa", sql.Bit,      campos.EsOptativa); }
+        if (campos.EsOptativa   !== undefined) { updates.push("EsOptativa = @EsOptativa");     request.input("EsOptativa",  sql.Bit,      campos.EsOptativa); }
+        if (campos.NumUnidades  !== undefined) { updates.push("NumUnidades = @NumUnidades"); request.input("NumUnidades", sql.Int,      campos.NumUnidades); }
+        if (campos.Semestre     !== undefined) { updates.push("Semestre = @Semestre");       request.input("Semestre",    sql.Int,      campos.Semestre); }
         if (updates.length === 0) return;
         await request.query(`UPDATE Materias SET ${updates.join(', ')} WHERE ID_Materia = @ID_Materia`);
     },

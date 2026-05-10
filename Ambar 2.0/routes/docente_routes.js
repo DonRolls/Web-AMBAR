@@ -46,13 +46,13 @@ router.get("/grupo/:idGrupo/calificaciones", async (req, res) => {
 });
 
 // ── Guardar / actualizar calificación de un alumno ────────────────────────────
-// Body: { idInscripcion, parcial1, parcial2, parcial3 }
+// Body: { idInscripcion, u1, u2, u3, u4?, u5? }
 router.post("/calificacion", async (req, res) => {
     try {
-        const { idInscripcion, parcial1, parcial2, parcial3 } = req.body;
+        const { idInscripcion, u1, u2, u3, u4, u5 } = req.body;
         if (!idInscripcion) return res.status(400).json({ error: "idInscripcion requerido" });
 
-        const result = await repo.upsertCalificacion(idInscripcion, parcial1, parcial2, parcial3);
+        const result = await repo.upsertCalificacion(idInscripcion, { u1, u2, u3, u4, u5 });
         res.json({ success: true, ...result });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -69,7 +69,7 @@ router.post("/grupo/:idGrupo/calificaciones/bulk", async (req, res) => {
 
         const results = [];
         for (const r of registros) {
-            const out = await repo.upsertCalificacion(r.idInscripcion, r.parcial1, r.parcial2, r.parcial3);
+            const out = await repo.upsertCalificacion(r.idInscripcion, { u1: r.u1, u2: r.u2, u3: r.u3, u4: r.u4, u5: r.u5 });
             results.push({ idInscripcion: r.idInscripcion, ...out });
         }
         res.json({ success: true, results });

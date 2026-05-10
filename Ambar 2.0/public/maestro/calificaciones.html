@@ -9,7 +9,6 @@
 :root{--navy:#0D1B3E;--navy-light:#152347;--navy-mid:#1D3461;--gold:#E8A100;--gold-lt:#FFF3D0;--gold-glow:rgba(232,161,0,.18);--bg:#F0F4FA;--card:#FFFFFF;--text:#1A1F36;--text-2:#5A6488;--border:#E2E8F0;--success:#0FAF7A;--danger:#E84040;--warn:#F59E0B;--info:#3B82F6;--radius:14px;--shadow:0 4px 24px rgba(13,27,62,.09);--shadow-md:0 8px 40px rgba(13,27,62,.14)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden}
-
 /* TOPBAR */
 .topbar{background:var(--navy);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:fixed;inset:0 0 auto 0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.3)}
 .topbar-left{display:flex;align-items:center;gap:16px}
@@ -24,13 +23,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .avatar{width:34px;height:34px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--navy)}
 .logout-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.8);font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif}
 .logout-btn:hover{background:rgba(255,255,255,.15);color:white}
-
 /* LAYOUT */
 .layout{display:flex;margin-top:58px;height:calc(100vh - 58px);overflow:hidden}
 .sidebar{width:235px;background:var(--navy);display:flex;flex-direction:column;transition:width .28s cubic-bezier(.4,0,.2,1);overflow:hidden;flex-shrink:0}
 .sidebar.collapsed{width:60px}
 .main{flex:1;overflow-y:auto;padding:28px 32px;background:var(--bg)}
-
 /* PAGE */
 .breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);margin-bottom:8px}
 .breadcrumb span{color:var(--gold);font-weight:600}
@@ -39,20 +36,30 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .page-header{margin-bottom:24px;animation:fadeUp .5s ease both}
 .page-header h1{font-family:'Outfit',sans-serif;font-size:26px;font-weight:700;color:var(--navy);letter-spacing:-.3px}
 .page-header p{font-size:13.5px;color:var(--text-2);margin-top:3px}
-
-/* INFO BAND */
+/* INFO CHIPS */
 .info-band{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px;animation:fadeUp .5s ease .05s both}
-.info-chip{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:2px;min-width:150px}
+.info-chip{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:2px;min-width:140px}
 .info-chip label{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-2);font-weight:700}
 .info-chip span{font-size:13.5px;font-weight:700;color:var(--navy)}
-
-/* ACTIONS BAR */
+/* UNIDADES CHIP — resalta el número dinámico */
+.chip-unidades{border-color:rgba(232,161,0,.4);background:var(--gold-lt)}
+.chip-unidades label{color:#92660A}
+.chip-unidades span{color:var(--gold)}
+/* STATS */
+.stats-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;animation:fadeUp .5s ease .09s both}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 20px;box-shadow:var(--shadow);text-align:center;min-width:90px;flex:1}
+.stat-num{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;color:var(--navy)}
+.stat-label{font-size:11px;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:2px}
+.stat-box.green .stat-num{color:var(--success)}
+.stat-box.red   .stat-num{color:var(--danger)}
+.stat-box.gold  .stat-num{color:var(--gold)}
+/* ACTIONS */
 .actions-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;animation:fadeUp .5s ease .08s both}
 .actions-left{display:flex;align-items:center;gap:10px}
 .search-box{display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 14px;gap:8px;width:260px;box-shadow:var(--shadow);transition:.15s}
 .search-box:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-glow)}
 .search-box input{border:none;outline:none;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;width:100%;background:transparent}
-.filter-select{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;cursor:pointer;box-shadow:var(--shadow)}
+.filter-select{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;cursor:pointer;box-shadow:var(--shadow);outline:none}
 .btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif}
 .btn-gold{background:var(--gold);color:var(--navy)}
 .btn-gold:hover{background:#d4930a;box-shadow:0 4px 14px rgba(232,161,0,.4)}
@@ -61,70 +68,51 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .btn-success{background:#ECFDF5;color:#059669;border:1px solid rgba(5,150,105,.3)}
 .btn-success:hover{background:#D1FAE5}
 .btn-success:disabled{opacity:.5;cursor:not-allowed}
-
-/* TABLE CARD */
+/* TABLE */
 .table-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;animation:fadeUp .5s ease .12s both}
 .tc-head{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--border)}
 .tc-title{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px}
 .tc-icon{width:28px;height:28px;border-radius:7px;background:var(--gold-lt);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:14px}
 .tc-count{background:var(--gold-lt);color:var(--gold);font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid rgba(232,161,0,.3)}
-
-/* GRADE TABLE */
 .t-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
 thead th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-2);padding:10px 14px;border-bottom:1px solid var(--border);text-align:left;background:#FAFBFF;white-space:nowrap}
 thead th.center{text-align:center}
+/* Cabecera de unidad con acento dorado */
+thead th.th-unidad{text-align:center;color:var(--navy);background:#FFFCF0;border-bottom:2px solid rgba(232,161,0,.35)}
 tbody td{font-size:13px;padding:10px 14px;border-bottom:1px solid #F1F5FB;color:var(--text);vertical-align:middle}
 tbody tr:last-child td{border-bottom:none}
 tbody tr.dirty{background:#FFFBEE}
 tbody tr:hover td{background:#F8FBFF}
-
-/* GRADE INPUT */
-.grade-input{width:70px;padding:6px 8px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-weight:600;text-align:center;font-family:'DM Sans',sans-serif;color:var(--navy);background:var(--bg);transition:.15s;outline:none}
+/* INPUTS */
+.grade-input{width:72px;padding:6px 8px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-weight:600;text-align:center;font-family:'DM Sans',sans-serif;color:var(--navy);background:var(--bg);transition:.15s;outline:none}
 .grade-input:focus{border-color:var(--gold);background:#FFF8E6;box-shadow:0 0 0 3px var(--gold-glow)}
 .grade-input.over{border-color:var(--danger);background:#FEF2F2;color:var(--danger)}
 .grade-input.under{border-color:var(--warn);background:#FFFBEB}
 .grade-input.ok{border-color:var(--success);background:#F0FDF4;color:var(--success)}
-
-/* FINAL CELL */
+/* FINAL */
 .final-cell{font-size:14px;font-weight:800;text-align:center}
 .final-ok{color:var(--success)}
 .final-bad{color:var(--danger)}
 .final-pending{color:var(--text-2)}
-
-/* STATUS BADGE */
+/* BADGES */
 .status-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}
 .status-ok{background:#ECFDF5;color:#059669}
 .status-bad{background:#FEF2F2;color:var(--danger)}
 .status-curso{background:#EFF6FF;color:#2563EB}
-
 /* TOAST */
 .toast-wrap{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:999;pointer-events:none}
 .toast{background:var(--navy);color:white;font-size:13px;padding:12px 18px;border-radius:10px;box-shadow:var(--shadow-md);animation:toastIn .3s ease;border-left:3px solid var(--gold);max-width:300px}
 .toast.error{border-left-color:var(--danger)}
 .toast.success{border-left-color:var(--success)}
+/* LOADING / EMPTY */
+.loading-row td,.empty-row td{text-align:center;padding:40px;color:var(--text-2)}
 @keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-
-/* STATS ROW */
-.stats-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;animation:fadeUp .5s ease .09s both}
-.stat-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 20px;box-shadow:var(--shadow);text-align:center;min-width:100px;flex:1}
-.stat-num{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;color:var(--navy)}
-.stat-label{font-size:11px;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-top:2px}
-.stat-box.green .stat-num{color:var(--success)}
-.stat-box.red .stat-num{color:var(--danger)}
-.stat-box.gold .stat-num{color:var(--gold)}
-
-/* EMPTY */
-.empty{padding:48px;text-align:center;color:var(--text-2)}
-.empty span{font-size:36px;display:block;margin-bottom:10px}
-
-/* LOADING */
-.loading-row td{text-align:center;padding:36px;color:var(--text-2)}
 </style>
 </head>
 <body>
-
+ 
 <header class="topbar">
   <div class="topbar-left">
     <span class="hbg" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">☰</span>
@@ -139,49 +127,36 @@ tbody tr:hover td{background:#F8FBFF}
     <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
   </div>
 </header>
-
+ 
 <div class="layout">
   <aside class="sidebar" id="sidebar">
     <div id="sidebar-container" style="display:flex;flex-direction:column;height:100%"></div>
     <script src="sidebarm.js"></script>
   </aside>
-
+ 
   <main class="main">
     <div class="breadcrumb">
       <a href="home.html">Portal Docentes</a>
       <span>›</span>
       <span>Calificaciones</span>
     </div>
-
+ 
     <div class="page-header">
       <h1 id="page-title">Captura de Calificaciones</h1>
       <p id="page-sub">Cargando información del grupo…</p>
     </div>
-
+ 
     <!-- INFO DEL GRUPO -->
     <div class="info-band">
-      <div class="info-chip">
-        <label>Materia</label>
-        <span id="chip-materia">—</span>
-      </div>
-      <div class="info-chip">
-        <label>Clave</label>
-        <span id="chip-clave">—</span>
-      </div>
-      <div class="info-chip">
-        <label>Carrera</label>
-        <span id="chip-carrera">—</span>
-      </div>
-      <div class="info-chip">
-        <label>Aula</label>
-        <span id="chip-aula">—</span>
-      </div>
-      <div class="info-chip">
-        <label>Periodo</label>
-        <span id="chip-periodo">—</span>
-      </div>
+      <div class="info-chip"><label>Materia</label><span id="chip-materia">—</span></div>
+      <div class="info-chip"><label>Clave</label><span id="chip-clave">—</span></div>
+      <div class="info-chip"><label>Carrera</label><span id="chip-carrera">—</span></div>
+      <div class="info-chip"><label>Aula</label><span id="chip-aula">—</span></div>
+      <div class="info-chip"><label>Periodo</label><span id="chip-periodo">—</span></div>
+      <!-- Chip dinámico: se actualiza al cargar los alumnos -->
+      <div class="info-chip chip-unidades"><label>Unidades de evaluación</label><span id="chip-unidades">—</span></div>
     </div>
-
+ 
     <!-- ESTADÍSTICAS -->
     <div class="stats-row">
       <div class="stat-box"><div class="stat-num" id="stat-total">—</div><div class="stat-label">Total Alumnos</div></div>
@@ -190,7 +165,7 @@ tbody tr:hover td{background:#F8FBFF}
       <div class="stat-box gold"><div class="stat-num" id="stat-promedio">—</div><div class="stat-label">Promedio Grupo</div></div>
       <div class="stat-box"><div class="stat-num" id="stat-sin">—</div><div class="stat-label">Sin Calificar</div></div>
     </div>
-
+ 
     <!-- ACCIONES -->
     <div class="actions-bar">
       <div class="actions-left">
@@ -212,319 +187,377 @@ tbody tr:hover td{background:#F8FBFF}
         </button>
       </div>
     </div>
-
-    <!-- TABLA -->
+ 
+    <!-- TABLA — thead generado dinámicamente -->
     <div class="table-card">
       <div class="tc-head">
-        <div class="tc-title">
-          <div class="tc-icon">📝</div>
-          Lista de Alumnos
-        </div>
+        <div class="tc-title"><div class="tc-icon">📝</div> Lista de Alumnos</div>
         <span class="tc-count" id="tc-count">0 alumnos</span>
       </div>
       <div class="t-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>N° Control</th>
-              <th>Nombre</th>
-              <th class="center">Parcial 1</th>
-              <th class="center">Parcial 2</th>
-              <th class="center">Parcial 3</th>
-              <th class="center">Final</th>
-              <th class="center">Estatus</th>
-            </tr>
+          <thead id="tabla-head">
+            <!-- Se construye en JS según NumUnidades -->
           </thead>
           <tbody id="tbody-alumnos">
-            <tr class="loading-row"><td colspan="8">⏳ Cargando alumnos…</td></tr>
+            <tr class="loading-row"><td colspan="7">⏳ Cargando alumnos…</td></tr>
           </tbody>
         </table>
       </div>
     </div>
-
+ 
   </main>
 </div>
-
-<!-- TOAST CONTAINER -->
+ 
 <div class="toast-wrap" id="toast-wrap"></div>
-
+ 
 <script>
-// ── Sesión ────────────────────────────────────────────────────────────────────
-const ID_Docente = sessionStorage.getItem("ID_Docente");
-if (!ID_Docente) { window.location.href = "../login.html"; }
-
-function logout() { sessionStorage.clear(); window.location.href = "../login.html"; }
-
-// ── Parámetros ────────────────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════
+   SESIÓN Y PARÁMETROS
+═══════════════════════════════════════════════════════════ */
+const ID_Docente = sessionStorage.getItem('ID_Docente');
+if (!ID_Docente) window.location.href = '../login.html';
+ 
+function logout() { sessionStorage.clear(); window.location.href = '../login.html'; }
+ 
 const params  = new URLSearchParams(window.location.search);
-const idGrupo = params.get("grupo");
-if (!idGrupo) { window.location.href = "home.html"; }
-
-// ── Estado global ─────────────────────────────────────────────────────────────
-let alumnos      = [];   // datos originales del servidor
-let cambiosPend  = {};   // { idInscripcion: { p1, p2, p3 } }
-
-// ── Cargar info del grupo ─────────────────────────────────────────────────────
+const idGrupo = params.get('grupo');
+if (!idGrupo) window.location.href = 'home.html';
+ 
+/* ═══════════════════════════════════════════════════════════
+   ESTADO GLOBAL
+═══════════════════════════════════════════════════════════ */
+let alumnos     = [];   // datos del servidor
+let cambiosPend = {};   // { idInscripcion: { u1,u2,...uN } }
+let numUnidades = 3;    // se sobreescribe con el valor de la BD
+ 
+/* ═══════════════════════════════════════════════════════════
+   CARGAR INFO DEL GRUPO (nombre, clave, aula, periodo…)
+   NumUnidades viene en los alumnos; aquí solo poblamos chips.
+═══════════════════════════════════════════════════════════ */
 fetch(`/docente/grupo/${idGrupo}/info`)
-    .then(r => r.json())
-    .then(info => {
-        document.getElementById("page-title").textContent = info.Materia;
-        document.getElementById("page-sub").textContent   = `${info.Carrera} · Semestre ${info.Semestre}`;
-        document.getElementById("chip-materia").textContent  = info.Materia;
-        document.getElementById("chip-clave").textContent    = info.ClaveMat;
-        document.getElementById("chip-carrera").textContent  = info.Carrera;
-        document.getElementById("chip-aula").textContent     = info.Aula;
-        document.getElementById("chip-periodo").textContent  = info.Periodo;
-    });
-
-// ── Cargar alumnos con calificaciones ────────────────────────────────────────
+  .then(r => r.json())
+  .then(info => {
+    document.getElementById('page-title').textContent   = info.Materia;
+    document.getElementById('page-sub').textContent     = `${info.Carrera} · Semestre ${info.Semestre}`;
+    document.getElementById('chip-materia').textContent = info.Materia;
+    document.getElementById('chip-clave').textContent   = info.ClaveMat;
+    document.getElementById('chip-carrera').textContent = info.Carrera;
+    document.getElementById('chip-aula').textContent    = info.Aula;
+    document.getElementById('chip-periodo').textContent = info.Periodo;
+  });
+ 
+/* ═══════════════════════════════════════════════════════════
+   GENERAR CABECERA DINÁMICA según numUnidades
+═══════════════════════════════════════════════════════════ */
+function buildThead(n) {
+  const cols = ['#', 'N° Control', 'Alumno'];
+  for (let i = 1; i <= n; i++) cols.push(`Unidad ${i}`);
+  cols.push('Final', 'Estatus');
+ 
+  document.getElementById('tabla-head').innerHTML =
+    '<tr>' + cols.map((c, idx) => {
+      const isUnidad = idx >= 3 && idx < 3 + n;
+      return `<th class="${isUnidad ? 'th-unidad' : idx > 2 ? 'center' : ''}">${c}</th>`;
+    }).join('') + '</tr>';
+}
+ 
+/* ═══════════════════════════════════════════════════════════
+   CARGAR ALUMNOS
+═══════════════════════════════════════════════════════════ */
 function recargar() {
-    cambiosPend = {};
-    document.getElementById("btn-guardar").disabled = true;
-    document.getElementById("tbody-alumnos").innerHTML =
-        `<tr class="loading-row"><td colspan="8">⏳ Cargando alumnos…</td></tr>`;
-
-    fetch(`/docente/grupo/${idGrupo}/calificaciones`)
-        .then(r => r.json())
-        .then(data => {
-            alumnos = data;
-            renderTabla(alumnos);
-            actualizarStats();
-        })
-        .catch(() => {
-            document.getElementById("tbody-alumnos").innerHTML =
-                `<tr class="loading-row"><td colspan="8" style="color:var(--danger)">⚠ Error al cargar alumnos</td></tr>`;
-        });
-}
-
-recargar();
-
-// ── Render tabla ──────────────────────────────────────────────────────────────
-function renderTabla(lista) {
-    const tbody = document.getElementById("tbody-alumnos");
-    document.getElementById("tc-count").textContent = `${lista.length} alumnos`;
-
-    if (!lista.length) {
-        tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><span>👥</span>No hay alumnos inscritos en este grupo</div></td></tr>`;
-        return;
-    }
-
-    tbody.innerHTML = lista.map((a, i) => {
-        const isDirty = !!cambiosPend[a.ID_Inscripcion];
-        const p1 = a.Parcial1 ?? "";
-        const p2 = a.Parcial2 ?? "";
-        const p3 = a.Parcial3 ?? "";
-        const final = calcFinal(p1, p2, p3);
-        const estatus = getEstatus(final, p1, p2, p3);
-
-        return `
-        <tr id="row-${a.ID_Inscripcion}" class="${isDirty ? 'dirty' : ''}">
-          <td style="color:var(--text-2);font-size:12px">${i + 1}</td>
-          <td><code style="font-size:12px;background:var(--bg);padding:2px 6px;border-radius:4px">${a.N_ctrl}</code></td>
-          <td>
-            <div style="font-weight:600">${a.Nombre} ${a.Apellidos}</div>
-            <div style="font-size:11px;color:var(--text-2)">${a.Email}</div>
-          </td>
-          <td class="center">${inputCalif(a.ID_Inscripcion, 1, p1)}</td>
-          <td class="center">${inputCalif(a.ID_Inscripcion, 2, p2)}</td>
-          <td class="center">${inputCalif(a.ID_Inscripcion, 3, p3)}</td>
-          <td class="center final-cell" id="final-${a.ID_Inscripcion}">${renderFinal(final)}</td>
-          <td class="center" id="estatus-${a.ID_Inscripcion}">${renderEstatus(estatus)}</td>
-        </tr>`;
-    }).join("");
-}
-
-function inputCalif(idInsc, parcial, val) {
-    const cls = styleInput(val);
-    return `<input
-        type="number" min="0" max="100" step="0.5"
-        class="grade-input ${cls}"
-        value="${val}"
-        data-inscripcion="${idInsc}"
-        data-parcial="${parcial}"
-        oninput="onInputChange(this)"
-        onblur="onInputBlur(this)"
-    >`;
-}
-
-function styleInput(val) {
-    if (val === "" || val === null || val === undefined) return "";
-    const n = parseFloat(val);
-    if (n > 100) return "over";
-    if (n < 70) return "under";
-    return "ok";
-}
-
-function calcFinal(p1, p2, p3) {
-    const vals = [p1, p2, p3].map(Number).filter(v => !isNaN(v) && v !== "");
-    if (!vals.length) return null;
-    return (vals.reduce((a, b) => a + b, 0) / 3).toFixed(2);
-}
-
-function getEstatus(final, p1, p2, p3) {
-    if (final === null) return "EN CURSO";
-    return parseFloat(final) >= 70 ? "APROBADO" : "REPROBADO";
-}
-
-function renderFinal(final) {
-    if (final === null) return `<span class="final-pending">—</span>`;
-    const n = parseFloat(final);
-    const cls = n >= 70 ? "final-ok" : "final-bad";
-    return `<span class="${cls}">${final}</span>`;
-}
-
-function renderEstatus(est) {
-    const map = {
-        "APROBADO":  `<span class="status-badge status-ok">● APROBADO</span>`,
-        "REPROBADO": `<span class="status-badge status-bad">● REPROBADO</span>`,
-        "EN CURSO":  `<span class="status-badge status-curso">⏳ EN CURSO</span>`,
-    };
-    return map[est] || `<span class="status-badge status-curso">⏳ EN CURSO</span>`;
-}
-
-// ── Input handlers ────────────────────────────────────────────────────────────
-function onInputChange(input) {
-    const idInsc  = parseInt(input.dataset.inscripcion);
-    const parcial = parseInt(input.dataset.parcial);
-    const val     = input.value.trim();
-
-    // Validar rango
-    if (val !== "" && (parseFloat(val) < 0 || parseFloat(val) > 100)) {
-        input.classList.add("over");
-    } else {
-        input.className = "grade-input " + styleInput(val);
-    }
-
-    // Registrar cambio
-    if (!cambiosPend[idInsc]) cambiosPend[idInsc] = {};
-    cambiosPend[idInsc][`p${parcial}`] = val;
-
-    // Marcar fila dirty
-    const row = document.getElementById(`row-${idInsc}`);
-    if (row) row.classList.add("dirty");
-
-    // Recalcular final en tiempo real
-    recalcularFila(idInsc);
-
-    // Habilitar botón
-    document.getElementById("btn-guardar").disabled = false;
-}
-
-function onInputBlur(input) {
-    const val = input.value.trim();
-    if (val !== "" && parseFloat(val) > 100) {
-        input.value = 100;
-        input.className = "grade-input ok";
-        onInputChange(input);
-    }
-}
-
-function recalcularFila(idInsc) {
-    const inputs = document.querySelectorAll(`input[data-inscripcion="${idInsc}"]`);
-    const vals   = Array.from(inputs).map(i => i.value.trim());
-    const final  = calcFinal(...vals);
-    const estatus = getEstatus(final, ...vals);
-
-    const celFinal   = document.getElementById(`final-${idInsc}`);
-    const celEstatus = document.getElementById(`estatus-${idInsc}`);
-    if (celFinal)   celFinal.innerHTML   = renderFinal(final);
-    if (celEstatus) celEstatus.innerHTML = renderEstatus(estatus);
-}
-
-// ── Guardar TODO ──────────────────────────────────────────────────────────────
-async function guardarTodo() {
-    if (!Object.keys(cambiosPend).length) { toast("No hay cambios pendientes", "warn"); return; }
-
-    const btn = document.getElementById("btn-guardar");
-    btn.disabled = true;
-    btn.textContent = "Guardando…";
-
-    // Construir array de registros completos (mezclar DB + cambios)
-    const registros = [];
-    for (const alumno of alumnos) {
-        const id = alumno.ID_Inscripcion;
-        if (!cambiosPend[id]) continue;
-
-        const inputs = document.querySelectorAll(`input[data-inscripcion="${id}"]`);
-        const vals   = Array.from(inputs).map(i => i.value.trim() === "" ? null : i.value.trim());
-
-        registros.push({
-            idInscripcion: id,
-            parcial1: vals[0],
-            parcial2: vals[1],
-            parcial3: vals[2],
-        });
-    }
-
-    try {
-        const res = await fetch(`/docente/grupo/${idGrupo}/calificaciones/bulk`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(registros),
-        });
-        const data = await res.json();
-
-        if (!data.success) throw new Error(data.error || "Error desconocido");
-
-        toast(`✓ ${registros.length} calificación(es) guardadas correctamente`, "success");
-        cambiosPend = {};
-
-        // Limpiar dirty
-        document.querySelectorAll("tbody tr.dirty").forEach(r => r.classList.remove("dirty"));
-
-        // Recargar datos frescos
-        setTimeout(recargar, 800);
-    } catch (err) {
-        toast(`⚠ Error: ${err.message}`, "error");
-        btn.disabled = false;
-        btn.textContent = "✓ Guardar Cambios";
-    }
-}
-
-// ── Filtros ───────────────────────────────────────────────────────────────────
-function filtrarAlumnos() {
-    const q       = document.getElementById("search-input").value.toLowerCase();
-    const estatus = document.getElementById("filter-estatus").value;
-
-    const filtrados = alumnos.filter(a => {
-        const nombre = `${a.Nombre} ${a.Apellidos} ${a.N_ctrl}`.toLowerCase();
-        const matchQ = !q || nombre.includes(q);
-        const matchE = !estatus || (a.Estatus || "EN CURSO") === estatus;
-        return matchQ && matchE;
+  cambiosPend = {};
+  document.getElementById('btn-guardar').disabled = true;
+  const cols = 3 + numUnidades + 2; // #, ctrl, nombre, unidades, final, estatus
+  document.getElementById('tbody-alumnos').innerHTML =
+    `<tr class="loading-row"><td colspan="${cols}">⏳ Cargando alumnos…</td></tr>`;
+ 
+  fetch(`/docente/grupo/${idGrupo}/calificaciones`)
+    .then(r => r.json())
+    .then(data => {
+      alumnos = data;
+ 
+      // Leer NumUnidades del primer alumno (lo trae el backend)
+      // y actualizar chip + cabecera
+      if (data.length > 0 && data[0].NumUnidades) {
+        numUnidades = Math.min(Math.max(parseInt(data[0].NumUnidades), 1), 5);
+      }
+      document.getElementById('chip-unidades').textContent = numUnidades;
+      buildThead(numUnidades);
+ 
+      renderTabla(alumnos);
+      actualizarStats();
+    })
+    .catch(() => {
+      buildThead(numUnidades);
+      document.getElementById('tbody-alumnos').innerHTML =
+        `<tr class="loading-row"><td colspan="${3 + numUnidades + 2}" style="color:var(--danger)">⚠ Error al cargar alumnos</td></tr>`;
     });
-
-    renderTabla(filtrados);
 }
-
-// ── Estadísticas ──────────────────────────────────────────────────────────────
+ 
+recargar();
+ 
+/* ═══════════════════════════════════════════════════════════
+   RENDER TABLA — columnas dinámicas
+═══════════════════════════════════════════════════════════ */
+function renderTabla(lista) {
+  const tbody = document.getElementById('tbody-alumnos');
+  const totalCols = 3 + numUnidades + 2;
+  document.getElementById('tc-count').textContent = `${lista.length} alumnos`;
+ 
+  if (!lista.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="${totalCols}">
+      <div style="text-align:center;padding:32px">
+        <div style="font-size:36px;margin-bottom:8px">👥</div>
+        <p>No hay alumnos inscritos en este grupo</p>
+      </div>
+    </td></tr>`;
+    return;
+  }
+ 
+  tbody.innerHTML = lista.map((a, i) => {
+    const isDirty = !!cambiosPend[a.ID_Inscripcion];
+ 
+    // Celdas de unidades dinámicas
+    let unidadesCells = '';
+    for (let u = 1; u <= numUnidades; u++) {
+      // El backend devuelve Unidad1…Unidad5
+      const val = a[`Unidad${u}`] ?? '';
+      unidadesCells += `<td class="center">${inputCalif(a.ID_Inscripcion, u, val)}</td>`;
+    }
+ 
+    const final  = calcFinal(a, numUnidades);
+    const estatus = getEstatus(final);
+ 
+    return `<tr id="row-${a.ID_Inscripcion}" class="${isDirty ? 'dirty' : ''}">
+      <td style="color:var(--text-2);font-size:12px">${i + 1}</td>
+      <td><code style="font-size:12px;background:var(--bg);padding:2px 6px;border-radius:4px">${a.N_ctrl}</code></td>
+      <td>
+        <div style="font-weight:600">${a.Nombre} ${a.Apellidos}</div>
+        <div style="font-size:11px;color:var(--text-2)">${a.Email}</div>
+      </td>
+      ${unidadesCells}
+      <td class="center final-cell" id="final-${a.ID_Inscripcion}">${renderFinal(final)}</td>
+      <td class="center" id="estatus-${a.ID_Inscripcion}">${renderEstatus(estatus)}</td>
+    </tr>`;
+  }).join('');
+}
+ 
+/* ═══════════════════════════════════════════════════════════
+   INPUT DE CALIFICACIÓN
+═══════════════════════════════════════════════════════════ */
+function inputCalif(idInsc, unidad, val) {
+  const cls = styleInput(val);
+  return `<input
+    type="number" min="0" max="100" step="0.5"
+    class="grade-input ${cls}"
+    value="${val}"
+    data-inscripcion="${idInsc}"
+    data-unidad="${unidad}"
+    oninput="onInputChange(this)"
+    onblur="onInputBlur(this)"
+  >`;
+}
+ 
+function styleInput(val) {
+  if (val === '' || val === null || val === undefined) return '';
+  const n = parseFloat(val);
+  if (isNaN(n) || n > 100) return 'over';
+  if (n < 70) return 'under';
+  return 'ok';
+}
+ 
+/* ═══════════════════════════════════════════════════════════
+   CÁLCULO DINÁMICO DEL FINAL
+   Promedia solo las unidades que tienen valor, sobre numUnidades
+═══════════════════════════════════════════════════════════ */
+function calcFinal(alumnoOrInputs, n) {
+  let vals = [];
+  if (typeof alumnoOrInputs === 'object' && !Array.isArray(alumnoOrInputs)) {
+    // Objeto de la BD
+    for (let u = 1; u <= n; u++) {
+      const v = alumnoOrInputs[`Unidad${u}`];
+      if (v !== null && v !== undefined && v !== '') vals.push(parseFloat(v));
+    }
+  } else {
+    // Array de strings desde inputs
+    vals = alumnoOrInputs.filter(v => v !== '' && v !== null).map(Number).filter(v => !isNaN(v));
+    n = alumnoOrInputs.length; // usar el total de slots como denominador base
+  }
+  if (!vals.length) return null;
+  // Promedia sobre las unidades totales de la materia (den = numUnidades)
+  // si no todas están capturadas, el promedio refleja solo las capturadas
+  return (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2);
+}
+ 
+function getEstatus(final) {
+  if (final === null) return 'EN CURSO';
+  return parseFloat(final) >= 70 ? 'APROBADO' : 'REPROBADO';
+}
+ 
+function renderFinal(final) {
+  if (final === null) return `<span class="final-pending">—</span>`;
+  const n = parseFloat(final);
+  return `<span class="${n >= 70 ? 'final-ok' : 'final-bad'}">${final}</span>`;
+}
+ 
+function renderEstatus(est) {
+  const map = {
+    'APROBADO':  `<span class="status-badge status-ok">● APROBADO</span>`,
+    'REPROBADO': `<span class="status-badge status-bad">● REPROBADO</span>`,
+    'EN CURSO':  `<span class="status-badge status-curso">⏳ EN CURSO</span>`,
+  };
+  return map[est] || map['EN CURSO'];
+}
+ 
+/* ═══════════════════════════════════════════════════════════
+   HANDLERS DE INPUT
+═══════════════════════════════════════════════════════════ */
+function onInputChange(input) {
+  const idInsc = parseInt(input.dataset.inscripcion);
+  const unidad = parseInt(input.dataset.unidad);   // 1..5
+  const val    = input.value.trim();
+ 
+  // Estilo visual
+  input.className = 'grade-input ' + (
+    val !== '' && (parseFloat(val) < 0 || parseFloat(val) > 100) ? 'over' : styleInput(val)
+  );
+ 
+  // Registrar cambio con key u1..u5
+  if (!cambiosPend[idInsc]) cambiosPend[idInsc] = {};
+  cambiosPend[idInsc][`u${unidad}`] = val;
+ 
+  // Marcar fila como dirty
+  document.getElementById(`row-${idInsc}`)?.classList.add('dirty');
+ 
+  // Recalcular final en tiempo real
+  recalcularFila(idInsc);
+ 
+  document.getElementById('btn-guardar').disabled = false;
+}
+ 
+function onInputBlur(input) {
+  const val = parseFloat(input.value);
+  if (!isNaN(val) && val > 100) {
+    input.value = 100;
+    input.className = 'grade-input ok';
+    onInputChange(input);
+  }
+}
+ 
+function recalcularFila(idInsc) {
+  // Leer todos los inputs de esta inscripción en orden
+  const inputs = document.querySelectorAll(`input[data-inscripcion="${idInsc}"]`);
+  const vals   = Array.from(inputs).map(i => i.value.trim());
+  const final  = calcFinal(vals, numUnidades);
+  const est    = getEstatus(final);
+ 
+  document.getElementById(`final-${idInsc}`)?.replaceChildren(
+    ...(() => { const d = document.createElement('div'); d.innerHTML = renderFinal(final); return d.childNodes; })()
+  );
+  document.getElementById(`estatus-${idInsc}`)?.replaceChildren(
+    ...(() => { const d = document.createElement('div'); d.innerHTML = renderEstatus(est); return d.childNodes; })()
+  );
+}
+ 
+/* ═══════════════════════════════════════════════════════════
+   GUARDAR TODO — manda u1..u5 al backend
+═══════════════════════════════════════════════════════════ */
+async function guardarTodo() {
+  if (!Object.keys(cambiosPend).length) { toast('No hay cambios pendientes', 'warn'); return; }
+ 
+  const btn = document.getElementById('btn-guardar');
+  btn.disabled = true;
+  btn.textContent = 'Guardando…';
+ 
+  // Construir registros: para cada inscripción con cambios,
+  // leer todos sus inputs actuales (no solo los modificados)
+  const registros = [];
+ 
+  for (const alumno of alumnos) {
+    const id = alumno.ID_Inscripcion;
+    if (!cambiosPend[id]) continue;
+ 
+    const inputs = document.querySelectorAll(`input[data-inscripcion="${id}"]`);
+    const record = { idInscripcion: id };
+ 
+    inputs.forEach(inp => {
+      const u = parseInt(inp.dataset.unidad); // 1..5
+      record[`u${u}`] = inp.value.trim() === '' ? null : inp.value.trim();
+    });
+ 
+    // Asegurarse de que u4 y u5 existen aunque no haya inputs (materia con <5 unidades)
+    for (let u = 1; u <= 5; u++) {
+      if (!((`u${u}`) in record)) record[`u${u}`] = null;
+    }
+ 
+    registros.push(record);
+  }
+ 
+  try {
+    const res  = await fetch(`/docente/grupo/${idGrupo}/calificaciones/bulk`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(registros),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Error desconocido');
+ 
+    toast(`✓ ${registros.length} calificación(es) guardadas`, 'success');
+    cambiosPend = {};
+    document.querySelectorAll('tbody tr.dirty').forEach(r => r.classList.remove('dirty'));
+    setTimeout(recargar, 800);
+  } catch (err) {
+    toast(`⚠ Error: ${err.message}`, 'error');
+    btn.disabled = false;
+    btn.textContent = '✓ Guardar Cambios';
+  }
+}
+ 
+/* ═══════════════════════════════════════════════════════════
+   FILTRO LOCAL
+═══════════════════════════════════════════════════════════ */
+function filtrarAlumnos() {
+  const q   = document.getElementById('search-input').value.toLowerCase();
+  const est = document.getElementById('filter-estatus').value;
+ 
+  const filtrados = alumnos.filter(a => {
+    const nombre = `${a.Nombre} ${a.Apellidos} ${a.N_ctrl}`.toLowerCase();
+    return (!q || nombre.includes(q)) && (!est || (a.Estatus || 'EN CURSO') === est);
+  });
+  renderTabla(filtrados);
+}
+ 
+/* ═══════════════════════════════════════════════════════════
+   ESTADÍSTICAS
+═══════════════════════════════════════════════════════════ */
 function actualizarStats() {
-    const total      = alumnos.length;
-    const aprobados  = alumnos.filter(a => a.Estatus === "APROBADO").length;
-    const reprobados = alumnos.filter(a => a.Estatus === "REPROBADO").length;
-    const sinCalif   = alumnos.filter(a => !a.CalFinal).length;
-
-    const promedios  = alumnos.map(a => parseFloat(a.CalFinal)).filter(n => !isNaN(n));
-    const promedio   = promedios.length
-        ? (promedios.reduce((a, b) => a + b, 0) / promedios.length).toFixed(1)
-        : "—";
-
-    document.getElementById("stat-total").textContent      = total;
-    document.getElementById("stat-aprobados").textContent  = aprobados;
-    document.getElementById("stat-reprobados").textContent = reprobados;
-    document.getElementById("stat-promedio").textContent   = promedio;
-    document.getElementById("stat-sin").textContent        = sinCalif;
+  const total     = alumnos.length;
+  const aprobados = alumnos.filter(a => a.Estatus === 'APROBADO').length;
+  const reprobados= alumnos.filter(a => a.Estatus === 'REPROBADO').length;
+  const sinCalif  = alumnos.filter(a => !a.CalFinal).length;
+  const proms     = alumnos.map(a => parseFloat(a.CalFinal)).filter(n => !isNaN(n));
+  const promedio  = proms.length ? (proms.reduce((a,b) => a+b,0)/proms.length).toFixed(1) : '—';
+ 
+  document.getElementById('stat-total').textContent      = total;
+  document.getElementById('stat-aprobados').textContent  = aprobados;
+  document.getElementById('stat-reprobados').textContent = reprobados;
+  document.getElementById('stat-promedio').textContent   = promedio;
+  document.getElementById('stat-sin').textContent        = sinCalif;
 }
-
-// ── Toast ─────────────────────────────────────────────────────────────────────
-function toast(msg, type = "info") {
-    const wrap = document.getElementById("toast-wrap");
-    const t = document.createElement("div");
-    t.className = `toast ${type}`;
-    t.textContent = msg;
-    wrap.appendChild(t);
-    setTimeout(() => t.remove(), 3500);
+ 
+/* ═══════════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════════ */
+function toast(msg, type = 'info') {
+  const wrap = document.getElementById('toast-wrap');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  wrap.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
 }
 </script>
 </body>
 </html>
+ 

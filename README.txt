@@ -13,4 +13,11 @@ METODO DE EJECUCUIÓN
 4.- En el Navegador escribir lo siguiente "Localhost:3000/login.html"
 5.- Listo
 
+
 (Esta madre esta sujeta a cambios, de momento no se haga porque se verá una conexión con SQL server)
+
+
+
+
+Se ocupa la libreria de  multer papaparse
+escribir npm install multer papaparse en el proyecto

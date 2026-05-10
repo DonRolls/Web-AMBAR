@@ -94,30 +94,22 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
   <main class="main">
     <div class="breadcrumb">Portal Estudiantes <span>›</span> <span>Calificaciones</span></div>
     <div class="page-header"><h1>Calificaciones</h1></div>
-    
-    <!-- CONTENEDOR PRINCIPAL -->
-    <main class="main">
-        <div class="breadcrumb">Portal Estudiantes <span>›</span> <span>Calificaciones</span></div>
-        <div class="page-header"><h1>Calificaciones</h1></div>
 
-        <div class="boleta-bar">
-            <div class="periodo-wrap">
-                <label>Periodo</label>
-                <!-- Select vacío para ser llenado por el JS -->
-                <select id="selectPeriodo">
-                    <option value="">Cargando periodos...</option>
-                </select>
-                <span class="periodo-arrow">▾</span>
-            </div>
-            <button class="btn-dl">⬇ Descargar Boleta</button>
-        </div>
+    <div class="boleta-bar">
+      <div class="periodo-wrap">
+        <label>Periodo</label>
+        <select id="selectPeriodo">
+          <option value="">Cargando periodos...</option>
+        </select>
+        <span class="periodo-arrow">▾</span>
+      </div>
+      <button class="btn-dl">⬇ Descargar Boleta</button>
+    </div>
 
-        <div class="sec-title"><div class="sec-icon">📋</div>Calificaciones por materia</div>
+    <div class="sec-title"><div class="sec-icon">📋</div>Calificaciones por materia</div>
 
-        <!-- Las materias se insertarán aquí dinámicamente -->
-        <div id="materias-container"></div>
-
-    </main>
+    <div id="materias-container"></div>
+  </main>
 </div>
 <script src="../session.js"></script>
 <script src="calificaciones.js"></script>

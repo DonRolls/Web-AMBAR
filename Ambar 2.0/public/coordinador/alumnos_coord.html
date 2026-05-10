@@ -494,7 +494,7 @@ function renderGruposDisponibles(grupos) {
         <div class="go-mat">${g.Materia}</div>
         <div class="go-sub">${g.Clave} · ${g.Docente} · ${g.Horario || 'Sin horario'} · ${g.Aula}</div>
       </div>
-      <span class="go-badge">${g.Inscritos} inscritos</span>
+      <span class="go-badge" style="background:${g.Inscritos >= g.MaxAlumnos ? '#FEF2F2' : '#ECFDF5'};color:${g.Inscritos >= g.MaxAlumnos ? '#DC2626' : '#059669'}">${g.Inscritos}/${g.MaxAlumnos ?? 40} cupo</span>
     </div>
   `).join('');
 }
@@ -532,7 +532,7 @@ async function saveAction() {
 async function saveGrupo() {
   const gid = document.getElementById('selected-grupo').value;
   if (!gid) { showToast('Selecciona un grupo', 'error'); return; }
-  const r = await fetch('/coord/alumnos/cambiar-grupo', {
+  const r = await fetch('/coord/alumnos/inscribir-coord', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ N_ctrl: currentAlumno.N_ctrl, ID_Grupo_Nuevo: parseInt(gid), idCoord: sess.ID_Coordinador })
   });

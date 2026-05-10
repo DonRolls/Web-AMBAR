@@ -111,6 +111,20 @@ router.get("/periodos", async (req, res) => {
     }
 });
 
+// Inscribir alumno a un grupo (con validación de cupo)
+router.post("/inscribir", async (req, res) => {
+    try {
+        const { N_ctrl, ID_Grupo } = req.body;
+        if (!N_ctrl || !ID_Grupo)
+            return res.status(400).json({ success: false, error: "Datos incompletos" });
+        const result = await alumnoRepository.inscribirAlumno(N_ctrl, parseInt(ID_Grupo));
+        res.json(result);
+    } catch (err) {
+        console.error("Error POST /inscribir:", err.message);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 // Periodo de carga
 router.get("/periodo-carga", async (req, res) => {
     try {

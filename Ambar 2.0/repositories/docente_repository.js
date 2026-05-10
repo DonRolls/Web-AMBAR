@@ -68,59 +68,74 @@ const docenteRepository = {
                     a.Apellidos,
                     a.Email,
                     i.ID_Inscripcion,
-                    COALESCE(cal.Parcial1,  NULL) AS Parcial1,
-                    COALESCE(cal.Parcial2,  NULL) AS Parcial2,
-                    COALESCE(cal.Parcial3,  NULL) AS Parcial3,
-                    COALESCE(cal.CalFinal,  NULL) AS CalFinal,
+                    m.NumUnidades,
+                    COALESCE(cal.Unidad1,  NULL) AS Unidad1,
+                    COALESCE(cal.Unidad2,  NULL) AS Unidad2,
+                    COALESCE(cal.Unidad3,  NULL) AS Unidad3,
+                    COALESCE(cal.Unidad4,  NULL) AS Unidad4,
+                    COALESCE(cal.Unidad5,  NULL) AS Unidad5,
+                    COALESCE(cal.CalFinal, NULL) AS CalFinal,
                     COALESCE(cal.Estatus, 'EN CURSO') AS Estatus
                 FROM Inscripciones i
                 JOIN Alumnos a ON i.N_ctrl = a.N_ctrl
                 LEFT JOIN Calificaciones cal ON cal.ID_Inscripcion = i.ID_Inscripcion
+                JOIN Grupos g ON g.ID_Grupo = i.ID_Grupo
+                JOIN Materias m ON m.ID_Materia = g.ID_Materia
                 WHERE i.ID_Grupo = @ID_Grupo
                 ORDER BY a.Apellidos, a.Nombre
             `);
         return result.recordset;
     },
 
-    // Guardar / actualizar calificaciones de un alumno
-    // Crea el registro en Calificaciones si no existe
-    upsertCalificacion: async (idInscripcion, parcial1, parcial2, parcial3) => {
+    // Guardar / actualizar calificaciones — soporta 3, 4 o 5 unidades dinámicamente
+    upsertCalificacion: async (idInscripcion, unidades) => {
+        // unidades = { u1, u2, u3, u4?, u5? }
         const pool = await getPool();
+        const toNum = v => (v === null || v === undefined || v === '') ? null : parseFloat(v);
 
-        // Calcular final como promedio de los parciales que ya tengan valor
-        const vals   = [parcial1, parcial2, parcial3].filter(v => v !== null && v !== undefined && v !== '');
+        const u1 = toNum(unidades.u1);
+        const u2 = toNum(unidades.u2);
+        const u3 = toNum(unidades.u3);
+        const u4 = toNum(unidades.u4 ?? null);
+        const u5 = toNum(unidades.u5 ?? null);
+
+        // Promedio sobre las unidades con valor
+        const vals = [u1, u2, u3, u4, u5].filter(v => v !== null);
         const calFinal = vals.length > 0
-            ? (vals.reduce((a, b) => a + parseFloat(b), 0) / 3).toFixed(2)
+            ? parseFloat((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2))
             : null;
 
         const estatus = calFinal !== null
-            ? (parseFloat(calFinal) >= 70 ? 'APROBADO' : 'REPROBADO')
+            ? (calFinal >= 70 ? 'APROBADO' : 'REPROBADO')
             : 'EN CURSO';
 
-        const toNum = v => (v === null || v === undefined || v === '') ? null : parseFloat(v);
+        const req = pool.request()
+            .input("ID_Inscripcion", sql.Int,         idInscripcion)
+            .input("Unidad1",        sql.Decimal(5,2), u1)
+            .input("Unidad2",        sql.Decimal(5,2), u2)
+            .input("Unidad3",        sql.Decimal(5,2), u3)
+            .input("Unidad4",        sql.Decimal(5,2), u4)
+            .input("Unidad5",        sql.Decimal(5,2), u5)
+            .input("CalFinal",       sql.Decimal(5,2), calFinal)
+            .input("Estatus",        sql.NVarChar,     estatus);
 
-        await pool.request()
-            .input("ID_Inscripcion", sql.Int,          idInscripcion)
-            .input("Parcial1",       sql.Decimal(5,2),  toNum(parcial1))
-            .input("Parcial2",       sql.Decimal(5,2),  toNum(parcial2))
-            .input("Parcial3",       sql.Decimal(5,2),  toNum(parcial3))
-            .input("CalFinal",       sql.Decimal(5,2),  toNum(calFinal))
-            .input("Estatus",        sql.NVarChar,       estatus)
-            .query(`
-                MERGE Calificaciones AS target
-                USING (SELECT @ID_Inscripcion AS ID_Inscripcion) AS source
-                ON target.ID_Inscripcion = source.ID_Inscripcion
-                WHEN MATCHED THEN
-                    UPDATE SET
-                        Parcial1 = @Parcial1,
-                        Parcial2 = @Parcial2,
-                        Parcial3 = @Parcial3,
-                        CalFinal = @CalFinal,
-                        Estatus  = @Estatus
-                WHEN NOT MATCHED THEN
-                    INSERT (ID_Inscripcion, Parcial1, Parcial2, Parcial3, CalFinal, Estatus)
-                    VALUES (@ID_Inscripcion, @Parcial1, @Parcial2, @Parcial3, @CalFinal, @Estatus);
-            `);
+        await req.query(`
+            MERGE Calificaciones AS target
+            USING (SELECT @ID_Inscripcion AS ID_Inscripcion) AS source
+            ON target.ID_Inscripcion = source.ID_Inscripcion
+            WHEN MATCHED THEN
+                UPDATE SET
+                    Unidad1  = @Unidad1,
+                    Unidad2  = @Unidad2,
+                    Unidad3  = @Unidad3,
+                    Unidad4  = @Unidad4,
+                    Unidad5  = @Unidad5,
+                    CalFinal = @CalFinal,
+                    Estatus  = @Estatus
+            WHEN NOT MATCHED THEN
+                INSERT (ID_Inscripcion, Unidad1, Unidad2, Unidad3, Unidad4, Unidad5, CalFinal, Estatus)
+                VALUES (@ID_Inscripcion, @Unidad1, @Unidad2, @Unidad3, @Unidad4, @Unidad5, @CalFinal, @Estatus);
+        `);
 
         return { calFinal, estatus };
     },

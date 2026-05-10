@@ -332,13 +332,9 @@
       sessionStorage.setItem('email', data.email || '');
 
       if (data.rol === 'Coordinador') {
-        alert("Respuesta del servidor:\n" + JSON.stringify(data, null, 2));
         sessionStorage.setItem('ID_Coordinador', data.ID_Coordinador || '');
         sessionStorage.setItem('departamento', data.departamento || '');
         sessionStorage.setItem('idDepto', data.idDepto || '');
-          alert("ID Coordinador guardado: " + sessionStorage.getItem("ID_Coordinador") +
-          "\nRol: " + sessionStorage.getItem("rol") +
-          "\nN_ctrl: " + sessionStorage.getItem("N_ctrl"));
         setMsg(`Bienvenido, ${data.nombre}`, 'green');
         setTimeout(() => window.location.href = 'coordinador/inicio_coord.html', 1200);
       } else if (data.rol === 'Docente') {

@@ -202,6 +202,7 @@ select.form-control{cursor:pointer}
       <div class="search-box">
         <span style="color:var(--text-2)">🔍</span>
         <input type="text" id="search-inp" placeholder="Buscar materia o docente…" oninput="filterTable()">
+        <button class="btn btn-primary" onclick="openModal('new-overlay')" style="margin-left:auto">➕ Nuevo Grupo</button>
       </div>
       <select class="filter-select" id="filter-status" onchange="filterTable()">
         <option value="">Todos los estatus</option>
@@ -241,6 +242,49 @@ select.form-control{cursor:pointer}
           </tbody>
         </table>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE MODAL -->
+<div class="overlay" id="new-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">➕ Nuevo Grupo</div>
+      <button class="modal-close" onclick="closeModal('new-overlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Materia</label>
+          <select class="form-control" id="new-materia" onchange="onMateriaChange()">
+            <option value="">Selecciona…</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Docente</label>
+          <select class="form-control" id="new-docente">
+            <option value="">Selecciona…</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Aula / Salón</label>
+          <input class="form-control" id="new-aula" placeholder="Ej. LAB-A, 0305…">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Máx. Alumnos</label>
+          <input class="form-control" type="number" id="new-max" value="40" min="1" max="200">
+        </div>
+      </div>
+      <div id="new-materia-info" style="display:none;background:var(--bg);border-radius:10px;padding:12px 16px;font-size:12.5px;color:var(--text-2);margin-top:4px">
+        <span id="new-info-text"></span>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('new-overlay')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveNuevoGrupo()">✓ Crear Grupo</button>
     </div>
   </div>
 </div>
@@ -310,7 +354,7 @@ select.form-control{cursor:pointer}
 
 <script src="../session.js"></script>
 <script>
-let sess, grupos = [], docentes = [], filtered = [];
+let sess, grupos = [], docentes = [], materias = [], filtered = [];
 
 const DAYS = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
 
@@ -329,12 +373,81 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (params.get('filter') === 'cerrado') document.getElementById('filter-status').value = 'CERRADO';
 
   await loadDocentes();
+  await loadMaterias();
   await loadGrupos();
 });
 
 async function loadDocentes() {
   const r = await fetch('/coord/docentes');
   docentes = await r.json();
+}
+
+async function loadMaterias() {
+  const r = await fetch(`/coord/materias/${sess.idDepto}`);
+  materias = await r.json();
+  const sel = document.getElementById('new-materia');
+  sel.innerHTML = '<option value="">Selecciona…</option>' +
+    materias.map(m =>
+      `<option value="${m.ID_Materia}" data-sem="${m.Semestre}" data-unidades="${m.NumUnidades}" data-cred="${m.Creditos}">
+        Sem.${m.Semestre} — ${m.Nombre} (${m.Clave})
+      </option>`
+    ).join('');
+  // Llenar docentes en nuevo grupo
+  document.getElementById('new-docente').innerHTML =
+    '<option value="">Selecciona…</option>' +
+    docentes.map(d => `<option value="${d.ID_Docente}">${d.NombreCompleto}</option>`).join('');
+}
+
+function onMateriaChange() {
+  const sel = document.getElementById('new-materia');
+  const opt = sel.selectedOptions[0];
+  const info = document.getElementById('new-materia-info');
+  const txt  = document.getElementById('new-info-text');
+  if (!opt || !opt.value) { info.style.display = 'none'; return; }
+  info.style.display = 'block';
+  txt.innerHTML = `📚 Semestre: <strong>${opt.dataset.sem}</strong> &nbsp;|&nbsp; 
+                   🔢 Unidades: <strong>${opt.dataset.unidades}</strong> &nbsp;|&nbsp; 
+                   ⭐ Créditos: <strong>${opt.dataset.cred}</strong>`;
+}
+
+async function saveNuevoGrupo() {
+  const idMateria = document.getElementById('new-materia').value;
+  const idDocente = document.getElementById('new-docente').value;
+  const aula      = document.getElementById('new-aula').value.trim();
+  const maxAlum   = parseInt(document.getElementById('new-max').value) || 40;
+
+  if (!idMateria || !idDocente || !aula)
+    return showToast('Completa todos los campos', 'error');
+
+  // Obtener periodo activo
+  const rPer = await fetch('/coord/periodo-activo');
+  const periodo = await rPer.json();
+  if (!periodo?.ID_Periodo) return showToast('No hay periodo activo', 'error');
+
+  try {
+    const r = await fetch('/coord/grupos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ID_Materia: parseInt(idMateria),
+        ID_Docente: parseInt(idDocente),
+        ID_Periodo: periodo.ID_Periodo,
+        Aula: aula,
+        MaxAlumnos: maxAlum,
+        idCoord: sess.ID_Coordinador
+      })
+    });
+    const d = await r.json();
+    if (d.success) {
+      closeModal('new-overlay');
+      showToast('✓ Grupo creado correctamente', 'success');
+      await loadGrupos();
+    } else {
+      showToast(d.error || 'Error al crear grupo', 'error');
+    }
+  } catch(ex) {
+    showToast('Error de conexión', 'error');
+  }
 }
 
 async function loadGrupos() {
@@ -369,7 +482,7 @@ function renderTable() {
       <td>${chips || '<span style="color:var(--text-2);font-size:12px">Sin horario</span>'}</td>
       <td><span style="font-family:monospace;font-weight:600">${g.Aula}</span></td>
       <td style="text-align:center">
-        <span class="badge badge-blue">${g.Inscritos}</span>
+        <span class="badge badge-blue" title="Inscritos/Máximo">${g.Inscritos}/${g.MaxAlumnos ?? 40}</span>
       </td>
       <td style="text-align:center">
         <label class="toggle" title="${isOpen ? 'Cerrar grupo' : 'Abrir grupo'}" onclick="toggleEstatus(event,${g.ID_Grupo},'${g.Estatus}')">

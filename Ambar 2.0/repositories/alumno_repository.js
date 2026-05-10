@@ -83,7 +83,9 @@ const alumnoRepository = {
                 SELECT m.Clave, m.Nombre AS Materia, m.Creditos,
                        d.Nombre + ' ' + d.Apellidos AS Docente,
                        g.Aula, g.ID_Grupo,
-                       c.Parcial1, c.Parcial2, c.Parcial3, c.CalFinal, c.Estatus,
+                       c.Unidad1, c.Unidad2, c.Unidad3, c.Unidad4, c.Unidad5,
+                       c.CalFinal, c.Estatus,
+                       m.NumUnidades,
                        (SELECT STRING_AGG(
                            hg2.DiaSemana + ' ' +
                            CONVERT(VARCHAR(5), hg2.HoraInicio, 108) + '-' +
@@ -214,6 +216,45 @@ const alumnoRepository = {
         const result = await pool.request()
             .query("SELECT ID_Periodo, Nombre, Activo FROM PeriodosEscolares ORDER BY FechaInicio DESC");
         return result.recordset;
+    },
+
+    // Inscribir alumno a un grupo (con validación de cupo)
+    inscribirAlumno: async (nctrl, idGrupo) => {
+        const pool = await getPool();
+
+        // 1. Verificar cupo (alumno NO puede superar MaxAlumnos)
+        const cupoRes = await pool.request()
+            .input("ID_Grupo", sql.Int, idGrupo)
+            .input("EsCoord",  sql.Bit, 0)
+            .execute("sp_ValidarCupoGrupo");
+        const cupo = cupoRes.recordset[0];
+        if (!cupo || !cupo.PuedeInscribir)
+            return { success: false, mensaje: `Grupo lleno (${cupo?.Inscritos ?? '?'}/${cupo?.MaxAlumnos ?? 40} alumnos)` };
+
+        // 2. Verificar que no esté ya inscrito
+        const dup = await pool.request()
+            .input("N_ctrl",   sql.NVarChar, nctrl)
+            .input("ID_Grupo", sql.Int,      idGrupo)
+            .query("SELECT 1 FROM Inscripciones WHERE N_ctrl=@N_ctrl AND ID_Grupo=@ID_Grupo");
+        if (dup.recordset.length)
+            return { success: false, mensaje: "Ya estás inscrito en este grupo" };
+
+        // 3. Inscribir
+        await pool.request()
+            .input("N_ctrl",   sql.NVarChar, nctrl)
+            .input("ID_Grupo", sql.Int,      idGrupo)
+            .query("INSERT INTO Inscripciones (N_ctrl, ID_Grupo) VALUES (@N_ctrl, @ID_Grupo)");
+
+        const ins = await pool.request()
+            .input("N_ctrl",   sql.NVarChar, nctrl)
+            .input("ID_Grupo", sql.Int,      idGrupo)
+            .query("SELECT ID_Inscripcion FROM Inscripciones WHERE N_ctrl=@N_ctrl AND ID_Grupo=@ID_Grupo");
+        if (ins.recordset.length) {
+            await pool.request()
+                .input("ID_Inscripcion", sql.Int, ins.recordset[0].ID_Inscripcion)
+                .query("INSERT INTO Calificaciones (ID_Inscripcion) VALUES (@ID_Inscripcion)");
+        }
+        return { success: true };
     },
 
     // Verificar si el periodo de carga está abierto

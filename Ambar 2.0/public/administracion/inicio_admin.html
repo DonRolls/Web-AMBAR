@@ -1,31 +1,547 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin – Ámbar</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #F0F4FA; display: flex; align-items: center; justify-content: center; height: 100vh; }
-    .card { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 24px rgba(0,0,0,.1); text-align: center; }
-    a { display: inline-block; margin: 10px 0; color: #1B396A; text-decoration: none; font-weight: bold; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Administrador — Ámbar</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0D1B3E; --navy-light:#152347; --navy-mid:#1D3461;
+  --gold:#E8A100; --gold-lt:#FFF3D0; --gold-glow:rgba(232,161,0,.18);
+  --bg:#F0F4FA; --card:#FFFFFF;
+  --text:#1A1F36; --text-2:#5A6488;
+  --border:#E2E8F0;
+  --success:#0FAF7A; --danger:#E84040; --warn:#F59E0B; --info:#3B82F6;
+  --radius:14px;
+  --shadow:0 4px 24px rgba(13,27,62,.09);
+  --shadow-md:0 8px 40px rgba(13,27,62,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--navy);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:fixed;inset:0 0 auto 0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.3)}
+.topbar-l{display:flex;align-items:center;gap:16px}
+.hbg{color:white;font-size:22px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:.2s}
+.hbg:hover{background:rgba(255,255,255,.12)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-badge{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:11px;font-weight:800;color:var(--navy);line-height:1.1;text-align:center}
+.brand-name{color:white;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;line-height:1.3}
+.brand-name span{display:block;font-size:10px;font-weight:300;opacity:.7;letter-spacing:.6px;text-transform:uppercase}
+.topbar-r{display:flex;align-items:center;gap:12px}
+.admin-tag{background:rgba(232,161,0,.2);border:1px solid rgba(232,161,0,.4);color:var(--gold);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:.4px;text-transform:uppercase}
+.avatar{width:34px;height:34px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;font-weight:800;color:var(--navy)}
+.logout-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.8);font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif}
+.logout-btn:hover{background:rgba(255,255,255,.15);color:white}
+
+/* ── LAYOUT ── */
+.layout{display:flex;margin-top:58px;height:calc(100vh - 58px);overflow:hidden}
+
+/* ── SIDEBAR (delegado a sidebaradmi.js) ── */
+#main-sidebar{width:235px;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0;transition:width .28s cubic-bezier(.4,0,.2,1);overflow:hidden}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;padding:28px 32px;background:var(--bg)}
+
+/* ── PAGE HEADER ── */
+.page-header{margin-bottom:28px;animation:fadeUp .5s ease both}
+.page-header h1{font-family:'Outfit',sans-serif;font-size:26px;font-weight:700;color:var(--navy);letter-spacing:-.3px}
+.page-header p{font-size:13.5px;color:var(--text-2);margin-top:3px}
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);margin-bottom:8px}
+.breadcrumb span{color:var(--gold);font-weight:600}
+
+/* ── WELCOME BANNER ── */
+.welcome-banner{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);border-radius:var(--radius);padding:24px 28px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;animation:fadeUp .5s ease .05s both;box-shadow:var(--shadow-md)}
+.wb-left{}
+.wb-greeting{font-size:13px;color:rgba(255,255,255,.55);font-weight:500;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.wb-name{font-family:'Outfit',sans-serif;font-size:22px;font-weight:700;color:white;margin-bottom:8px}
+.wb-role{display:inline-flex;align-items:center;gap:6px;background:rgba(232,161,0,.15);border:1px solid rgba(232,161,0,.3);color:var(--gold);font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:.5px}
+.wb-right{display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0}
+/* ── PROFILE PHOTO ── */
+.profile-wrap{position:relative;width:88px;height:88px;flex-shrink:0}
+.profile-img{width:88px;height:88px;border-radius:50%;object-fit:cover;border:3px solid rgba(232,161,0,.6);display:block;background:var(--navy-mid)}
+.profile-placeholder{width:88px;height:88px;border-radius:50%;border:3px solid rgba(232,161,0,.6);background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:28px;font-weight:800;color:var(--gold);letter-spacing:1px}
+.profile-edit-btn{position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:var(--gold);border:2px solid var(--navy);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;transition:.2s;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.profile-edit-btn:hover{background:#FFB800;transform:scale(1.1)}
+.profile-hint{font-size:10.5px;color:rgba(255,255,255,.35);text-align:center;letter-spacing:.3px}
+/* Avatar en topbar con foto */
+.avatar{position:relative;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+
+/* ── KPI CARDS ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi-card{background:var(--card);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow);border:1px solid var(--border);position:relative;overflow:hidden;animation:fadeUp .5s ease both;transition:transform .2s,box-shadow .2s;cursor:default}
+.kpi-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.kpi-card:nth-child(1){animation-delay:.08s}
+.kpi-card:nth-child(2){animation-delay:.13s}
+.kpi-card:nth-child(3){animation-delay:.18s}
+.kpi-card:nth-child(4){animation-delay:.23s}
+.kpi-accent{position:absolute;top:0;left:0;width:4px;height:100%;border-radius:var(--radius) 0 0 var(--radius)}
+.kpi-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px}
+.kpi-val{font-family:'Outfit',sans-serif;font-size:34px;font-weight:700;line-height:1;margin-bottom:4px;color:var(--navy)}
+.kpi-label{font-size:12.5px;color:var(--text-2);font-weight:500}
+.kpi-sub{font-size:11.5px;color:var(--text-2);margin-top:8px;display:flex;align-items:center;gap:5px}
+
+/* ── TWO COL ── */
+.two-col{display:grid;grid-template-columns:1fr 340px;gap:20px}
+
+/* ── SECTION CARD ── */
+.s-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);animation:fadeUp .6s ease both}
+.s-card:nth-child(1){animation-delay:.28s}
+.s-card:nth-child(2){animation-delay:.33s}
+.s-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
+.s-title{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px}
+.s-title-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.s-action{font-size:12px;color:var(--gold);font-weight:600;cursor:pointer;text-decoration:none;padding:5px 10px;border-radius:6px;transition:.15s}
+.s-action:hover{background:var(--gold-lt)}
+
+/* ── USERS TABLE ── */
+.h-table{width:100%;border-collapse:collapse}
+.h-table th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text-2);padding:10px 22px;border-bottom:1px solid var(--border);text-align:left;background:#FAFBFF}
+.h-table td{font-size:13px;padding:13px 22px;border-bottom:1px solid #F1F5FB;color:var(--text);vertical-align:middle}
+.h-table tr:last-child td{border-bottom:none}
+.h-table tbody tr{animation:fadeUp .4s ease both;transition:background .15s}
+.h-table tbody tr:hover td{background:#F8FBFF}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.3px;gap:4px}
+.badge-blue{background:#EFF6FF;color:#3B82F6}
+.badge-green{background:#ECFDF5;color:#059669}
+.badge-red{background:#FEF2F2;color:#DC2626}
+.badge-yellow{background:#FFFBEB;color:#D97706}
+.badge-purple{background:#F5F3FF;color:#7C3AED}
+.badge-gold{background:var(--gold-lt);color:var(--gold);border:1px solid rgba(232,161,0,.3)}
+
+/* ── QUICK ACTIONS ── */
+.qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px}
+.qa-btn{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;text-decoration:none;transition:.2s;color:var(--text)}
+.qa-btn:hover{background:#EEF2FF;border-color:#C7D3FF;transform:translateX(3px)}
+.qa-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.qa-text{font-size:13px;font-weight:600;color:var(--navy)}
+.qa-sub{font-size:11px;color:var(--text-2);margin-top:1px}
+
+/* ── SISTEMA INFO ── */
+.sys-info{padding:16px;display:flex;flex-direction:column;gap:10px}
+.sys-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg);border-radius:8px;border:1px solid var(--border)}
+.sys-label{font-size:12.5px;color:var(--text-2);display:flex;align-items:center;gap:6px}
+.sys-val{font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;color:var(--navy)}
+
+/* ── SKELETON ── */
+.skel{background:linear-gradient(90deg,#E8EEF7 25%,#F3F6FB 50%,#E8EEF7 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:6px;display:inline-block}
+
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes countUp{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+.kpi-val.counting{animation:countUp .45s ease both}
+
+@media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}}
+@media(max-width:768px){.main{padding:16px}.welcome-banner{flex-direction:column;gap:16px;text-align:center}.wb-right{text-align:center}}
+</style>
 </head>
 <body>
-<div class="card">
-  <h1>Panel de Administración</h1>
-  <p>Bienvenido, <span id="admin-nombre"></span></p>
-  <a href="usuarios.html">👥 Gestionar Usuarios</a><br>
-  <a href="editarmateria.html">📚 Gestionar Materias</a><br>
-  <a href="#" id="logout">Cerrar sesión</a>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-l">
+    <div class="hbg" onclick="toggleSidebar()">☰</div>
+    <div class="brand">
+      <div class="brand-badge">TEC<br>NM</div>
+      <div class="brand-name">Sistema Ámbar<span>Tecnológico Nacional de México</span></div>
+    </div>
+  </div>
+  <div class="topbar-r">
+    <span class="admin-tag">Administrador</span>
+    <span id="admin-name-top" style="font-size:13px;color:rgba(255,255,255,.8);font-weight:500"></span>
+    <div class="avatar" id="admin-av">A</div>
+    <button class="logout-btn" id="btn-logout">Cerrar sesión</button>
+  </div>
 </div>
-<script src="../session.js"></script>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div id="main-sidebar">
+    <div id="sidebar-container" style="display:flex;flex-direction:column;height:100%"></div>
+  </div>
+  <script src="sidebaradmi.js"></script>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <div class="page-header">
+      <div class="breadcrumb">Ámbar › <span>Dashboard</span></div>
+      <h1>Panel de Administración</h1>
+      <p id="admin-subtitle">Bienvenido al sistema de gestión institucional</p>
+    </div>
+
+    <!-- WELCOME BANNER -->
+    <div class="welcome-banner">
+      <div class="wb-left">
+        <div class="wb-greeting">Bienvenido de vuelta</div>
+        <div class="wb-name" id="wb-nombre">—</div>
+        <div class="wb-role">🛡️ Administrador del Sistema</div>
+      </div>
+      <div class="wb-right">
+        <div class="profile-wrap">
+          <!-- Si hay foto guardada se muestra la imagen, si no las iniciales -->
+          <div class="profile-placeholder" id="profile-placeholder">A</div>
+          <img class="profile-img" id="profile-img" src="" alt="Foto de perfil"
+               style="display:none;position:absolute;top:0;left:0">
+          <label class="profile-edit-btn" for="profile-file-input" title="Cambiar foto">📷</label>
+          <input type="file" id="profile-file-input" accept="image/*"
+                 style="display:none" onchange="handlePhotoUpload(event)">
+        </div>
+        <div class="profile-hint">Haz clic en 📷 para<br>cambiar tu foto</div>
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-accent" style="background:var(--gold)"></div>
+        <div class="kpi-icon" style="background:var(--gold-lt);color:var(--gold)">🎓</div>
+        <div class="kpi-val skel" id="kpi-alumnos" style="width:64px;height:36px">‌</div>
+        <div class="kpi-label">Alumnos Registrados</div>
+        <div class="kpi-sub" id="kpi-alumnos-sub">
+          <span class="skel" style="width:90px;height:13px">‌</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-accent" style="background:var(--info)"></div>
+        <div class="kpi-icon" style="background:#EFF6FF;color:var(--info)">👨‍🏫</div>
+        <div class="kpi-val skel" id="kpi-docentes" style="width:64px;height:36px">‌</div>
+        <div class="kpi-label">Docentes</div>
+        <div class="kpi-sub" style="color:var(--info)">✓ Personal activo</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-accent" style="background:var(--success)"></div>
+        <div class="kpi-icon" style="background:#ECFDF5;color:var(--success)">🏛️</div>
+        <div class="kpi-val skel" id="kpi-coordinadores" style="width:64px;height:36px">‌</div>
+        <div class="kpi-label">Coordinadores</div>
+        <div class="kpi-sub" style="color:var(--success)">✓ Por departamento</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-accent" style="background:#8B5CF6"></div>
+        <div class="kpi-icon" style="background:#F5F3FF;color:#8B5CF6">📚</div>
+        <div class="kpi-val skel" id="kpi-materias" style="width:64px;height:36px">‌</div>
+        <div class="kpi-label">Materias en Catálogo</div>
+        <div class="kpi-sub" id="kpi-materias-sub">
+          <span class="skel" style="width:90px;height:13px">‌</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TWO COL -->
+    <div class="two-col">
+
+      <!-- TABLA ÚLTIMOS USUARIOS -->
+      <div class="s-card">
+        <div class="s-head">
+          <div class="s-title">
+            <div class="s-title-icon" style="background:#EFF6FF;color:var(--info)">👥</div>
+            Últimos Usuarios Registrados
+          </div>
+          <a class="s-action" href="usuarios.html">Ver todos →</a>
+        </div>
+        <div>
+          <table class="h-table">
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Tipo</th>
+                <th>N° Control</th>
+                <th>Estatus</th>
+              </tr>
+            </thead>
+            <tbody id="recent-tbody">
+              <tr><td colspan="4" style="text-align:center;padding:28px;color:var(--text-2)">
+                <span class="skel" style="width:220px;height:14px;display:inline-block">‌</span>
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <!-- ACCIONES RÁPIDAS -->
+        <div class="s-card" style="animation-delay:.3s">
+          <div class="s-head">
+            <div class="s-title">
+              <div class="s-title-icon" style="background:var(--gold-lt);color:var(--gold)">⚡</div>
+              Acciones Rápidas
+            </div>
+          </div>
+          <div class="qa-grid">
+            <a class="qa-btn" href="usuarios.html">
+              <div class="qa-icon" style="background:#EFF6FF;color:var(--info)">👥</div>
+              <div>
+                <div class="qa-text">Gestionar Usuarios</div>
+                <div class="qa-sub">Alumnos · Docentes · Coord.</div>
+              </div>
+            </a>
+            <a class="qa-btn" href="editarmateria.html">
+              <div class="qa-icon" style="background:#F5F3FF;color:#8B5CF6">📚</div>
+              <div>
+                <div class="qa-text">Catálogo de Materias</div>
+                <div class="qa-sub">Agregar · Editar · Eliminar</div>
+              </div>
+            </a>
+            <a class="qa-btn" href="usuarios.html#docentes">
+              <div class="qa-icon" style="background:#ECFDF5;color:var(--success)">👨‍🏫</div>
+              <div>
+                <div class="qa-text">Nuevo Docente</div>
+                <div class="qa-sub">Registrar personal</div>
+              </div>
+            </a>
+            <a class="qa-btn" href="Soporte.html">
+              <div class="qa-icon" style="background:#FFFBEB;color:var(--warn)">🔧</div>
+              <div>
+                <div class="qa-text">Soporte Técnico</div>
+                <div class="qa-sub">Tickets · Reportes</div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- RESUMEN DEL SISTEMA -->
+        <div class="s-card" style="animation-delay:.36s">
+          <div class="s-head">
+            <div class="s-title">
+              <div class="s-title-icon" style="background:#ECFDF5;color:var(--success)">📊</div>
+              Resumen del Sistema
+            </div>
+          </div>
+          <div class="sys-info">
+            <div class="sys-row">
+              <span class="sys-label">🎓 Alumnos vigentes</span>
+              <span class="sys-val skel" id="sys-vigentes" style="width:48px;height:20px">‌</span>
+            </div>
+            <div class="sys-row">
+              <span class="sys-label">📉 Alumnos de baja</span>
+              <span class="sys-val skel" id="sys-baja" style="width:48px;height:20px">‌</span>
+            </div>
+            <div class="sys-row">
+              <span class="sys-label">📖 Materias obligatorias</span>
+              <span class="sys-val skel" id="sys-oblig" style="width:48px;height:20px">‌</span>
+            </div>
+            <div class="sys-row">
+              <span class="sys-label">⭐ Materias optativas</span>
+              <span class="sys-val skel" id="sys-optativa" style="width:48px;height:20px">‌</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script>
+
+(function () {
   const id = sessionStorage.getItem('ID_Administrador');
-  if (!id) window.location.href = '/login.html';
-  document.getElementById('admin-nombre').textContent = sessionStorage.getItem('nombre') || '';
-  document.getElementById('logout').addEventListener('click', () => {
+  if (!id) { window.location.replace('/login.html'); return; }
+})();
+
+const HEADERS = () => ({
+  'Content-Type': 'application/json',
+  'x-admin-id': sessionStorage.getItem('ID_Administrador') || '1'
+});
+
+/* Foto de perfil*/
+function fotoKey() {
+  return 'admin_foto_' + (sessionStorage.getItem('N_ctrl') || 'default');
+}
+
+function applyPhoto(dataUrl) {
+  if (!dataUrl) return;
+  // Banner
+  const img = document.getElementById('profile-img');
+  const placeholder = document.getElementById('profile-placeholder');
+  img.src = dataUrl;
+  img.style.display = 'block';
+  placeholder.style.display = 'none';
+  // Topbar avatar
+  const av = document.getElementById('admin-av');
+  av.textContent = '';
+  av.style.padding = '0';
+  let avImg = av.querySelector('img');
+  if (!avImg) { avImg = document.createElement('img'); av.appendChild(avImg); }
+  avImg.src = dataUrl;
+}
+
+function handlePhotoUpload(event) {
+  const file = event.target.files[0];
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+    try { localStorage.setItem(fotoKey(), dataUrl); } catch (_) { /* quota */ }
+    applyPhoto(dataUrl);
+  };
+  reader.readAsDataURL(file);
+
+  event.target.value = '';
+}
+
+
+window.addEventListener('DOMContentLoaded', () => {
+
+  const nombre    = sessionStorage.getItem('nombre')    || '';
+  const apellidos = sessionStorage.getItem('apellidos') || '';
+  const nctrl     = sessionStorage.getItem('N_ctrl')    || '';
+  const fullName  = (nombre + ' ' + apellidos).trim() || 'Administrador';
+  const initials  = (nombre[0] || 'A') + (apellidos[0] || '');
+
+
+  document.getElementById('admin-av').textContent            = initials;
+  document.getElementById('profile-placeholder').textContent = initials;
+  document.getElementById('admin-name-top').textContent      = fullName;
+  document.getElementById('wb-nombre').textContent           = fullName;
+  if (nctrl) document.getElementById('admin-subtitle').textContent =
+    `N° Control: ${nctrl} · Administrador del Sistema`;
+
+  // Restaurar foto si existe en localStorage
+  const savedPhoto = localStorage.getItem(fotoKey());
+  if (savedPhoto) applyPhoto(savedPhoto);
+
+  // Cerrar sesión
+  document.getElementById('btn-logout').addEventListener('click', () => {
     sessionStorage.clear();
     window.location.href = '/login.html';
   });
+
+  // Cargar datos
+  loadStats();
+  loadRecentUsers();
+});
+
+
+async function loadStats() {
+  try {
+
+    const [resAlumnos, resDocentes, resCoord, resMaterias] = await Promise.all([
+      fetch('/admin/alumnos',       { headers: HEADERS() }),
+      fetch('/admin/docentes',      { headers: HEADERS() }),
+      fetch('/admin/coordinadores', { headers: HEADERS() }),
+      fetch('/admin/materias',      { headers: HEADERS() }),
+    ]);
+
+    const alumnos       = resAlumnos.ok       ? await resAlumnos.json()   : [];
+    const docentes      = resDocentes.ok      ? await resDocentes.json()  : [];
+    const coordinadores = resCoord.ok         ? await resCoord.json()     : [];
+    const materias      = resMaterias.ok      ? await resMaterias.json()  : [];
+
+
+    animateCount('kpi-alumnos',       alumnos.length);
+    animateCount('kpi-docentes',      docentes.length);
+    animateCount('kpi-coordinadores', coordinadores.length);
+    animateCount('kpi-materias',      materias.length);
+
+
+    const vigentes  = alumnos.filter(a => a.Estatus === 'VIGENTE').length;
+    const baja      = alumnos.filter(a => a.Estatus === 'BAJA').length;
+    const oblig     = materias.filter(m => !m.EsOptativa).length;
+    const optativas = materias.filter(m => m.EsOptativa).length;
+
+    document.getElementById('kpi-alumnos-sub').innerHTML =
+      `<span class="badge badge-green">${vigentes} vigentes</span>
+       <span class="badge badge-red" style="margin-left:4px">${baja} baja</span>`;
+
+    document.getElementById('kpi-materias-sub').innerHTML =
+      `<span class="badge badge-purple">${optativas} optativas</span>`;
+
+    // Resumen sistema
+    setSys('sys-vigentes',  vigentes);
+    setSys('sys-baja',      baja);
+    setSys('sys-oblig',     oblig);
+    setSys('sys-optativa',  optativas);
+
+  } catch (e) {
+    console.error('Error al cargar stats:', e);
+  }
+}
+
+function setSys(id, val) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('skel');
+  el.style.width = el.style.height = 'auto';
+  el.textContent = val;
+}
+
+/*  muestra los 8 más recientes  */
+async function loadRecentUsers() {
+  try {
+    const [resAlumnos, resDocentes] = await Promise.all([
+      fetch('/admin/alumnos',  { headers: HEADERS() }),
+      fetch('/admin/docentes', { headers: HEADERS() }),
+    ]);
+
+    const alumnos  = resAlumnos.ok  ? await resAlumnos.json()  : [];
+    const docentes = resDocentes.ok ? await resDocentes.json() : [];
+
+    // Tomamos los últimos 4 alumnos y 4 docentes (al final del recordset = más recientes)
+    const recentA = alumnos.slice(-4).reverse().map(u => ({ ...u, tipo: 'Alumno' }));
+    const recentD = docentes.slice(-4).reverse().map(u => ({ ...u, tipo: 'Docente' }));
+    const combined = [...recentA, ...recentD]
+      .sort((a, b) => (b.N_ctrl || '').localeCompare(a.N_ctrl || ''))
+      .slice(0, 8);
+
+    const tbody = document.getElementById('recent-tbody');
+    if (!combined.length) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:28px;color:var(--text-2)">Sin registros</td></tr>`;
+      return;
+    }
+
+    const tipoBadge = { Alumno: 'badge-gold', Docente: 'badge-blue', Coordinador: 'badge-purple' };
+
+    tbody.innerHTML = combined.map((u, i) => {
+      const nombre = `${u.Nombre || ''} ${u.Apellidos || ''}`.trim();
+      const estatus = u.Estatus
+        ? `<span class="badge ${u.Estatus === 'VIGENTE' ? 'badge-green' : 'badge-red'}">${u.Estatus}</span>`
+        : `<span class="badge badge-blue">Activo</span>`;
+      return `<tr style="animation-delay:${.28 + i*.04}s">
+        <td>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:28px;height:28px;background:linear-gradient(135deg,var(--navy),var(--navy-mid));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:white;flex-shrink:0">
+              ${(u.Nombre||'?')[0]}${(u.Apellidos||'')[0]||''}
+            </div>
+            <span style="font-weight:600;color:var(--navy)">${nombre}</span>
+          </div>
+        </td>
+        <td><span class="badge ${tipoBadge[u.tipo] || 'badge-blue'}">${u.tipo}</span></td>
+        <td><span style="font-family:monospace;font-size:12px;color:var(--text-2)">${u.N_ctrl || '—'}</span></td>
+        <td>${estatus}</td>
+      </tr>`;
+    }).join('');
+
+  } catch (e) {
+    console.error('Error al cargar usuarios recientes:', e);
+  }
+}
+
+
+function animateCount(id, target) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('skel');
+  el.style.width = el.style.height = 'auto';
+  el.classList.add('counting');
+  let cur = 0;
+  const steps = 28;
+  const step  = Math.max(1, Math.ceil(target / steps));
+  const iv = setInterval(() => {
+    cur = Math.min(cur + step, target);
+    el.textContent = cur;
+    if (cur >= target) clearInterval(iv);
+  }, 28);
+}
 </script>
 </body>
 </html>
