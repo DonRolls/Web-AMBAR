@@ -118,13 +118,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
     // Verificación de sesión
     const nctrl = sessionStorage.getItem("N_ctrl");
     if (!nctrl) {
-        window.location.href = "/login.html";
+        window.location.href = "../login.html";
         return;
     }
     // Cerrar sesión
     document.querySelector(".logout-btn")?.addEventListener("click", () => {
         sessionStorage.clear();
-        window.location.href = "/login.html";
+        window.location.href = "../login.html";
     });
 })();
 

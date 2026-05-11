@@ -17,7 +17,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         return colorMap[materia];
     }
  
-    const toMinutes = h => { const [hh, mm] = h.split(":").map(Number); return hh * 60 + mm; };
+    const toMinutes = h => { 
+        if (!h || typeof h !== 'string') return 0;
+        const parts = h.split(":");
+        return (parseInt(parts[0]) || 0) * 60 + (parseInt(parts[1]) || 0);
+    };
     const toHHMM = m => `${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`;
  
     try {
@@ -36,9 +40,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
  
-        // 3. Rango de horas dinámico desde datos reales
-        const horaMin = Math.floor(Math.min(...data.map(c => toMinutes(c.HoraInicio))) / 60) * 60;
-        const horaMax = Math.ceil( Math.max(...data.map(c => toMinutes(c.HoraFin)))    / 60) * 60;
+        // 3. Rango de horas dinámico desde datos reales (Filtrar nulos para evitar NaN)
+        const validTimes = data.filter(c => c.HoraInicio && c.HoraFin);
+        
+        let horaMin, horaMax;
+        if (validTimes.length > 0) {
+            horaMin = Math.floor(Math.min(...validTimes.map(c => toMinutes(c.HoraInicio))) / 60) * 60;
+            horaMax = Math.ceil( Math.max(...validTimes.map(c => toMinutes(c.HoraFin)))    / 60) * 60;
+        } else {
+            horaMin = 420; // 07:00
+            horaMax = 1200; // 20:00
+        }
         const horas = [];
         for (let m = horaMin; m < horaMax; m += 60) horas.push(toHHMM(m));
  
@@ -52,6 +64,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const td = document.createElement("td");
                 // DiaSemana y HoraInicio/HoraFin vienen del backend como strings "HH:MM"
                 const clase = data.find(c => {
+                    if (!c.DiaSemana || !c.HoraInicio || !c.HoraFin) return false;
                     const diaOk   = c.DiaSemana.trim() === dia;
                     const slotMin = toMinutes(hora);
                     return diaOk && slotMin >= toMinutes(c.HoraInicio) && slotMin < toMinutes(c.HoraFin);

@@ -50,11 +50,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             materiasContainer.innerHTML = materias.map((m, idx) => {
                 // Determinar badge del promedio final
                 const calFinal = m.CalFinal;
-                const badgeClass = calFinal === null ? "cal-nc"
+                const hasCal = calFinal !== null && calFinal !== undefined;
+                
+                const badgeClass = !hasCal ? "cal-nc"
                     : calFinal >= 70 ? "cal-ok" : "cal-re";
-                const estatusText = calFinal === null ? "EN CURSO"
+                const estatusText = !hasCal ? "EN CURSO"
                     : calFinal >= 70 ? "ACREDITADA" : "REPROBADA";
-                const calTexto = calFinal !== null ? calFinal.toFixed(2) : "—";
+                const calTexto = hasCal ? parseFloat(calFinal).toFixed(2) : "—";
 
                 // Unidades dinámicas según NumUnidades de la materia
                 const numUnidades = m.NumUnidades || 3;
