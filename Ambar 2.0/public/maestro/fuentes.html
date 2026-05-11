@@ -63,58 +63,7 @@ tbody tr:hover td{background:#F8FBFF}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
-<script>
-// ELIMINAR FUENTE
-document.addEventListener("click", function(e) {
-  if (e.target.classList.contains("btn-delete")) {
-    if (confirm("¿Eliminar esta fuente?")) {
-      const fila = e.target.closest("tr");
-      fila.remove();
-      actualizarContador();
-    }
-  }
-});
-// EDITAR   FUENTE
-document.addEventListener("click", function(e) {
-  if (e.target.classList.contains("btn-edit")) {
-    const fila = e.target.closest("tr");
-    const celda = fila.children[0];
-    // IMPORTANTE: usamos innerHTML para soportar listas
-    const contenidoActual = celda.innerHTML;
-    const nuevoContenido = prompt(
-      "Edita la fuente (puedes usar HTML básico):",
-      contenidoActual
-    );
-    if (nuevoContenido !== null && nuevoContenido.trim() !== "") {
-      celda.innerHTML = nuevoContenido;
-    }
-  }
-});
-// AGREGAR NUEVA FUENTE
-document.querySelector(".btn-add").addEventListener("click", function() {
-  const nuevaFuente = prompt("Escribe la nueva fuente:");
-  if (nuevaFuente !== null && nuevaFuente.trim() !== "") {
-    const tbody = document.querySelector("tbody");
-    const nuevaFila = document.createElement("tr");
-    nuevaFila.innerHTML = `
-      <td>${nuevaFuente}</td>
-      <td>
-        <div class="btn-group">
-          <button class="btn-sm btn-edit">Editar</button>
-          <button class="btn-sm btn-delete">Eliminar</button>
-        </div>
-      </td>
-    `;
-    tbody.appendChild(nuevaFila);
-    actualizarContador();
-  }
-});
-// ACTUALIZAR CONTADOR
-function actualizarContador() {
-  const total = document.querySelectorAll("tbody tr").length;
-  document.querySelector(".tc-count").textContent = total + " fuentes";
-}
-</script>
+
 <body>
 
 <header class="topbar">
@@ -191,6 +140,57 @@ function actualizarContador() {
 
   </main>
 </div>
-
+<script>
+// ELIMINAR FUENTE
+document.addEventListener("click", function(e) {
+  if (e.target.classList.contains("btn-delete")) {
+    if (confirm("¿Eliminar esta fuente?")) {
+      const fila = e.target.closest("tr");
+      fila.remove();
+      actualizarContador();
+    }
+  }
+});
+// EDITAR   FUENTE
+document.addEventListener("click", function(e) {
+  if (e.target.classList.contains("btn-edit")) {
+    const fila = e.target.closest("tr");
+    const celda = fila.children[0];
+    // IMPORTANTE: usamos innerHTML para soportar listas
+    const contenidoActual = celda.innerHTML;
+    const nuevoContenido = prompt(
+      "Edita la fuente (puedes usar HTML básico):",
+      contenidoActual
+    );
+    if (nuevoContenido !== null && nuevoContenido.trim() !== "") {
+      celda.innerHTML = nuevoContenido;
+    }
+  }
+});
+// AGREGAR NUEVA FUENTE
+document.querySelector(".btn-add").addEventListener("click", function() {
+  const nuevaFuente = prompt("Escribe la nueva fuente:");
+  if (nuevaFuente !== null && nuevaFuente.trim() !== "") {
+    const tbody = document.querySelector("tbody");
+    const nuevaFila = document.createElement("tr");
+    nuevaFila.innerHTML = `
+      <td>${nuevaFuente}</td>
+      <td>
+        <div class="btn-group">
+          <button class="btn-sm btn-edit">Editar</button>
+          <button class="btn-sm btn-delete">Eliminar</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(nuevaFila);
+    actualizarContador();
+  }
+});
+// ACTUALIZAR CONTADOR
+function actualizarContador() {
+  const total = document.querySelectorAll("tbody tr").length;
+  document.querySelector(".tc-count").textContent = total + " fuentes";
+}
+</script>
 </body>
 </html>

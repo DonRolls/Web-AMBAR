@@ -76,58 +76,6 @@ tbody tr:hover td{background:#F8FBFF}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
-<script>
-// ELIMINAR ACTIVIDAD
-document.addEventListener("click", function(e) {
-  if (e.target.classList.contains("btn-delete")) {
-    if (confirm("¿Eliminar esta actividad?")) {
-      const fila = e.target.closest("tr");
-      fila.remove();
-      actualizarContador();
-    }
-  }
-});
-// EDITAR ACTIVIDAD
-document.addEventListener("click", function(e) {
-  if (e.target.classList.contains("btn-edit")) {
-    const fila = e.target.closest("tr");
-    const celda = fila.children[0];
-    // IMPORTANTE: usamos innerHTML para soportar listas
-    const contenidoActual = celda.innerHTML;
-    const nuevoContenido = prompt(
-      "Edita la actividad (puedes usar HTML básico):",
-      contenidoActual
-    );
-    if (nuevoContenido !== null && nuevoContenido.trim() !== "") {
-      celda.innerHTML = nuevoContenido;
-    }
-  }
-});
-// AGREGAR NUEVA ACTIVIDAD
-document.querySelector(".btn-add").addEventListener("click", function() {
-  const nuevaActividad = prompt("Escribe la nueva actividad:");
-  if (nuevaActividad !== null && nuevaActividad.trim() !== "") {
-    const tbody = document.querySelector("tbody");
-    const nuevaFila = document.createElement("tr");
-    nuevaFila.innerHTML = `
-      <td>${nuevaActividad}</td>
-      <td>
-        <div class="btn-group">
-          <button class="btn-sm btn-edit">Editar</button>
-          <button class="btn-sm btn-delete">Eliminar</button>
-        </div>
-      </td>
-    `;
-    tbody.appendChild(nuevaFila);
-    actualizarContador();
-  }
-});
-// ACTUALIZAR CONTADOR
-function actualizarContador() {
-  const total = document.querySelectorAll("tbody tr").length;
-  document.querySelector(".tc-count").textContent = total + " actividades";
-}
-</script>
 <body>
 
 <header class="topbar">
@@ -161,7 +109,7 @@ function actualizarContador() {
     <div class="filter-bar">
       <div class="search-box">
         <span style="color:var(--text-2)">🔍</span>
-        <input type="text" placeholder="Buscar actividad por nombre o descripción...">
+        <input type="text" id="busqueda" placeholder="Buscar actividad por nombre o descripción...">
       </div>
       <button class="btn-add">＋ Nueva actividad</button>
     </div>
@@ -171,7 +119,7 @@ function actualizarContador() {
         <div class="tc-title"><div class="tc-title-icon">📋</div> Actividades registradas</div>
         <span class="tc-count">5 actividades</span>
       </div>
-      <table>
+      <table id="tabla-actividades">
         <thead>
           <tr>
             <th style="width:70%">Descripción de la Actividad</th>
@@ -213,6 +161,78 @@ function actualizarContador() {
 
   </main>
 </div>
+<script>
+// USAR DOMContentLoaded para asegurar que el HTML cargó
+document.addEventListener("DOMContentLoaded", function() {
 
+    const tbody = document.querySelector("#tabla-actividades tbody");
+    const btnAdd = document.querySelector(".btn-add");
+    const contador = document.querySelector(".tc-count");
+    const inputBusqueda = document.querySelector("#busqueda");
+
+    // ACTUALIZAR CONTADOR
+    function actualizarContador() {
+        const total = tbody.querySelectorAll("tr").length;
+        contador.textContent = total + (total === 1 ? " actividad" : " actividades");
+    }
+
+    // ELIMINAR ACTIVIDAD
+    document.addEventListener("click", function(e) {
+        if (e.target.classList.contains("btn-delete")) {
+            if (confirm("¿Estás seguro de que deseas eliminar esta actividad?")) {
+                e.target.closest("tr").remove();
+                actualizarContador();
+            }
+        }
+    });
+
+    // EDITAR ACTIVIDAD
+    document.addEventListener("click", function(e) {
+        if (e.target.classList.contains("btn-edit")) {
+            const fila = e.target.closest("tr");
+            const celda = fila.children[0];
+            const contenidoActual = celda.innerHTML;
+            const nuevoContenido = prompt("Edita la actividad (puedes usar HTML):", contenidoActual);
+            
+            if (nuevoContenido !== null && nuevoContenido.trim() !== "") {
+                celda.innerHTML = nuevoContenido;
+            }
+        }
+    });
+
+    // AGREGAR NUEVA ACTIVIDAD
+    btnAdd.addEventListener("click", function() {
+        const nuevaActividad = prompt("Escribe la descripción de la nueva actividad:");
+        if (nuevaActividad !== null && nuevaActividad.trim() !== "") {
+            const nuevaFila = document.createElement("tr");
+            nuevaFila.innerHTML = `
+                <td>${nuevaActividad}</td>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn-sm btn-edit">Editar</button>
+                        <button class="btn-sm btn-delete">Eliminar</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(nuevaFila);
+            actualizarContador();
+        }
+    });
+
+    // BUSCADOR (FUNCIONALIDAD EXTRA)
+    inputBusqueda.addEventListener("keyup", function() {
+        const busqueda = this.value.toLowerCase();
+        const filas = tbody.querySelectorAll("tr");
+        
+        filas.forEach(fila => {
+            const texto = fila.children[0].innerText.toLowerCase();
+            fila.style.display = texto.includes(busqueda) ? "" : "none";
+        });
+    });
+
+    // Inicializar contador al cargar
+    actualizarContador();
+});
+</script>
 </body>
 </html>
