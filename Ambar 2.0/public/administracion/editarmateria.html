@@ -114,11 +114,15 @@ tr:hover td{background:#FAFBFF}
   <main class="main">
     <div class="breadcrumb">Portal Administrador <span>›</span> <span>Catálogo de Materias</span></div>
     <div class="page-header">
-      <button class="btn-primary" onclick="abrirModalImportar()" style="margin-left:auto;">
-    📥 Importar desde CSV
-      </button>
       <h1><span style="color:var(--gold);">📚</span> Catálogo de Materias</h1>
-      <button class="btn-primary" onclick="abrirModalNuevo()"><span>+</span> Nueva Materia</button>
+      <div style="display:flex; gap:12px;">
+        <button class="btn-primary" onclick="abrirModalImportar()">
+          📥 Importar desde CSV
+        </button>
+        <button class="btn-primary" onclick="abrirModalNuevo()">
+          <span>+</span> Nueva Materia
+        </button>
+      </div>
     </div>
  
     <!-- TOOLBAR -->
@@ -272,8 +276,6 @@ function renderTabla(data) {
       <td><strong>${m.Clave}</strong></td>
       <td>${m.Nombre}</td>
       <td style="text-align:center">${m.Creditos}</td>
-      <td style="text-align:center">${m.NumUnidades ?? 3}</td>
-      <td style="text-align:center">${m.Semestre ?? 1}</td>
       <td>${CARRERA_LABEL[m.id_carrera] || m.id_carrera}</td>
       <td>${tipoBadge}</td>
       <td>
@@ -534,4 +536,3 @@ async function confirmarImportacion() {
 </body>
 </html>
 
-//zeus deja de romper todo por favor, ya casi acabamos :c

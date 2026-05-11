@@ -7,6 +7,7 @@ const Papa = require("papaparse");
 const upload = multer({ storage: multer.memoryStorage() });
 
 const sql = require("mssql");
+const { getPool } = require("../config/database");
  
 /* ─── Middleware auth básico ──────────────────────────────────────────────── */
 function authAdmin(req, res, next) {
@@ -18,9 +19,7 @@ function authAdmin(req, res, next) {
 /* ─── Wrapper para errores async ──────────────────────────────────────────── */
 const asyncH = fn => (req, res, next) => fn(req, res, next).catch(next);
  
-/* ════════════════════════════════════════════════════
-   ALUMNOS
-════════════════════════════════════════════════════ */
+/* ALUMNOS */
 router.get("/alumnos", authAdmin, asyncH(async (req, res) => {
     res.json(await repo.getAlumnos());
 }));
@@ -43,9 +42,7 @@ router.delete("/alumnos/:nctrl", authAdmin, asyncH(async (req, res) => {
     res.json({ ok: true });
 }));
  
-/* ════════════════════════════════════════════════════
-   DOCENTES
-════════════════════════════════════════════════════ */
+/* DOCENTES*/
 router.get("/docentes", authAdmin, asyncH(async (req, res) => {
     res.json(await repo.getDocentes());
 }));
@@ -68,9 +65,7 @@ router.delete("/docentes/:id", authAdmin, asyncH(async (req, res) => {
     res.json({ ok: true });
 }));
  
-/* ════════════════════════════════════════════════════
-   COORDINADORES
-════════════════════════════════════════════════════ */
+/* COORDINADORES*/
 router.get("/coordinadores", authAdmin, asyncH(async (req, res) => {
     res.json(await repo.getCoordinadores());
 }));
@@ -93,9 +88,7 @@ router.delete("/coordinadores/:nctrl", authAdmin, asyncH(async (req, res) => {
     res.json({ ok: true });
 }));
  
-/* ════════════════════════════════════════════════════
-   MATERIAS
-════════════════════════════════════════════════════ */
+/*MATERIAS*/
 router.get("/materias", authAdmin, asyncH(async (req, res) => {
     res.json(await repo.getMaterias());
 }));
@@ -123,19 +116,12 @@ router.delete("/materias/:id", authAdmin, asyncH(async (req, res) => {
     res.json({ ok: true });
 }));
  
-/* ════════════════════════════════════════════════════
-   KARDEX
-════════════════════════════════════════════════════ */
+/* KARDEX */
 router.get("/kardex/:nctrl", authAdmin, asyncH(async (req, res) => {
     res.json(await repo.getKardexByAlumno(req.params.nctrl));
 }));
- 
-/* ─── Manejador de errores ─────────────────────────────────────────────────── */
-router.use((err, req, res, next) => {
-    console.error("[Admin Route Error]", err.message);
-    res.status(500).json({ error: "Error interno del servidor", detail: err.message });
-});
 
+/* ─── Funciones de parseo de CSV ──────────────────────────────────────────── */
 function parseCSV(buffer) {
     const csvString = buffer.toString("utf-8");
     const result = Papa.parse(csvString, {
@@ -149,12 +135,46 @@ function parseCSV(buffer) {
     return result.data;
 }
 
-// ─── Endpoint: subir CSV y obtener previsualización ───
+function parseCSVUsuarios(buffer, tipo) {
+    const csvString = buffer.toString("utf-8");
+    const result = Papa.parse(csvString, {
+        header: true,
+        skipEmptyLines: true,
+        transformHeader: (h) => h.trim().toLowerCase(),
+    });
+    if (result.errors.length) {
+        throw new Error("Error al parsear CSV: " + result.errors[0].message);
+    }
+
+    const columnasRequeridas = {
+        alumnos:      ['n_ctrl','nombre','apellidos','email','pass','id_carrera','semestre'],
+        docentes:     ['n_ctrl','nombre','apellidos','email','pass'],
+        coordinadores:['n_ctrl','nombre','apellidos','email','pass','id_departamento']
+    };
+
+    const cols = columnasRequeridas[tipo];
+    if (!cols) throw new Error("Tipo de usuario no válido");
+
+    const errors = [];
+    const preview = result.data.map((row, i) => {
+        const obj = {};
+        cols.forEach(col => {
+            obj[col] = (row[col] || '').toString().trim();
+        });
+        if (!obj['n_ctrl'] || !obj['nombre'] || !obj['apellidos'] || !obj['email'] || !obj['pass']) {
+            errors.push(`Fila ${i+2}: faltan campos obligatorios.`);
+        }
+        return obj;
+    });
+
+    return { preview, errors, columns: cols };
+}
+
+/* IMPORTAR MATERIAS*/
 router.post("/materias/import/preview", authAdmin, upload.single("file"), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ error: "No se envió ningún archivo." });
         const data = parseCSV(req.file.buffer);
-        // Validación básica
         const errors = [];
         const preview = data.map((row, i) => {
             const clave = row["clave"] || row["clave_materia"] || "";
@@ -166,7 +186,7 @@ router.post("/materias/import/preview", authAdmin, upload.single("file"), async 
             const semestre = parseInt(row["semestre"] || 1);
 
             if (!clave || !nombre || !creditos || !id_carrera) {
-                errors.push(`Fila ${i+2}: faltan campos obligatorios (clave, nombre, creditos, id_carrera).`);
+                errors.push(`Fila ${i+2}: faltan campos obligatorios.`);
             }
 
             return { clave, nombre, creditos, id_carrera, esOptativa, numUnidades, semestre };
@@ -174,20 +194,17 @@ router.post("/materias/import/preview", authAdmin, upload.single("file"), async 
 
         res.json({ success: true, preview, errors });
     } catch (err) {
-        console.error("Error en preview:", err.message);
         res.status(500).json({ success: false, error: err.message });
     }
 });
 
-// ─── Endpoint: guardar los datos confirmados ───
 router.post("/materias/import/save", authAdmin, async (req, res) => {
     try {
         const { materias } = req.body;
-        if (!Array.isArray(materias) || materias.length === 0) {
+        if (!Array.isArray(materias) || materias.length === 0)
             return res.status(400).json({ error: "No se recibieron datos." });
-        }
 
-        const pool = await require("../config/database").getPool();
+        const pool = await getPool();
         let inserted = 0;
         const errores = [];
 
@@ -211,11 +228,142 @@ router.post("/materias/import/save", authAdmin, async (req, res) => {
 
         res.json({ success: true, inserted, errores });
     } catch (err) {
-        console.error("Error en import/save:", err.message);
         res.status(500).json({ error: err.message });
     }
 });
+
+/* IMPORTAR ALUMNOS*/
+router.post("/alumnos/import/preview", authAdmin, upload.single("file"), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: "No se envió ningún archivo." });
+        const { preview, errors, columns } = parseCSVUsuarios(req.file.buffer, 'alumnos');
+        res.json({ success: true, preview, errors, columns });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+router.post("/alumnos/import/save", authAdmin, async (req, res) => {
+    try {
+        const { usuarios } = req.body;
+        if (!Array.isArray(usuarios) || usuarios.length === 0)
+            return res.status(400).json({ error: "No se recibieron datos." });
+
+        const pool = await getPool();
+        let inserted = 0;
+        const errores = [];
+
+        for (const u of usuarios) {
+            try {
+                await pool.request()
+                    .input("N_ctrl", sql.NVarChar, u.n_ctrl)
+                    .input("Nombre", sql.NVarChar, u.nombre)
+                    .input("Apellidos", sql.NVarChar, u.apellidos)
+                    .input("Email", sql.NVarChar, u.email)
+                    .input("Pass", sql.NVarChar, u.pass)
+                    .input("id_carrera", sql.Int, parseInt(u.id_carrera) || 1)
+                    .input("Semestre", sql.Int, parseInt(u.semestre) || 1)
+                    .query(`INSERT INTO Alumnos (N_ctrl, Nombre, Apellidos, Email, Pass, id_carrera, Semestre)
+                            VALUES (@N_ctrl, @Nombre, @Apellidos, @Email, @Pass, @id_carrera, @Semestre)`);
+                inserted++;
+            } catch (err) {
+                errores.push(`Error en alumno ${u.n_ctrl}: ${err.message}`);
+            }
+        }
+        res.json({ success: true, inserted, errores });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/* IMPORTAR DOCENTES */
+router.post("/docentes/import/preview", authAdmin, upload.single("file"), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: "No se envió ningún archivo." });
+        const { preview, errors, columns } = parseCSVUsuarios(req.file.buffer, 'docentes');
+        res.json({ success: true, preview, errors, columns });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+router.post("/docentes/import/save", authAdmin, async (req, res) => {
+    try {
+        const { usuarios } = req.body;
+        if (!Array.isArray(usuarios) || usuarios.length === 0)
+            return res.status(400).json({ error: "No se recibieron datos." });
+
+        const pool = await getPool();
+        let inserted = 0;
+        const errores = [];
+
+        for (const u of usuarios) {
+            try {
+                await pool.request()
+                    .input("N_ctrl", sql.NVarChar, u.n_ctrl)
+                    .input("Nombre", sql.NVarChar, u.nombre)
+                    .input("Apellidos", sql.NVarChar, u.apellidos)
+                    .input("Email", sql.NVarChar, u.email)
+                    .input("Pass", sql.NVarChar, u.pass)
+                    .query(`INSERT INTO Docentes (N_ctrl, Nombre, Apellidos, Email, Pass)
+                            VALUES (@N_ctrl, @Nombre, @Apellidos, @Email, @Pass)`);
+                inserted++;
+            } catch (err) {
+                errores.push(`Error en docente ${u.n_ctrl}: ${err.message}`);
+            }
+        }
+        res.json({ success: true, inserted, errores });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/* IMPORTAR COORDINADORES*/
+router.post("/coordinadores/import/preview", authAdmin, upload.single("file"), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: "No se envió ningún archivo." });
+        const { preview, errors, columns } = parseCSVUsuarios(req.file.buffer, 'coordinadores');
+        res.json({ success: true, preview, errors, columns });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+router.post("/coordinadores/import/save", authAdmin, async (req, res) => {
+    try {
+        const { usuarios } = req.body;
+        if (!Array.isArray(usuarios) || usuarios.length === 0)
+            return res.status(400).json({ error: "No se recibieron datos." });
+
+        const pool = await getPool();
+        let inserted = 0;
+        const errores = [];
+
+        for (const u of usuarios) {
+            try {
+                await pool.request()
+                    .input("N_ctrl", sql.NVarChar, u.n_ctrl)
+                    .input("Nombre", sql.NVarChar, u.nombre)
+                    .input("Apellidos", sql.NVarChar, u.apellidos)
+                    .input("Email", sql.NVarChar, u.email)
+                    .input("Pass", sql.NVarChar, u.pass)
+                    .input("ID_Departamento", sql.Int, parseInt(u.id_departamento) || 1)
+                    .query(`INSERT INTO Coordinadores (N_ctrl, Nombre, Apellidos, Email, Pass, ID_Departamento)
+                            VALUES (@N_ctrl, @Nombre, @Apellidos, @Email, @Pass, @ID_Departamento)`);
+                inserted++;
+            } catch (err) {
+                errores.push(`Error en coordinador ${u.n_ctrl}: ${err.message}`);
+            }
+        }
+        res.json({ success: true, inserted, errores });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.use((err, req, res, next) => {
+    console.error("[Admin Route Error]", err.message);
+    res.status(500).json({ error: "Error interno del servidor", detail: err.message });
+});
  
 module.exports = router;
-
-//zeus deja de romper todo por favor, ya casi acabamos :c

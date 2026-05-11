@@ -116,9 +116,14 @@ tr:hover td{background:#FAFBFF}
     <div class="breadcrumb">Portal Administrador <span>›</span> <span>Gestión de Usuarios</span></div>
     <div class="page-header">
       <h1><span style="color:var(--gold);">👥</span> Gestión de Usuarios</h1>
-      <button class="btn-primary" onclick="abrirModalNuevo()">
-        <span>+</span> Nuevo Usuario
-      </button>
+      <div style="display:flex; gap:12px;">
+        <button class="btn-primary" onclick="abrirModalImportar()">
+          📥 Importar CSV
+        </button>
+        <button class="btn-primary" onclick="abrirModalNuevo()">
+          <span>+</span> Nuevo Usuario
+        </button>
+      </div>
     </div>
  
     <!-- TABS -->
@@ -474,9 +479,7 @@ async function guardarUsuario() {
   }
 }
  
-/* ═══════════════════════════════════════════════════
-   ELIMINAR
-═══════════════════════════════════════════════════ */
+
 async function eliminarUsuario(id) {
   if (!confirm(`¿Eliminar este ${TIPO_LABEL[tabActual].toLowerCase()}?\nEsta acción no se puede deshacer.`)) return;
  
@@ -494,9 +497,7 @@ async function eliminarUsuario(id) {
   }
 }
  
-/* ═══════════════════════════════════════════════════
-   TOAST
-═══════════════════════════════════════════════════ */
+
 function toast(msg, tipo = '') {
   const el = document.getElementById('toast');
   el.textContent = msg;
@@ -506,8 +507,149 @@ function toast(msg, tipo = '') {
   setTimeout(() => el.classList.remove('show'), 3200);
 }
  
-/* ─── Init ─── */
 cargarUsuarios();
+
+let datosPrevisualizacion = [];
+let columnasPreview = [];
+
+// Instrucciones y columnas esperadas según el tipo
+const CSV_CONFIG = {
+  alumnos: {
+    columns: ['N_ctrl','Nombre','Apellidos','Email','Pass','id_carrera','Semestre'],
+    instructions: 'Columnas esperadas: <b>N_ctrl, Nombre, Apellidos, Email, Pass, id_carrera, Semestre</b>'
+  },
+  docentes: {
+    columns: ['N_ctrl','Nombre','Apellidos','Email','Pass'],
+    instructions: 'Columnas esperadas: <b>N_ctrl, Nombre, Apellidos, Email, Pass</b>'
+  },
+  coordinadores: {
+    columns: ['N_ctrl','Nombre','Apellidos','Email','Pass','ID_Departamento'],
+    instructions: 'Columnas esperadas: <b>N_ctrl, Nombre, Apellidos, Email, Pass, ID_Departamento</b>'
+  }
+};
+
+function abrirModalImportar() {
+  const config = CSV_CONFIG[tabActual];
+  document.getElementById('csv-instructions').innerHTML = config.instructions;
+  columnasPreview = config.columns;
+  document.getElementById('modal-importar').classList.add('open');
+  document.getElementById('paso-upload').style.display = 'block';
+  document.getElementById('paso-preview').style.display = 'none';
+  document.getElementById('csv-file').value = '';
+  document.getElementById('upload-error').textContent = '';
+}
+
+function cerrarModalImportar() {
+  document.getElementById('modal-importar').classList.remove('open');
+}
+
+async function previsualizarCSV() {
+  const fileInput = document.getElementById('csv-file');
+  const file = fileInput.files[0];
+  if (!file) {
+    document.getElementById('upload-error').textContent = 'Selecciona un archivo CSV.';
+    return;
+  }
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('tipo', tabActual); // 'alumnos', 'docentes' o 'coordinadores'
+
+  try {
+    const res = await fetch(`${API}/${tabActual}/import/preview`, {
+      method: 'POST',
+      headers: { 'x-admin-id': sessionStorage.getItem('ID_Administrador') || '1' },
+      body: formData
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+
+    datosPrevisualizacion = data.preview;
+    renderPreviewTable(datosPrevisualizacion, data.columns);
+    document.getElementById('preview-errors').textContent = data.errors ? data.errors.join('\n') : '';
+
+    document.getElementById('paso-upload').style.display = 'none';
+    document.getElementById('paso-preview').style.display = 'block';
+  } catch (e) {
+    document.getElementById('upload-error').textContent = 'Error: ' + e.message;
+  }
+}
+
+function renderPreviewTable(arr, cols) {
+  const thead = document.getElementById('preview-table').querySelector('thead');
+  const tbody = document.getElementById('preview-table').querySelector('tbody');
+  
+  // Cabeceras
+  thead.innerHTML = '<tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr>';
+  
+  // Cuerpo editable
+  tbody.innerHTML = arr.map((row, i) => {
+    return '<tr>' + cols.map(col => {
+      // Para cada celda, un input editable que actualiza el array en tiempo real
+      return `<td><input value="${row[col] || ''}" onchange="datosPrevisualizacion[${i}]['${col}']=this.value"></td>`;
+    }).join('') + '</tr>';
+  }).join('');
+}
+
+async function confirmarImportacion() {
+  if (!confirm('¿Estás seguro de que deseas importar estos usuarios? Se insertarán en la base de datos.')) return;
+
+  try {
+    const res = await fetch(`${API}/${tabActual}/import/save`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-id': sessionStorage.getItem('ID_Administrador') || '1'
+      },
+      body: JSON.stringify({ usuarios: datosPrevisualizacion })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+
+    let msg = `✅ ${data.inserted} usuarios importados correctamente.`;
+    if (data.errores && data.errores.length > 0) {
+      msg += '\n\nErrores:\n' + data.errores.join('\n');
+    }
+    alert(msg);
+    cerrarModalImportar();
+    cargarUsuarios(); // refrescar tabla
+  } catch (e) {
+    alert('Error al importar: ' + e.message);
+  }
+}
 </script>
+
+<div id="modal-importar" class="modal">
+  <div class="modal-content" style="max-width: 900px;">
+    <div class="modal-header">
+      <h2>Importar Usuarios desde CSV</h2>
+      <span class="close-modal" onclick="cerrarModalImportar()">&times;</span>
+    </div>
+    <!-- Paso 1: subir archivo -->
+    <div id="paso-upload">
+      <p style="margin-bottom: 16px;" id="csv-instructions">
+        Selecciona un archivo CSV. Las columnas deben coincidir con el formato esperado.
+      </p>
+      <input type="file" id="csv-file" accept=".csv">
+      <button class="btn-primary" onclick="previsualizarCSV()" style="margin-top: 12px;">👁 Previsualizar</button>
+      <div id="upload-error" style="color: var(--danger); margin-top: 12px;"></div>
+    </div>
+    <!-- Paso 2: previsualización -->
+    <div id="paso-preview" style="display: none;">
+      <p style="margin-bottom: 10px;">Revisa y edita los datos si es necesario. Luego confirma la importación.</p>
+      <div style="max-height: 400px; overflow-y: auto;">
+        <table id="preview-table" style="width: 100%;">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="preview-errors" style="color: var(--danger); margin: 10px 0;"></div>
+      <div class="form-actions">
+        <button class="btn-cancel" onclick="cerrarModalImportar()">Cancelar</button>
+        <button class="btn-primary" onclick="confirmarImportacion()">💾 Guardar todos</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
