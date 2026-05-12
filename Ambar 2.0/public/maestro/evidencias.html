@@ -57,7 +57,78 @@ tbody tr:hover td{background:#F8FBFF}
 
 /* CRITERION HEADER */
 th.criterion{width:40px;text-align:center;font-size:11px}
-
+/* MODAL */
+.modal-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(13,27,62,.7);
+  z-index:1000;
+  backdrop-filter:blur(4px);
+  align-items:center;
+  justify-content:center;
+  animation: fadeIn 0.3s ease;
+}
+.modal-content{
+  background:var(--card);
+  width:90%;
+  max-width:600px;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-md);
+  overflow:hidden;
+  border:1px solid var(--border);
+  max-height:90vh;
+  overflow-y:auto;
+}
+.modal-header{
+  background:var(--navy);
+  padding:18px 24px;
+  color:white;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.modal-header h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+}
+.modal-body{
+  padding:24px;
+}
+.modal-footer{
+  padding:16px 24px;
+  background:#f8fafc;
+  display:flex;
+  justify-content:flex-end;
+  gap:12px;
+  border-top:1px solid var(--border);
+}
+.form-group{
+  margin-bottom:16px;
+}
+.form-group label{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  text-transform:uppercase;
+  color:var(--text-2);
+  margin-bottom:8px;
+}
+.form-input{
+  width:100%;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  font-family:'DM Sans',sans-serif;
+  font-size:14px;
+}
+.form-input:focus{
+  outline:none;
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px var(--gold-glow);
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
@@ -98,10 +169,14 @@ th.criterion{width:40px;text-align:center;font-size:11px}
 
     <div class="table-card">
       <div class="tc-head">
-        <div class="tc-title"><div class="tc-title-icon">📝</div> Evidencias registradas</div>
-      </div>
+  <div class="tc-title">
+    <div class="tc-title-icon">📝</div>
+    Evidencias registradas
+  </div>
+  <span class="tc-count">1 evidencia</span>
+</div>
       <div class="t-wrap">
-        <table>
+        <table id="tabla-evidencias">
           <thead>
             <tr>
               <th>Evidencia</th>
@@ -113,12 +188,15 @@ th.criterion{width:40px;text-align:center;font-size:11px}
               <th class="criterion center" title="Criterio D">D</th>
               <th class="criterion center" title="Criterio E">E</th>
               <th class="criterion center" title="Criterio F">F</th>
+              <th class="center">Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>Exposiciones sobre temas diversos</td>
-              <td class="center"><span class="pct-badge">100%</span></td>
+              <td class="center">
+                <span class="pct-badge">100%</span>
+              </td>
               <td>Exposiciones</td>
               <td class="score-cell center">20</td>
               <td class="score-cell center">20</td>
@@ -126,70 +204,156 @@ th.criterion{width:40px;text-align:center;font-size:11px}
               <td class="score-cell center">20</td>
               <td class="score-cell center">20</td>
               <td class="score-cell score-zero center">0</td>
+              <td class="center">
+                <div class="btn-group">
+                  <button class="btn-sm btn-edit">
+                    Editar
+                  </button>
+                  <button class="btn-sm btn-delete">
+                    Eliminar
+                  </button>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
-
+<div class="modal-overlay" id="evidencia-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modal-title">＋ Nueva Evidencia</h2>
+      <span
+        id="close-modal"
+        style="cursor:pointer;font-size:20px"
+      >
+        ✕
+      </span>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+      <div class="form-group">
+        <label>Evidencia</label>
+        <input
+          type="text"
+          id="ev-evidencia"
+          class="form-input"
+        >
+      </div>
+      <div class="form-group">
+        <label>Porcentaje</label>
+        <input
+          type="number"
+          id="ev-porcentaje"
+          class="form-input"
+        >
+      </div>
+      <div class="form-group">
+        <label>Estrategia</label>
+        <input
+          type="text"
+          id="ev-estrategia"
+          class="form-input">
+      </div>
+      <div class="form-group">
+        <label>Criterio A</label>
+        <input type="number" id="ev-a" class="form-input">
+      </div>
+      <div class="form-group">
+        <label>Criterio B</label>
+        <input type="number" id="ev-b" class="form-input">
+      </div>
+      <div class="form-group">
+        <label>Criterio C</label>
+        <input type="number" id="ev-c" class="form-input">
+      </div>
+      <div class="form-group">
+        <label>Criterio D</label>
+        <input type="number" id="ev-d" class="form-input">
+      </div>
+      <div class="form-group">
+        <label>Criterio E</label>
+        <input type="number" id="ev-e" class="form-input">
+      </div>
+      <div class="form-group">
+        <label>Criterio F</label>
+        <input type="number" id="ev-f" class="form-input">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button
+        class="btn-sm"
+        id="cancel-modal"
+        style="background:#eee;color:var(--text-2)">
+        Cancelar
+      </button>
+      <button class="btn-add" id="save-btn">
+        Guardar
+      </button>
+    </div>
+  </div>
+</div>
   </main>
 </div>
 <script>
-// ELIMINAR EVIDENCIA
-document.addEventListener("click", function(e) {
-  if (e.target.classList.contains("btn-delete")) {
-    if (confirm("¿Eliminar esta evidencia?")) {
-      const fila = e.target.closest("tr");
-      fila.remove();
-      actualizarContador();
-    }
-  }
-});
-// EDITAR EVIDENCIA
-document.addEventListener("click", function(e) {
-  if (e.target.classList.contains("btn-edit")) {
-    const fila = e.target.closest("tr");
-    const celda = fila.children[0];
-    // IMPORTANTE: usamos innerHTML para soportar listas
-    const contenidoActual = celda.innerHTML;
-    const nuevoContenido = prompt(
-      "Edita la evidencia (puedes usar HTML básico):",
-      contenidoActual
-    );
-    if (nuevoContenido !== null && nuevoContenido.trim() !== "") {
-      celda.innerHTML = nuevoContenido;
-    }
-  }
-});
-// AGREGAR NUEVA EVIDENCIA
-document.querySelector(".btn-add").addEventListener("click", function() {
-  const nuevaEvidencia = prompt("Escribe la nueva evidencia:");
-  if (nuevaEvidencia !== null && nuevaEvidencia.trim() !== "") {
-    const tbody = document.querySelector("tbody");
-    const nuevaFila = document.createElement("tr");
-    nuevaFila.innerHTML = `
-      <td>${nuevaEvidencia}</td>
-      <td>
-        <div class="btn-group">
-          <button class="btn-sm btn-edit">Editar</button>
-          <button class="btn-sm btn-delete">Eliminar</button>
-        </div>
-      </td>
-    `;
-    tbody.appendChild(nuevaFila);
-    actualizarContador();
-  }
-});
-// ACTUALIZAR CONTADOR
-function actualizarContador() {
-  const total = document.querySelectorAll("tbody tr").length;
-  document.querySelector(".tc-count").textContent = total + " evidencias";
+// NUEVA EVIDENCIA
+        const modal =
+    document.getElementById("evidencia-modal");
+const openBtn =
+    document.querySelector(".btn-add");
+const closeBtn =
+    document.getElementById("close-modal");
+const cancelBtn =
+    document.getElementById("cancel-modal");
+const saveBtn =
+    document.getElementById("save-btn");
+// ABRIR MODAL
+openBtn.onclick = () => {
+    document.getElementById("edit-id").value = "";
+    document.getElementById("ev-evidencia").value = "";
+    document.getElementById("ev-porcentaje").value = "";
+    document.getElementById("ev-estrategia").value = "";
+    document.getElementById("ev-a").value = 0;
+    document.getElementById("ev-b").value = 0;
+    document.getElementById("ev-c").value = 0;
+    document.getElementById("ev-d").value = 0;
+    document.getElementById("ev-e").value = 0;
+    document.getElementById("ev-f").value = 0;
+    modal.style.display = "flex";
+};
+// CERRAR
+function cerrarModal() {
+    modal.style.display = "none";
 }
-// Cerrar sesión
-    document.querySelector(".logout-btn")?.addEventListener("click", () => {
-        sessionStorage.clear();
-        window.location.href = "../login.html";
+closeBtn.onclick = cerrarModal;
+cancelBtn.onclick = cerrarModal;
+// GUARDAR
+saveBtn.onclick = () => {
+    const evidencia =
+        document.getElementById("ev-evidencia").value;
+    const porcentaje =
+        document.getElementById("ev-porcentaje").value;
+    const estrategia =
+        document.getElementById("ev-estrategia").value;
+    if (!evidencia || !porcentaje || !estrategia) {
+        alert("Completa todos los campos");
+        return;
+    }
+    evidencias.push({
+        id: Date.now(),
+        evidencia,
+        porcentaje,
+        estrategia,
+        a: document.getElementById("ev-a").value || 0,
+        b: document.getElementById("ev-b").value || 0,
+        c: document.getElementById("ev-c").value || 0,
+        d: document.getElementById("ev-d").value || 0,
+        e: document.getElementById("ev-e").value || 0,
+        f: document.getElementById("ev-f").value || 0
     });
+    guardar();
+    cerrarModal();
+};
 </script>
 </body>
 </html>

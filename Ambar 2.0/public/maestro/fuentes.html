@@ -111,91 +111,139 @@ tbody tr:hover td{background:#F8FBFF}
         <table>
           <thead>
             <tr>
-              <th style="width:22%">Título</th>
-              <th style="width:18%">Descripción</th>
-              <th style="width:10%">Tipo</th>
-              <th style="width:28%">Referencia / Link</th>
-              <th style="width:22%">Autores</th>
+              <th>Título</th>
+              <th>Descripción</th>
+              <th>Tipo</th>
+              <th>Referencia / Link</th>
+              <th>Autores</th>
+              <th>Acciones</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td><strong>Importancia del análisis de datos en la toma de decisiones</strong></td>
-              <td>Importancia estratégica de los datos.</td>
-              <td><span class="badge-type">Artículo</span></td>
-              <td><a href="https://www.esan.edu.pe/conexion-esan/importancia-del-analisis-de-datos-en-la-toma-de-decisiones" target="_blank" class="source-link">🔗 Visitar sitio</a></td>
-              <td style="font-size:12px;color:var(--text-2)">Conexión ESAN, (s.f.)</td>
-            </tr>
-            <tr>
-              <td><strong>10 herramientas de análisis de datos imprescindibles</strong></td>
-              <td>Herramientas de Inteligencia de Negocios.</td>
-              <td><span class="badge-type" style="background:#F5F3FF;color:#7C3AED">Blog</span></td>
-              <td><a href="https://inteligenciadenegocios1107.wordpress.com/variables-de-medicion/" target="_blank" class="source-link">🔗 Ver repositorio</a></td>
-              <td style="font-size:12px;color:var(--text-2)">ISDI España (2024)</td>
-            </tr>
-          </tbody>
+          <tbody id="fuentes-body">
+              <tr>
+                <td><strong>Importancia del análisis de datos en la toma de decisiones</strong></td>
+                <td>Importancia estratégica de los datos.</td>
+                <td><span class="badge-type">Artículo</span></td>
+                <td>
+                  <a href="https://www.esan.edu.pe/conexion-esan/importancia-del-analisis-de-datos-en-la-toma-de-decisiones"
+                    target="_blank"
+                    class="source-link">
+                    🔗 Visitar sitio
+                  </a>
+                </td>
+                <td style="font-size:12px;color:var(--text-2)">Conexión ESAN, (s.f.)</td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn-sm btn-edit">Editar</button>
+                    <button class="btn-sm btn-delete">Eliminar</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
         </table>
       </div>
     </div>
-
   </main>
 </div>
 <script>
-// ELIMINAR FUENTE
-document.addEventListener("click", function(e) {
-  if (e.target.classList.contains("btn-delete")) {
-    if (confirm("¿Eliminar esta fuente?")) {
-      const fila = e.target.closest("tr");
-      fila.remove();
-      actualizarContador();
-    }
-  }
-});
-// EDITAR   FUENTE
-document.addEventListener("click", function(e) {
-  if (e.target.classList.contains("btn-edit")) {
-    const fila = e.target.closest("tr");
-    const celda = fila.children[0];
-    // IMPORTANTE: usamos innerHTML para soportar listas
-    const contenidoActual = celda.innerHTML;
-    const nuevoContenido = prompt(
-      "Edita la fuente (puedes usar HTML básico):",
-      contenidoActual
-    );
-    if (nuevoContenido !== null && nuevoContenido.trim() !== "") {
-      celda.innerHTML = nuevoContenido;
-    }
-  }
-});
+
 // AGREGAR NUEVA FUENTE
-document.querySelector(".btn-add").addEventListener("click", function() {
-  const nuevaFuente = prompt("Escribe la nueva fuente:");
-  if (nuevaFuente !== null && nuevaFuente.trim() !== "") {
-    const tbody = document.querySelector("tbody");
-    const nuevaFila = document.createElement("tr");
-    nuevaFila.innerHTML = `
-      <td>${nuevaFuente}</td>
-      <td>
-        <div class="btn-group">
-          <button class="btn-sm btn-edit">Editar</button>
-          <button class="btn-sm btn-delete">Eliminar</button>
-        </div>
-      </td>
+document.querySelector(".btn-add").addEventListener("click", function () {
+    const titulo = prompt("Título:");
+    if (!titulo) return;
+    const descripcion = prompt("Descripción:");
+    if (!descripcion) return;
+    const tipo = prompt("Tipo (Libro, Artículo, Blog, PDF, etc):");
+    if (!tipo) return;
+    const link = prompt("Link o URL:");
+    if (!link) return;
+    const autores = prompt("Autores:");
+    if (!autores) return;
+    const tbody = document.getElementById("fuentes-body");
+    const fila = document.createElement("tr");
+    fila.innerHTML = `
+        <td><strong>${titulo}</strong></td>
+        <td>${descripcion}</td>
+        <td>
+            <span class="badge-type">${tipo}</span>
+        </td>
+        <td>
+            <a href="${link}"
+               target="_blank"
+               class="source-link">
+               🔗 Abrir enlace
+            </a>
+        </td>
+        <td style="font-size:12px;color:var(--text-2)">
+            ${autores}
+        </td>
+        <td>
+            <div class="btn-group">
+                <button class="btn-sm btn-edit">Editar</button>
+                <button class="btn-sm btn-delete">Eliminar</button>
+            </div>
+        </td>
     `;
-    tbody.appendChild(nuevaFila);
+    tbody.appendChild(fila);
     actualizarContador();
-  }
 });
-// ACTUALIZAR CONTADOR
-function actualizarContador() {
-  const total = document.querySelectorAll("tbody tr").length;
-  document.querySelector(".tc-count").textContent = total + " fuentes";
+// ELIMINAR
+document.addEventListener("click", function(e){
+    if(e.target.classList.contains("btn-delete")){
+        if(confirm("¿Eliminar esta fuente?")){
+            e.target.closest("tr").remove();
+            actualizarContador();
+        }
+    }
+});
+// EDITAR
+document.addEventListener("click", function(e){
+    if(e.target.classList.contains("btn-edit")){
+        const fila = e.target.closest("tr");
+        const tituloActual =
+            fila.children[0].innerText;
+        const descripcionActual =
+            fila.children[1].innerText;
+        const tipoActual =
+            fila.children[2].innerText;
+        const autoresActual =
+            fila.children[4].innerText;
+        const nuevoTitulo =
+            prompt("Editar título:", tituloActual);
+        if(!nuevoTitulo) return;
+        const nuevaDescripcion =
+            prompt("Editar descripción:", descripcionActual);
+        if(!nuevaDescripcion) return;
+        const nuevoTipo =
+            prompt("Editar tipo:", tipoActual);
+        if(!nuevoTipo) return;
+        const nuevosAutores =
+            prompt("Editar autores:", autoresActual);
+        if(!nuevosAutores) return;
+        fila.children[0].innerHTML =
+            `<strong>${nuevoTitulo}</strong>`;
+        fila.children[1].innerText =
+            nuevaDescripcion;
+        fila.children[2].innerHTML =
+            `<span class="badge-type">${nuevoTipo}</span>`;
+        fila.children[4].innerText =
+            nuevosAutores;
+    }
+});
+// CONTADOR
+function actualizarContador(){
+    const total =
+        document.querySelectorAll("#fuentes-body tr").length;
+    document.querySelector(".tc-count").textContent =
+        total + " fuentes";
 }
-// Cerrar sesión
-    document.querySelector(".logout-btn")?.addEventListener("click", () => {
-        sessionStorage.clear();
-        window.location.href = "../login.html";
-    });
+// CERRAR SESIÓN
+document.querySelector(".logout-btn")?.addEventListener("click", () => {
+    sessionStorage.clear();
+    window.location.href = "../login.html";
+});
+// INICIAR CONTADOR
+actualizarContador();
 </script>
 </body>
 </html>
