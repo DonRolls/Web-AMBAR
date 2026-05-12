@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kardex de Carrera — Admin Ámbar</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0D1B3E;--navy-mid:#1D3461;--gold:#E8A100;--gold-lt:#FFF3D0;
+  --bg:#F0F4FA;--card:#FFFFFF;--text:#1A1F36;--text-2:#5A6488;
+  --border:#E2E8F0;--success:#0FAF7A;--danger:#E84040;
+  --radius:14px;--shadow:0 4px 24px rgba(13,27,62,.09);
+  /* Colores por semestre — 9 tonos */
+  --s1:#EFF6FF;--s1b:#3B82F6;
+  --s2:#F0FDF4;--s2b:#22C55E;
+  --s3:#FFF7ED;--s3b:#F97316;
+  --s4:#FDF4FF;--s4b:#A855F7;
+  --s5:#FFFBEB;--s5b:#EAB308;
+  --s6:#FFF1F2;--s6b:#F43F5E;
+  --s7:#F0FDFA;--s7b:#14B8A6;
+  --s8:#FFF3D0;--s8b:#E8A100;
+  --s9:#F8FAFC;--s9b:#64748B;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--navy);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:fixed;inset:0 0 auto 0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.3)}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.hbg{color:white;font-size:22px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:.2s}
+.hbg:hover{background:rgba(255,255,255,.12)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-badge{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:11px;font-weight:800;color:var(--navy);line-height:1.1;text-align:center}
+.brand-name{color:white;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;line-height:1.3}
+.brand-name span{display:block;font-size:10px;font-weight:300;opacity:.7;letter-spacing:.6px;text-transform:uppercase}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.rol-tag{background:rgba(232,161,0,.2);border:1px solid rgba(232,161,0,.4);color:var(--gold);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:.4px;text-transform:uppercase}
+.avatar{width:34px;height:34px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--navy)}
+.logout-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.8);font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;transition:.2s}
+.logout-btn:hover{background:rgba(255,255,255,.15);color:white}
+
+/* ── LAYOUT ── */
+.layout{display:flex;margin-top:58px;height:calc(100vh - 58px);overflow:hidden}
+#main-sidebar{width:235px;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0}
+.main{flex:1;overflow-y:auto;overflow-x:auto;padding:28px 32px;background:var(--bg)}
+
+/* ── PAGE ── */
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);margin-bottom:8px}
+.breadcrumb span{color:var(--gold);font-weight:600}
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:16px}
+.page-header h1{font-family:'Outfit',sans-serif;font-size:26px;font-weight:700;color:var(--navy);letter-spacing:-.3px}
+.page-header p{font-size:13px;color:var(--text-2);margin-top:3px}
+
+/* ── CONTROLS BAR ── */
+.controls-bar{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.carrera-select{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:.18s;cursor:pointer;font-weight:600;min-width:280px}
+.carrera-select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,161,0,.15)}
+.btn-reload{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text-2);cursor:pointer;transition:.18s;display:flex;align-items:center;gap:6px}
+.btn-reload:hover{border-color:var(--gold);color:var(--gold)}
+.stats-chips{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+.chip{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;color:var(--text-2);display:flex;align-items:center;gap:5px}
+.chip strong{color:var(--navy)}
+
+/* ── SEMESTRE GRID (scroll horizontal) ── */
+.grid-wrapper{display:flex;gap:16px;min-width:max-content;padding-bottom:12px;align-items:flex-start}
+
+/* ── SEMESTRE COLUMN ── */
+.sem-col{width:210px;flex-shrink:0;display:flex;flex-direction:column;gap:10px}
+
+.sem-header{border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.sem-header-title{font-family:'Outfit',sans-serif;font-size:13px;font-weight:800;letter-spacing:.3px}
+.sem-count{font-size:11px;font-weight:700;opacity:.75;background:rgba(0,0,0,.08);padding:2px 7px;border-radius:20px}
+
+/* ── MATERIA CARD ── */
+.mat-card{background:var(--card);border:1.5px solid var(--border);border-radius:11px;padding:14px 14px 12px;cursor:default;transition:transform .18s,box-shadow .18s;position:relative;overflow:hidden;animation:fadeUp .35s ease both}
+.mat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:11px 11px 0 0}
+.mat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(13,27,62,.13)}
+
+.mat-clave{font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;opacity:.8}
+.mat-nombre{font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:var(--navy);line-height:1.35;margin-bottom:8px}
+.mat-footer{display:flex;align-items:center;justify-content:space-between}
+.mat-creditos{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;color:var(--text-2)}
+.mat-creditos span{color:var(--navy);font-size:12px}
+.mat-optativa{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
+
+/* ── COLORES POR SEMESTRE ── */
+.sem-1 .sem-header{background:var(--s1);color:var(--s1b)}
+.sem-1 .mat-card::before{background:var(--s1b)}
+.sem-1 .mat-clave{color:var(--s1b)}
+
+.sem-2 .sem-header{background:var(--s2);color:var(--s2b)}
+.sem-2 .mat-card::before{background:var(--s2b)}
+.sem-2 .mat-clave{color:var(--s2b)}
+
+.sem-3 .sem-header{background:var(--s3);color:var(--s3b)}
+.sem-3 .mat-card::before{background:var(--s3b)}
+.sem-3 .mat-clave{color:var(--s3b)}
+
+.sem-4 .sem-header{background:var(--s4);color:var(--s4b)}
+.sem-4 .mat-card::before{background:var(--s4b)}
+.sem-4 .mat-clave{color:var(--s4b)}
+
+.sem-5 .sem-header{background:var(--s5);color:var(--s5b)}
+.sem-5 .mat-card::before{background:var(--s5b)}
+.sem-5 .mat-clave{color:var(--s5b)}
+
+.sem-6 .sem-header{background:var(--s6);color:var(--s6b)}
+.sem-6 .mat-card::before{background:var(--s6b)}
+.sem-6 .mat-clave{color:var(--s6b)}
+
+.sem-7 .sem-header{background:var(--s7);color:var(--s7b)}
+.sem-7 .mat-card::before{background:var(--s7b)}
+.sem-7 .mat-clave{color:var(--s7b)}
+
+.sem-8 .sem-header{background:var(--s8);color:var(--s8b)}
+.sem-8 .mat-card::before{background:var(--s8b)}
+.sem-8 .mat-clave{color:var(--s8b)}
+
+.sem-9 .sem-header{background:var(--s9);color:var(--s9b)}
+.sem-9 .mat-card::before{background:var(--s9b)}
+.sem-9 .mat-clave{color:var(--s9b)}
+
+/* ── EMPTY / LOADER ── */
+.state-msg{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:72px 32px;color:var(--text-2);gap:12px;width:100%}
+.state-msg span{font-size:44px}
+.state-msg p{font-size:14px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--navy);color:white;padding:13px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transform:translateY(10px);transition:.3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.error{background:var(--danger)}
+.toast.success{background:var(--success)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="hbg" onclick="toggleSidebar()">☰</span>
+    <div class="brand">
+      <div class="brand-badge">TEC<br>NM</div>
+      <div class="brand-name">Tecnológico Nacional de México<span>Portal Administrador</span></div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="rol-tag">Administrador</span>
+    <div class="avatar">👤</div>
+    <button class="logout-btn" id="btn-logout">Cerrar sesión</button>
+  </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+  <div id="main-sidebar">
+    <div id="sidebar-container" style="display:flex;flex-direction:column;height:100%"></div>
+  </div>
+  <script src="sidebaradmi.js"></script>
+
+  <main class="main">
+    <div class="breadcrumb">Portal Administrador <span>›</span> <span>Kardex de Carrera</span></div>
+    <div class="page-header">
+      <div>
+        <h1><span style="color:var(--gold)">📋</span> Kardex de Carrera</h1>
+        <p>Plan de estudios organizado por semestre. Se actualiza automáticamente al cambiar materias.</p>
+      </div>
+    </div>
+
+    <!-- CONTROLES -->
+    <div class="controls-bar">
+      <select class="carrera-select" id="sel-carrera" onchange="cargarKardex()">
+        <option value="">— Selecciona una carrera —</option>
+      </select>
+      <button class="btn-reload" onclick="cargarKardex()" title="Recargar">
+        ↺ Actualizar
+      </button>
+      <div class="stats-chips" id="stats-chips" style="display:none">
+        <div class="chip">📚 Materias: <strong id="stat-total">0</strong></div>
+        <div class="chip">⭐ Créditos totales: <strong id="stat-creditos">0</strong></div>
+        <div class="chip">📅 Semestres: <strong id="stat-sems">0</strong></div>
+        <div class="chip">🔓 Optativas: <strong id="stat-opt">0</strong></div>
+      </div>
+    </div>
+
+    <!-- GRID -->
+    <div id="kardex-area">
+      <div class="state-msg">
+        <span>📋</span>
+        <p>Selecciona una carrera para ver su plan de estudios</p>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const API = '/admin';
+const HEADERS = () => ({
+  'Content-Type': 'application/json',
+  'x-admin-id': sessionStorage.getItem('ID_Administrador') || '1'
+});
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+(function () {
+  if (!sessionStorage.getItem('ID_Administrador')) window.location.href = '/login.html';
+  document.getElementById('btn-logout').addEventListener('click', () => {
+    sessionStorage.clear(); window.location.href = '/login.html';
+  });
+})();
+
+// ── Cargar carreras en el select ──────────────────────────────────────────────
+async function cargarCarreras() {
+  try {
+    const res = await fetch(`${API}/carreras`, { headers: HEADERS() });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const carreras = await res.json();
+    const sel = document.getElementById('sel-carrera');
+    carreras.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id_carrera;
+      opt.textContent = `${c.clave} — ${c.nombre}`;
+      sel.appendChild(opt);
+    });
+    // Si hay una carrera guardada en sesión, seleccionarla
+    const saved = sessionStorage.getItem('kardex_carrera');
+    if (saved) { sel.value = saved; cargarKardex(); }
+  } catch (e) {
+    toast('Error al cargar carreras: ' + e.message, 'error');
+  }
+}
+
+// ── Cargar y renderizar kardex ────────────────────────────────────────────────
+async function cargarKardex() {
+  const sel = document.getElementById('sel-carrera');
+  const idCarrera = sel.value;
+  const area = document.getElementById('kardex-area');
+
+  if (!idCarrera) {
+    area.innerHTML = `<div class="state-msg"><span>📋</span><p>Selecciona una carrera para ver su plan de estudios</p></div>`;
+    document.getElementById('stats-chips').style.display = 'none';
+    return;
+  }
+
+  sessionStorage.setItem('kardex_carrera', idCarrera);
+  area.innerHTML = `<div class="state-msg"><span style="font-size:32px">⏳</span><p>Cargando materias…</p></div>`;
+
+  try {
+    const res = await fetch(`${API}/kardex-carrera/${idCarrera}`, { headers: HEADERS() });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const materias = await res.json();
+
+    if (!materias.length) {
+      area.innerHTML = `<div class="state-msg"><span>🔍</span><p>Esta carrera no tiene materias registradas</p></div>`;
+      document.getElementById('stats-chips').style.display = 'none';
+      return;
+    }
+
+    renderKardex(materias);
+  } catch (e) {
+    area.innerHTML = `<div class="state-msg"><span>⚠️</span><p>Error al cargar: ${e.message}</p></div>`;
+    toast('Error: ' + e.message, 'error');
+  }
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function renderKardex(materias) {
+  // Agrupar por semestre
+  const porSemestre = {};
+  materias.forEach(m => {
+    const s = m.Semestre || 1;
+    if (!porSemestre[s]) porSemestre[s] = [];
+    porSemestre[s].push(m);
+  });
+
+  const semestres = Object.keys(porSemestre).map(Number).sort((a, b) => a - b);
+
+  // Estadísticas
+  const totalCreditos = materias.reduce((s, m) => s + (m.Creditos || 0), 0);
+  const totalOpt      = materias.filter(m => m.EsOptativa).length;
+  document.getElementById('stat-total').textContent    = materias.length;
+  document.getElementById('stat-creditos').textContent = totalCreditos;
+  document.getElementById('stat-sems').textContent     = semestres.length;
+  document.getElementById('stat-opt').textContent      = totalOpt;
+  document.getElementById('stats-chips').style.display = 'flex';
+
+  // Construir HTML
+  const colsHTML = semestres.map((sem, idx) => {
+    const mats = porSemestre[sem];
+    const semClass = `sem-${Math.min(sem, 9)}`;
+    const credsSem = mats.reduce((s, m) => s + (m.Creditos || 0), 0);
+
+    const cardsHTML = mats.map((m, i) => {
+      const delay = (idx * 30 + i * 40) + 'ms';
+      const optBadge = m.EsOptativa
+        ? `<span class="mat-optativa" style="background:#F5F3FF;color:#7C3AED">OPT</span>`
+        : `<span class="mat-optativa" style="background:#F0F9FF;color:#0369A1">OBL</span>`;
+      return `
+        <div class="mat-card" style="animation-delay:${delay}">
+          <div class="mat-clave">${m.Clave}</div>
+          <div class="mat-nombre">${m.Nombre}</div>
+          <div class="mat-footer">
+            <div class="mat-creditos">🎓 <span>${m.Creditos ?? 0}</span> créditos</div>
+            ${optBadge}
+          </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="sem-col ${semClass}">
+        <div class="sem-header">
+          <span class="sem-header-title">Semestre ${sem}</span>
+          <span class="sem-count">${mats.length} mat · ${credsSem} cr</span>
+        </div>
+        ${cardsHTML}
+      </div>`;
+  }).join('');
+
+  document.getElementById('kardex-area').innerHTML =
+    `<div class="grid-wrapper">${colsHTML}</div>`;
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function toast(msg, tipo = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast ' + tipo;
+  void el.offsetWidth;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+cargarCarreras();
+</script>
+</body>
+</html>
