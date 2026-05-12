@@ -262,6 +262,12 @@ function nuevaSolicitud() {
     document.querySelectorAll(".prioridad-pill").forEach(p => p.classList.remove("selected"));
     revisarFormulario();
 }
+
+// Cerrar sesión
+    document.querySelector(".logout-btn")?.addEventListener("click", () => {
+        sessionStorage.clear();
+        window.location.href = "../login.html";
+    });
 </script>
 </body>
 </html>

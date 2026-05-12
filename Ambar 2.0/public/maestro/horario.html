@@ -178,6 +178,12 @@ tbody tr:hover td{background:#F8FBFF}
 
   </main>
 </div>
-
+<script>
+// Cerrar sesión
+    document.querySelector(".logout-btn")?.addEventListener("click", () => {
+        sessionStorage.clear();
+        window.location.href = "../login.html";
+    });
+</script>
 </body>
 </html>

@@ -191,6 +191,11 @@ function actualizarContador() {
   const total = document.querySelectorAll("tbody tr").length;
   document.querySelector(".tc-count").textContent = total + " fuentes";
 }
+// Cerrar sesión
+    document.querySelector(".logout-btn")?.addEventListener("click", () => {
+        sessionStorage.clear();
+        window.location.href = "../login.html";
+    });
 </script>
 </body>
 </html>

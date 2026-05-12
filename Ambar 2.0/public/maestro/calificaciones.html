@@ -557,6 +557,11 @@ function toast(msg, type = 'info') {
   wrap.appendChild(t);
   setTimeout(() => t.remove(), 3500);
 }
+// Cerrar sesión
+    document.querySelector(".logout-btn")?.addEventListener("click", () => {
+        sessionStorage.clear();
+        window.location.href = "../login.html";
+    });
 </script>
 </body>
 </html>

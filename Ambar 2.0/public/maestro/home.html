@@ -282,6 +282,11 @@ function toggleAccordion(header) {
         header.nextElementSibling.classList.add("open");
     }
 }
+// Cerrar sesión
+    document.querySelector(".logout-btn")?.addEventListener("click", () => {
+        sessionStorage.clear();
+        window.location.href = "../login.html";
+    });
 </script>
 </body>
 </html>

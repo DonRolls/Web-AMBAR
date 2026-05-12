@@ -229,7 +229,11 @@ document.addEventListener("DOMContentLoaded", function() {
             fila.style.display = texto.includes(busqueda) ? "" : "none";
         });
     });
-
+// Cerrar sesión
+    document.querySelector(".logout-btn")?.addEventListener("click", () => {
+        sessionStorage.clear();
+        window.location.href = "../login.html";
+    });
     // Inicializar contador al cargar
     actualizarContador();
 });
