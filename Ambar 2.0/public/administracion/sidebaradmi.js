@@ -6,13 +6,14 @@
     const paginaActual = path.split('/').pop().replace('.html', '') || 'inicio_admin';
 
     const enlacesPrincipales = [
-        { texto: 'Inicio',         icono: '🏠', url: 'inicio_admin.html',   id: 'inicio_admin' },
-        { texto: 'Usuarios',       icono: '👥', url: 'usuarios.html',        id: 'usuarios' },
-        { texto: 'Materias',       icono: '📚', url: 'editarmateria.html',   id: 'editarmateria' },
+        { texto: 'Inicio',         icono: '🏠', url: 'inicio_admin.html',  id: 'inicio_admin'  },
+        { texto: 'Usuarios',       icono: '👥', url: 'usuarios.html',       id: 'usuarios'      },
+        { texto: 'Materias',       icono: '📚', url: 'editarmateria.html',  id: 'editarmateria' },
+        { texto: 'Kardex Carrera', icono: '📋', url: 'kardex_admin.html',   id: 'kardex_admin'  },
     ];
 
     const enlacesInferiores = [
-        { texto: 'Soporte',     icono: '❓', url: 'Soporte.html', id: 'Soporte' },
+        { texto: 'Soporte', icono: '❓', url: 'Soporte.html', id: 'Soporte' },
     ];
 
     function isActive(id) {

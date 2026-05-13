@@ -138,6 +138,38 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 
 @media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}}
 @media(max-width:768px){.main{padding:16px}.welcome-banner{flex-direction:column;gap:16px;text-align:center}.wb-right{text-align:center}}
+
+.toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: var(--navy);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    font-family: 'DM Sans', sans-serif;
+}
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+.toast.success {
+    background: var(--success);
+}
+.toast.error {
+    background: var(--danger);
+}
+.toast.warning {
+    background: var(--warn);
+}
 </style>
 </head>
 <body>
@@ -304,6 +336,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
                 <div class="qa-sub">Tickets · Reportes</div>
               </div>
             </a>
+            <a class="qa-btn" href="#" id="btn-iniciar-periodo">
+              <div class="qa-icon" style="background:#ECFDF5;color:var(--success)">▶</div>
+              <div><div class="qa-text">Iniciar Período</div><div class="qa-sub">Habilitar inscripciones</div></div>
+            </a>
+            <a class="qa-btn" href="#" id="btn-finalizar-periodo">
+              <div class="qa-icon" style="background:#FEF2F2;color:var(--danger)">⏹️</div>
+              <div><div class="qa-text">Finalizar Período</div><div class="qa-sub">Cerrar inscripciones</div></div>
+            </a>
           </div>
         </div>
 
@@ -422,6 +462,17 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 
+function toast(message, type = '') {
+    const toastEl = document.getElementById('toast-message');
+    if (!toastEl) return;
+    toastEl.textContent = message;
+    toastEl.className = 'toast ' + type;
+    void toastEl.offsetWidth; // fuerza reflow
+    toastEl.classList.add('show');
+    setTimeout(() => {
+        toastEl.classList.remove('show');
+    }, 3200);
+}
 async function loadStats() {
   try {
 
@@ -526,6 +577,18 @@ async function loadRecentUsers() {
   }
 }
 
+document.getElementById('btn-iniciar-periodo').addEventListener('click', async (e) => {
+    e.preventDefault();
+    const res = await fetch('/admin/periodo-carga/iniciar', { method: 'POST', headers: HEADERS() });
+    const data = await res.json();
+    toast(data.success ? 'Período iniciado' : 'Error', data.success ? 'success' : 'error');
+});
+document.getElementById('btn-finalizar-periodo').addEventListener('click', async (e) => {
+    e.preventDefault();
+    const res = await fetch('/admin/periodo-carga/finalizar', { method: 'POST', headers: HEADERS() });
+    const data = await res.json();
+    toast(data.success ? 'Período finalizado' : 'Error', data.success ? 'success' : 'error');
+});
 
 function animateCount(id, target) {
   const el = document.getElementById(id);
@@ -543,6 +606,7 @@ function animateCount(id, target) {
   }, 28);
 }
 </script>
+<div id="toast-message" class="toast"></div>
 </body>
 </html>
 //zeus deja de romper todo por favor, ya casi acabamos :c

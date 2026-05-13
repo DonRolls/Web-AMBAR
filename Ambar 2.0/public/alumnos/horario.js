@@ -88,6 +88,27 @@ document.addEventListener("DOMContentLoaded", async () => {
             tableBody.appendChild(tr);
         });
  
+        // 5. Detectar materias sin horario (para que no sean invisibles)
+        const materiasUnicas = [...new Set(data.map(d => d.Materia))];
+        const materiasConHorario = [...new Set(data.filter(d => d.DiaSemana).map(d => d.Materia))];
+        const sinHorario = materiasUnicas.filter(m => !materiasConHorario.includes(m));
+ 
+        if (sinHorario.length > 0) {
+            const warningRow = document.createElement("tr");
+            warningRow.innerHTML = `
+                <td colspan="8" style="background:#FFFBEB; padding:15px; border-top:2px solid #F59E0B">
+                    <div style="display:flex; align-items:center; gap:10px; color:#92400E; font-size:13px">
+                        <span>⚠️</span>
+                        <div>
+                            <strong>Materias sin horario asignado:</strong> ${sinHorario.join(", ")}. 
+                            <br><small>Estas materias están en tu carga académica pero no tienen salón o profesor asignado todavía.</small>
+                        </div>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(warningRow);
+        }
+ 
     } catch (err) {
         console.error("Error al cargar horario:", err);
         tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:red">Error al conectar con el servidor.</td></tr>`;

@@ -361,9 +361,76 @@ router.post("/coordinadores/import/save", authAdmin, async (req, res) => {
     }
 });
 
+/* 
+   KARDEX DE CARRERA
+   GET /admin/kardex-carrera/:idCarrera
+   Devuelve todas las materias de una carrera,
+   ordenadas por Semestre y luego por Nombre.
+*/
+router.get("/kardex-carrera/:idCarrera", authAdmin, asyncH(async (req, res) => {
+    const pool = await getPool();
+    const result = await pool.request()
+        .input("id_carrera", sql.Int, parseInt(req.params.idCarrera))
+        .query(`
+            SELECT
+                ID_Materia,
+                Clave,
+                Nombre,
+                Creditos,
+                EsOptativa,
+                NumUnidades,
+                Semestre
+            FROM Materias
+            WHERE id_carrera = @id_carrera
+            ORDER BY Semestre ASC, Nombre ASC
+        `);
+    res.json(result.recordset);
+}));
+
+/* CARRERAS  (para el select del kardex)
+   GET /admin/carreras */
+router.get("/carreras", authAdmin, asyncH(async (req, res) => {
+    const pool = await getPool();
+    const result = await pool.request()
+        .query(`SELECT id_carrera, clave, nombre FROM carrera ORDER BY nombre`);
+    res.json(result.recordset);
+}));
+
+/* ─── Manejador de errores ─────────────────────────────────────────────────── */
 router.use((err, req, res, next) => {
     console.error("[Admin Route Error]", err.message);
     res.status(500).json({ error: "Error interno del servidor", detail: err.message });
 });
  
+
+
+
+// Iniciar período de inscripciones
+router.post("/periodo-carga/iniciar", authAdmin, asyncH(async (req, res) => {
+    const pool = await getPool();
+    await pool.request()
+        .input("Activar", sql.Bit, 1)
+        .execute("sp_ControlPeriodoCarga");
+    res.json({ success: true, message: "Período de inscripciones iniciado" });
+}));
+
+// Finalizar período de inscripciones
+router.post("/periodo-carga/finalizar", authAdmin, asyncH(async (req, res) => {
+    const pool = await getPool();
+    await pool.request()
+        .input("Activar", sql.Bit, 0)
+        .execute("sp_ControlPeriodoCarga");
+    res.json({ success: true, message: "Período de inscripciones finalizado" });
+}));
+
+// Obtener estado actual del período
+router.get("/periodo-carga/estado", authAdmin, asyncH(async (req, res) => {
+    const pool = await getPool();
+    const result = await pool.request().query(`
+        SELECT TOP 1 Activo, FechaInicio, FechaFin
+        FROM PeriodoCargaMaterias
+        WHERE Activo = 1
+    `);
+    res.json({ abierto: result.recordset.length > 0, ...result.recordset[0] });
+}));
 module.exports = router;

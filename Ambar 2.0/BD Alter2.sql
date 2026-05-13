@@ -99,3 +99,45 @@ GO
 
 PRINT 'Cambios ejecutados correctamente.';
 GO
+
+
+
+
+
+
+-- sp_ControlPeriodoCarga
+CREATE OR ALTER PROCEDURE sp_ControlPeriodoCarga
+    @Activar BIT,
+    @ID_PeriodoEscolar INT = NULL  -- Si es NULL, usa el período activo actual
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF @Activar = 1
+    BEGIN
+        -- Desactivar cualquier período activo previo
+        UPDATE PeriodoCargaMaterias SET Activo = 0 WHERE Activo = 1;
+        
+        -- Si no se especifica período, tomar el período escolar activo
+        IF @ID_PeriodoEscolar IS NULL
+            SELECT @ID_PeriodoEscolar = ID_Periodo FROM PeriodosEscolares WHERE Activo = 1;
+        
+        -- Insertar nuevo período de carga (o actualizar si ya existe uno para ese período escolar)
+        IF EXISTS (SELECT 1 FROM PeriodoCargaMaterias WHERE ID_Periodo_Escolar = @ID_PeriodoEscolar)
+            UPDATE PeriodoCargaMaterias SET Activo = 1, FechaInicio = GETDATE(), FechaFin = DATEADD(day, 30, GETDATE())
+            WHERE ID_Periodo_Escolar = @ID_PeriodoEscolar;
+        ELSE
+            INSERT INTO PeriodoCargaMaterias (ID_Periodo_Escolar, FechaInicio, FechaFin, Activo)
+            VALUES (@ID_PeriodoEscolar, GETDATE(), DATEADD(day, 30, GETDATE()), 1);
+    END
+    ELSE
+    BEGIN
+        UPDATE PeriodoCargaMaterias SET Activo = 0 WHERE Activo = 1;
+    END
+END
+GO
+
+
+
+INSERT INTO PeriodoCargaMaterias (ID_Periodo_Escolar, FechaInicio, FechaFin, Activo)
+SELECT TOP 1 ID_Periodo, GETDATE(), DATEADD(day, 30, GETDATE()), 0
+FROM PeriodosEscolares WHERE Activo = 1;

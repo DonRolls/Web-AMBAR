@@ -1,85 +1,194 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    // 1. VERIFICACIÓN DE SESIÓN
-    // Revisamos si el número de control existe en el almacenamiento local del navegador.
-    // Si no existe, significa que no ha hecho login y lo regresamos a esa pantalla.
     const nctrl = sessionStorage.getItem("N_ctrl");
-    if (!nctrl) {
-        window.location.href = "/login.html";
-        return;
-    }
+    if (!nctrl) return;
 
-    // 2. REFERENCIAS AL DOM (Elementos del HTML)
+    // Elementos del DOM
     const nombreEl = document.querySelector(".stu-nombre");
     const idEl = document.querySelector(".stu-id");
     const carreraEl = document.querySelector(".dept-value");
-    
-    const avisoEl = document.querySelector(".aviso");
-    const avisoIcon = document.querySelector(".aviso-icon");
-    // Seleccionamos el texto que está justo después del icono en el div de aviso
-    const avisoTexto = avisoEl.querySelector("span:nth-child(2)"); 
-    
-    const btnLogout = document.querySelector(".logout-btn");
-    const btnTicket = document.querySelector(".btn-ticket");
-    const btnHorario = document.querySelector(".btn-horario");
+    const avisoEl = document.querySelector("#aviso-periodo");
+    const gruposDiv = document.getElementById("lista-grupos");
+    const resumenDiv = document.getElementById("resumen-seleccion");
+    const contadorSpan = document.getElementById("contador-materias");
+    const creditosSpan = document.getElementById("creditos-totales");
+    const btnInscribir = document.getElementById("btn-inscribir");
 
-    // 3. CARGAR DATOS DEL ALUMNO
+    // Estado
+    let gruposDisponibles = [];
+    let seleccionados = new Map(); // idGrupo -> {creditos, horario}
+    let periodoAbierto = false;
+
+    // Cargar datos del alumno
     try {
-        const resAlumno = await fetch(`http://localhost:3000/alumno/${nctrl}`);
+        const resAlumno = await fetch(`/alumno/${nctrl}`);
         if (resAlumno.ok) {
             const alumno = await resAlumno.json();
-            // Actualizamos el HTML con los datos de la Base de Datos
             nombreEl.textContent = `${alumno.Nombre} ${alumno.Apellidos}`.toUpperCase();
             idEl.textContent = alumno.N_ctrl;
             carreraEl.textContent = alumno.Carrera.toUpperCase();
-        } else {
-            console.error("No se encontró el alumno en la base de datos.");
         }
-    } catch (error) {
-        console.error("Error al conectar con la API /alumno:", error);
+    } catch (err) { console.error(err); }
+
+    // Verificar período de carga
+    try {
+        const resPeriodo = await fetch("/periodo-carga");
+        const data = await resPeriodo.json();
+        periodoAbierto = data.abierto;
+        if (periodoAbierto) {
+            avisoEl.style.borderColor = "rgba(16,185,129,.5)";
+            avisoEl.querySelector("span:first-child").textContent = "✅";
+            avisoEl.querySelector("span:last-child").textContent = "Período de carga ABIERTO. Puedes seleccionar tus materias.";
+        } else {
+            avisoEl.querySelector("span:last-child").textContent = "Período de carga CERRADO. No es posible inscribirse.";
+            gruposDiv.innerHTML = "<p>No hay período activo.</p>";
+            return;
+        }
+    } catch (err) { console.error(err); }
+
+    if (!periodoAbierto) return;
+
+    // Cargar grupos disponibles
+    async function cargarGrupos() {
+        gruposDiv.innerHTML = "<p>Cargando grupos...</p>";
+        try {
+            const res = await fetch(`/grupos-disponibles/${nctrl}`);
+            const data = await res.json();
+            if (!data.abierto) {
+                gruposDiv.innerHTML = "<p>El período de inscripciones se cerró.</p>";
+                return;
+            }
+            gruposDisponibles = data.grupos;
+            if (!gruposDisponibles.length) {
+                gruposDiv.innerHTML = "<p>No hay grupos disponibles para tu carrera o ya cursaste todas las materias.</p>";
+                return;
+            }
+            renderGrupos(gruposDisponibles);
+        } catch (err) {
+            gruposDiv.innerHTML = `<p style="color:var(--danger)">Error: ${err.message}</p>`;
+        }
     }
 
-    // 4. VERIFICAR PERIODO DE CARGA DE MATERIAS
-    try {
-        const resPeriodo = await fetch("http://localhost:3000/periodo-carga");
-        if (resPeriodo.ok) {
-            const data = await resPeriodo.json();
-            
-            if (data.abierto) {
-                // Si está abierto, cambiamos el estilo del aviso a un verde "Éxito"
-                avisoEl.style.borderColor = "rgba(16, 185, 129, 0.5)"; 
-                avisoIcon.textContent = "✅";
-                avisoTexto.textContent = "El periodo de carga de materias está ABIERTO. Ya puedes seleccionar tus grupos.";
-                avisoTexto.style.color = "#10B981"; // Texto verde oscuro
-                
-                // Nota: Aquí en el futuro puedes inyectar mediante JS la tabla o lista
-                // de materias disponibles para que el alumno las seleccione.
-            } else {
-                // Si está cerrado, mantenemos el estilo de advertencia que ya tienes
-                avisoEl.style.borderColor = "rgba(245,158,11,.4)";
-                avisoIcon.textContent = "ℹ️";
-                avisoTexto.textContent = "Fuera de horario de carga de materias.";
+    function renderGrupos(grupos) {
+        gruposDiv.innerHTML = grupos.map(grupo => `
+            <div class="grupo-card" data-id="${grupo.ID_Grupo}" data-creditos="${grupo.Creditos}" data-horario="${escapeHtml(grupo.Horario || '')}">
+                <div style="font-weight:800;">${grupo.Clave} - ${grupo.Nombre}</div>
+                <div style="font-size:12px; margin:5px 0;">👨‍🏫 ${grupo.Docente} | Aula ${grupo.Aula}</div>
+                <div style="font-size:11px; color:var(--text-2);">📅 ${grupo.Horario || 'Sin horario'}</div>
+                <div style="font-size:11px;">Créditos: ${grupo.Creditos} | Cupo: ${grupo.Inscritos}/${grupo.MaxAlumnos}</div>
+            </div>
+        `).join('');
+
+        document.querySelectorAll('.grupo-card').forEach(card => {
+            card.addEventListener('click', () => toggleSeleccion(card));
+            if (seleccionados.has(parseInt(card.dataset.id))) {
+                card.classList.add('selected');
+            }
+        });
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function hayConflictoHorario(horario1, horario2) {
+        if (!horario1 || !horario2) return false;
+        function parseHorario(horarioStr) {
+            const bloques = horarioStr.split(',').map(b => b.trim());
+            const parsed = [];
+            for (const bloque of bloques) {
+                const match = bloque.match(/^(\w+)\s+(\d{1,2}:\d{2})-(\d{1,2}:\d{2})$/);
+                if (match) {
+                    const dia = match[1];
+                    const inicioMin = timeToMinutes(match[2]);
+                    const finMin = timeToMinutes(match[3]);
+                    parsed.push({ dia, inicioMin, finMin });
+                }
+            }
+            return parsed;
+        }
+        function timeToMinutes(timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+        const horarios1 = parseHorario(horario1);
+        const horarios2 = parseHorario(horario2);
+        for (const h1 of horarios1) {
+            for (const h2 of horarios2) {
+                if (h1.dia === h2.dia && h1.inicioMin < h2.finMin && h1.finMin > h2.inicioMin) {
+                    return true;
+                }
             }
         }
-    } catch (error) {
-        console.error("Error al consultar el periodo de carga:", error);
+        return false;
     }
 
-    // 5. EVENTOS DE LOS BOTONES
-    
-    // Cerrar sesión
-    btnLogout.addEventListener("click", () => {
-        sessionStorage.removeItem("N_ctrl"); // Borramos la sesión
-        // Si guardaste más datos (como el rol), puedes usar sessionStorage.clear();
-        window.location.href = "/login.html";
+    function toggleSeleccion(card) {
+        const id = parseInt(card.dataset.id);
+        const creditos = parseInt(card.dataset.creditos);
+        const horario = card.dataset.horario;
+
+        if (seleccionados.has(id)) {
+            seleccionados.delete(id);
+            card.classList.remove('selected');
+        } else {
+            // Validar límite de materias
+            if (seleccionados.size >= 8) {
+                alert("Máximo 8 materias permitidas.");
+                return;
+            }
+            // Validar créditos
+            let sumaCreditos = Array.from(seleccionados.values()).reduce((sum, g) => sum + g.creditos, 0) + creditos;
+            if (sumaCreditos > 36) {
+                alert("No puedes exceder 36 créditos totales.");
+                return;
+            }
+            // Validar conflicto de horario con las ya seleccionadas
+            for (let [idSel, gSel] of seleccionados.entries()) {
+                if (hayConflictoHorario(horario, gSel.horario)) {
+                    alert("Conflicto de horario con otra materia seleccionada.");
+                    return;
+                }
+            }
+            seleccionados.set(id, { creditos, horario });
+            card.classList.add('selected');
+        }
+        actualizarResumen();
+    }
+
+    function actualizarResumen() {
+        const totalMaterias = seleccionados.size;
+        const totalCreditos = Array.from(seleccionados.values()).reduce((sum, g) => sum + g.creditos, 0);
+        contadorSpan.textContent = totalMaterias;
+        creditosSpan.textContent = totalCreditos;
+        resumenDiv.style.display = totalMaterias > 0 ? "flex" : "none";
+    }
+
+    btnInscribir.addEventListener('click', async () => {
+        if (seleccionados.size === 0) return;
+        const ids = Array.from(seleccionados.keys());
+        if (!confirm(`¿Inscribirte en ${ids.length} materia(s) (${creditosSpan.textContent} créditos)?`)) return;
+        try {
+            const res = await fetch('/inscribir-masiva', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ N_ctrl: nctrl, idsGrupos: ids })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("Inscripción exitosa. Serás redirigido a tu horario.");
+                window.location.href = "horario.html";
+            } else {
+                alert("Error: " + data.error);
+            }
+        } catch (err) {
+            alert("Error de red: " + err.message);
+        }
     });
 
-    // Redirección a Tickets
-    btnTicket.addEventListener("click", () => {
-        window.location.href = "tickets.html"; 
-    });
-
-    // Redirección a Horario
-    btnHorario.addEventListener("click", () => {
-        window.location.href = "horario.html"; 
-    });
+    cargarGrupos();
 });
