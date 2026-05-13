@@ -23,7 +23,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .logout-btn:hover{background:rgba(255,255,255,.15);color:white}
 .layout{display:flex;margin-top:58px;height:calc(100vh - 58px);overflow:hidden}
 #main-sidebar{width:235px;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0}
-.main{flex:1;overflow-y:auto;padding:28px 32px;background:var(--bg)}
+.main{flex:1;overflow-y:auto;overflow-x:auto;padding:28px 32px;background:var(--bg)}
 .breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);margin-bottom:8px}
 .breadcrumb span{color:var(--gold);font-weight:600}
 .page-header{margin-bottom:6px;animation:fadeUp .5s ease both}
@@ -51,22 +51,50 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .ley-item{display:flex;align-items:center;gap:5px}
 .ley-box{width:14px;height:14px;border-radius:4px;flex-shrink:0}
 .lb-ap{background:#DCFCE7;border:1px solid #86efac}
-.lb-re{background:#FEE2E2;border:1px solid #fca5a5}
-.lb-ac{background:#FEF9C3;border:1px solid #fde047}
+.lb-re{background:#FEF9C3;border:1px solid #fde047} /* Amarillo */
+.lb-re-critico{background:#FEE2E2;border:1px solid #fca5a5} /* Rojo */
 .lb-pc{background:#F1F5F9;border:1px solid var(--border)}
 .lb-op{background:#FEF3C7;border:1px solid #fcd34d}
-/* GRID */
-.kardex-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:8px;animation:fadeUp .5s ease .16s both}
-.mc{border-radius:10px;padding:9px 10px;font-size:11px;line-height:1.45;border:1px solid transparent;transition:.15s}
+/* GRID REESTRUCTURADO */
+.kardex-grid{
+    display: grid;
+    grid-template-columns: repeat(9, 1fr); /* 9 semestres */
+    gap: 12px;
+    align-items: start;
+    min-width: 1200px; /* Asegura que no se amontonen */
+    animation: fadeUp .5s ease .16s both;
+}
+.semestre-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 12px;
+    padding: 8px;
+    border: 1px dashed var(--border);
+}
+.sem-header {
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--navy);
+    text-align: center;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--gold);
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+}
+.mc{border-radius:10px;padding:9px 10px;font-size:10px;line-height:1.4;border:1px solid transparent;transition:.15s;background:white}
 .mc:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
-.mc .clave{font-weight:800;font-size:11.5px;margin-bottom:2px;font-family:'Outfit',sans-serif}
-.mc .nombre{font-weight:500;margin-bottom:4px;font-size:10.5px}
-.mc .detalle{font-size:10.5px;opacity:.85}
-.mc .icon{font-size:10px;margin-top:3px;opacity:.7}
+.mc .clave{font-weight:800;font-size:10.5px;margin-bottom:2px;font-family:'Outfit',sans-serif}
+.mc .nombre{font-weight:600;margin-bottom:4px;font-size:10px;display:block;height:2.8em;overflow:hidden;line-height:1.2}
+.mc .detalle{font-size:9.5px;opacity:.85}
+.mc .icon{font-size:9px;margin-top:3px;opacity:.7;font-weight:700}
 .ap{background:#DCFCE7;border-color:#86efac;color:#14532d}
-.re{background:#FEE2E2;border-color:#fca5a5;color:#991b1b}
-.ac{background:#FEF9C3;border-color:#fde047;color:#713f12}
-.pc{background:#F1F5F9;border-color:var(--border);color:var(--text-2)}
+.re{background:#FEF9C3;border-color:#fde047;color:#713f12} /* Amarillo */
+.re-critico{background:#FEE2E2;border-color:#fca5a5;color:#991b1b} /* Rojo */
+.pc{background:#FFFFFF;border-color:var(--border);color:var(--text-2)}
 .op{background:#FEF3C7;border-color:#fcd34d;color:#78350f}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 </style>
@@ -128,8 +156,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 
     <div class="leyenda">
       <div class="ley-item"><div class="ley-box lb-ap"></div>Aprobada</div>
-      <div class="ley-item"><div class="ley-box lb-re"></div>Reprobada</div>
-      <div class="ley-item"><div class="ley-box lb-ac"></div>Carga actual</div>
+      <div class="ley-item"><div class="ley-box lb-re"></div>Reprobada (1-2)</div>
+      <div class="ley-item"><div class="ley-box lb-re-critico"></div>Reprobada (>2)</div>
       <div class="ley-item"><div class="ley-box lb-pc"></div>Por cursar</div>
       <div class="ley-item"><div class="ley-box lb-op"></div>Optativa</div>
     </div>

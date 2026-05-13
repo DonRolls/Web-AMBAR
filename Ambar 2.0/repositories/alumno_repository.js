@@ -65,7 +65,7 @@ const alumnoRepository = {
                 JOIN Grupos g ON i.ID_Grupo = g.ID_Grupo
                 JOIN Materias m ON g.ID_Materia = m.ID_Materia
                 JOIN Docentes d ON g.ID_Docente = d.ID_Docente
-                JOIN HorarioGrupo hg ON hg.ID_Grupo = g.ID_Grupo
+                LEFT JOIN HorarioGrupo hg ON hg.ID_Grupo = g.ID_Grupo
                 JOIN PeriodosEscolares pe ON g.ID_Periodo = pe.ID_Periodo
                 WHERE i.N_ctrl = @N_ctrl AND pe.Activo = 1
                 ORDER BY hg.HoraInicio, hg.DiaSemana
@@ -109,15 +109,36 @@ const alumnoRepository = {
         const result = await pool.request()
             .input("N_ctrl", sql.NVarChar, nctrl)
             .query(`
-                SELECT pe.Nombre AS Periodo, k.Semestre,
-                       m.Clave, m.Nombre AS Materia,
-                       m.Creditos, m.EsOptativa,
-                       k.CalFinal, k.Estatus
-                FROM Kardex k
-                JOIN Materias m ON k.ID_Materia = m.ID_Materia
-                JOIN PeriodosEscolares pe ON k.ID_Periodo = pe.ID_Periodo
-                WHERE k.N_ctrl = @N_ctrl
-                ORDER BY k.Semestre, pe.FechaInicio, m.Nombre
+                WITH MateriasCarrera AS (
+                    SELECT m.ID_Materia, m.Clave, m.Nombre AS Materia, 
+                           m.Creditos, m.EsOptativa, m.Semestre
+                    FROM Materias m
+                    JOIN Alumnos a ON a.id_carrera = m.id_carrera
+                    WHERE a.N_ctrl = @N_ctrl
+                ),
+                KStats AS (
+                    SELECT 
+                        ID_Materia,
+                        COUNT(*) AS Intentos,
+                        MAX(CASE WHEN Estatus = 'APROBADO' THEN 1 ELSE 0 END) AS Aprobada,
+                        MAX(CalFinal) AS UltimaCal
+                    FROM Kardex
+                    WHERE N_ctrl = @N_ctrl
+                    GROUP BY ID_Materia
+                )
+                SELECT 
+                    mc.Clave, mc.Materia, mc.Creditos, mc.EsOptativa, mc.Semestre,
+                    ISNULL(ks.Intentos, 0) AS Intentos,
+                    ks.UltimaCal AS CalFinal,
+                    CASE 
+                        WHEN ks.Aprobada = 1 THEN 'APROBADO'
+                        WHEN ks.Intentos >= 3 AND ks.Aprobada = 0 THEN 'REPROBADO_CRITICO'
+                        WHEN ks.Intentos > 0 AND ks.Aprobada = 0 THEN 'REPROBADO'
+                        ELSE 'POR_CURSAR'
+                    END AS Estatus
+                FROM MateriasCarrera mc
+                LEFT JOIN KStats ks ON mc.ID_Materia = ks.ID_Materia
+                ORDER BY mc.Semestre, mc.Materia
             `);
         return result.recordset;
     },

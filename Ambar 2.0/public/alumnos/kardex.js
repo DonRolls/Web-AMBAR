@@ -10,19 +10,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById('avatar-initials').textContent = iniciales || '?';
 
     // Logout
-    document.getElementById('btn-logout').addEventListener('click', logoutSession);
+    const btnLogout = document.getElementById('btn-logout') || document.querySelector('.logout-btn');
+    btnLogout?.addEventListener('click', logoutSession);
 
     // ERROR 5 CORREGIDO: usar los IDs definidos en el HTML, no selectores frágiles
-    const nombreEl      = document.getElementById('nombre-el');
-    const idEl          = document.getElementById('id-el');
-    const carreraEl     = document.getElementById('carrera-el');
-    const espEl         = document.getElementById('esp-el');
-    const semEl         = document.getElementById('sem-el');
-    const estatusEl     = document.getElementById('estatus-el');
-    const credAcumEl    = document.getElementById('cred-acum-el');
-    const progresoFill  = document.getElementById('progreso-fill');
+    const nombreEl = document.getElementById('nombre-el');
+    const idEl = document.getElementById('id-el');
+    const carreraEl = document.getElementById('carrera-el');
+    const espEl = document.getElementById('esp-el');
+    const semEl = document.getElementById('sem-el');
+    const estatusEl = document.getElementById('estatus-el');
+    const credAcumEl = document.getElementById('cred-acum-el');
+    const progresoFill = document.getElementById('progreso-fill');
     const progresoTexto = document.getElementById('progreso-texto');
-    const kardexGrid    = document.getElementById('kardex-grid');
+    const kardexGrid = document.getElementById('kardex-grid');
 
     const CREDITOS_TOTALES = 260;
 
@@ -33,11 +34,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const a = await res.json();
 
-        nombreEl.textContent  = `${a.Nombre} ${a.Apellidos}`.toUpperCase();
-        idEl.textContent      = a.N_ctrl;
-        carreraEl.textContent = a.Carrera  || '—';
-        espEl.textContent     = a.Especialidad || 'TRONCO COMÚN';
-        semEl.textContent     = a.Semestre ?? '—';
+        nombreEl.textContent = `${a.Nombre} ${a.Apellidos}`.toUpperCase();
+        idEl.textContent = a.N_ctrl;
+        carreraEl.textContent = a.Carrera || '—';
+        espEl.textContent = a.Especialidad || 'TRONCO COMÚN';
+        semEl.textContent = a.Semestre ?? '—';
         estatusEl.textContent = (a.Estatus || '—').toUpperCase();
 
     } catch (err) {
@@ -59,51 +60,69 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        let creditosAprobados = 0;
+        // 2.1 AGRUPAR POR SEMESTRE Y DETERMINAR EL MÁXIMO
+        const semestres = {};
+        let maxSemestre = 9; // Por defecto al menos 9
 
         materias.forEach(m => {
-            // ERROR 6 CORREGIDO: lógica de clases sin concatenación
-            // Una materia optativa tiene su propia clase; si además está aprobada/reprobada
-            // la clase base define el color principal y 'op' solo añade el ícono de estrella
-            let claseBase;
-            const esOptativa = m.EsOptativa === true || m.EsOptativa === 1;
-
-            switch ((m.Estatus || '').toUpperCase()) {
-                case 'APROBADO':
-                    claseBase = esOptativa ? 'op' : 'ap';
-                    // ERROR 7 CORREGIDO: verificar que Creditos sea número antes de sumar
-                    creditosAprobados += Number(m.Creditos) || 0;
-                    break;
-                case 'REPROBADO':
-                    claseBase = 're';
-                    break;
-                case 'CURSANDO':
-                case 'EN CURSO':
-                    claseBase = 'ac';
-                    break;
-                default:
-                    claseBase = 'pc'; // Por cursar
-            }
-
-            const calDisplay = m.CalFinal != null
-                ? `Cal: ${Number(m.CalFinal).toFixed(2)} · `
-                : '';
-
-            const card = document.createElement('div');
-            card.className = `mc ${claseBase}`;
-            card.innerHTML = `
-                <div class="clave">${m.Clave}</div>
-                <div class="nombre">${m.Materia}</div>
-                <div class="detalle">${calDisplay}Cr: ${m.Creditos ?? '—'}</div>
-                ${esOptativa ? '<div class="icon">★ Optativa</div>' : ''}
-            `;
-            kardexGrid.appendChild(card);
+            const s = parseInt(m.Semestre) || 1;
+            if (s > maxSemestre) maxSemestre = s;
+            if (!semestres[s]) semestres[s] = [];
+            semestres[s].push(m);
         });
+
+        // Ajustar el grid CSS dinámicamente si hay más de 9 semestres
+        kardexGrid.style.gridTemplateColumns = `repeat(${maxSemestre}, 1fr)`;
+
+        let creditosAprobados = 0;
+
+        // 2.2 CREAR COLUMNAS (Dinámico hasta maxSemestre)
+        for (let s = 1; s <= maxSemestre; s++) {
+            const col = document.createElement('div');
+            col.className = 'semestre-col';
+            col.innerHTML = `<div class="sem-header">Semestre ${s}</div>`;
+
+            const listaMaterias = semestres[s] || [];
+            listaMaterias.forEach(m => {
+                let claseBase;
+                const esOptativa = m.EsOptativa === true || m.EsOptativa === 1;
+
+                switch ((m.Estatus || '').toUpperCase()) {
+                    case 'APROBADO':
+                        claseBase = esOptativa ? 'op' : 'ap';
+                        creditosAprobados += Number(m.Creditos) || 0;
+                        break;
+                    case 'REPROBADO_CRITICO':
+                        claseBase = 're-critico';
+                        break;
+                    case 'REPROBADO':
+                        claseBase = 're';
+                        break;
+                    default:
+                        claseBase = 'pc';
+                }
+
+                const calDisplay = m.CalFinal != null
+                    ? `Cal: ${Number(m.CalFinal).toFixed(1)} · `
+                    : '';
+
+                const card = document.createElement('div');
+                card.className = `mc ${claseBase}`;
+                card.innerHTML = `
+                    <div class="clave">${m.Clave}</div>
+                    <div class="nombre" title="${m.Materia}">${m.Materia}</div>
+                    <div class="detalle">${calDisplay}Cr: ${m.Creditos ?? '—'}</div>
+                    ${esOptativa ? '<div class="icon">★ ESPECIALIDAD</div>' : ''}
+                `;
+                col.appendChild(card);
+            });
+            kardexGrid.appendChild(col);
+        }
 
         // 3. BARRA DE PROGRESO
         credAcumEl.textContent = creditosAprobados;
         const porcentaje = Math.min((creditosAprobados / CREDITOS_TOTALES) * 100, 100).toFixed(2);
-        progresoFill.style.width  = `${porcentaje}%`;
+        progresoFill.style.width = `${porcentaje}%`;
         progresoTexto.textContent = `${porcentaje}%`;
 
     } catch (err) {
