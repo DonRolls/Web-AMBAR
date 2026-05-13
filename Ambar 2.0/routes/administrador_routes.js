@@ -402,4 +402,35 @@ router.use((err, req, res, next) => {
     res.status(500).json({ error: "Error interno del servidor", detail: err.message });
 });
  
+
+
+
+// Iniciar período de inscripciones
+router.post("/periodo-carga/iniciar", authAdmin, asyncH(async (req, res) => {
+    const pool = await getPool();
+    await pool.request()
+        .input("Activar", sql.Bit, 1)
+        .execute("sp_ControlPeriodoCarga");
+    res.json({ success: true, message: "Período de inscripciones iniciado" });
+}));
+
+// Finalizar período de inscripciones
+router.post("/periodo-carga/finalizar", authAdmin, asyncH(async (req, res) => {
+    const pool = await getPool();
+    await pool.request()
+        .input("Activar", sql.Bit, 0)
+        .execute("sp_ControlPeriodoCarga");
+    res.json({ success: true, message: "Período de inscripciones finalizado" });
+}));
+
+// Obtener estado actual del período
+router.get("/periodo-carga/estado", authAdmin, asyncH(async (req, res) => {
+    const pool = await getPool();
+    const result = await pool.request().query(`
+        SELECT TOP 1 Activo, FechaInicio, FechaFin
+        FROM PeriodoCargaMaterias
+        WHERE Activo = 1
+    `);
+    res.json({ abierto: result.recordset.length > 0, ...result.recordset[0] });
+}));
 module.exports = router;
