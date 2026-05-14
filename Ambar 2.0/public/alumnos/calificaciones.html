@@ -70,6 +70,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .cal-ok{background:#DCFCE7;color:#15803D}
 .cal-re{background:#FEE2E2;color:#B91C1C}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* PRINT STYLES */
+@media print {
+    .topbar, #main-sidebar, .breadcrumb, .boleta-bar, .logout-btn, .hbg, .periodo-arrow, .chevron { display: none !important; }
+    body { background: white !important; overflow: visible !important; height: auto !important; }
+    .layout { margin-top: 0 !important; height: auto !important; overflow: visible !important; display: block !important; }
+    .main { padding: 0 !important; background: white !important; overflow: visible !important; }
+    .acc-item { border: 1px solid #eee !important; box-shadow: none !important; break-inside: avoid; margin-bottom: 20px !important; }
+    .acc-body { display: block !important; padding: 15px !important; }
+    .acc-header { background: #f9f9f9 !important; border-bottom: 1px solid #eee !important; pointer-events: none; }
+    .page-header h1 { font-size: 20px !important; margin-bottom: 10px !important; }
+    .sec-title { font-size: 16px !important; }
+    .divider { border-top: 1px solid #eee !important; }
+}
 </style>
 </head>
 <body>
@@ -103,7 +117,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
         </select>
         <span class="periodo-arrow">▾</span>
       </div>
-      <button class="btn-dl">⬇ Descargar Boleta</button>
+      <button class="btn-dl" id="btnDownloadBoleta">⬇ Descargar Boleta</button>
     </div>
 
     <div class="sec-title"><div class="sec-icon">📋</div>Calificaciones por materia</div>

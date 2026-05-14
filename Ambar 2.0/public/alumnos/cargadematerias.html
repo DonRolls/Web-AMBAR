@@ -48,6 +48,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .btn-horario{background:var(--card);color:var(--navy);border:1.5px solid var(--navy);padding:10px 18px;font-size:13px;font-weight:700;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.2s;font-family:'DM Sans',sans-serif}
 .btn-horario:hover{background:var(--navy);color:white}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+/* TABLE STYLES */
+.table-container{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-top:20px;max-width:900px;animation:fadeUp .5s ease .15s both}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#FAFBFF;padding:14px 16px;text-align:left;color:var(--text-2);font-weight:600;border-bottom:1px solid var(--border);text-transform:uppercase;font-size:11px;letter-spacing:.5px}
+td{padding:14px 16px;border-bottom:1px solid #F1F5FB;color:var(--text)}
+tr:hover{background:#F8FAFF}
+.btn-ins{background:var(--navy);color:white;border:none;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;transition:.2s}
+.btn-ins:hover{background:var(--navy-mid);transform:translateY(-1px)}
+.btn-ins:disabled{background:var(--border);color:var(--text-2);cursor:not-allowed}
+.badge-cupo{padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700}
+.cupo-ok{background:#DCFCE7;color:#15803D}
+.cupo-full{background:#FEE2E2;color:#B91C1C}
 </style>
 </head>
 <body>
@@ -93,7 +105,26 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
     </div>
 
     <div class="btn-row">
-      <button class="btn-horario">📅 Horario</button>
+      <button class="btn-horario">📅 Ver mi Horario</button>
+    </div>
+
+    <div id="carga-container" class="table-container" style="display:none">
+        <table>
+            <thead>
+                <tr>
+                    <th>Clave</th>
+                    <th>Materia</th>
+                    <th>Docente</th>
+                    <th>Horario</th>
+                    <th>Aula</th>
+                    <th>Cupo</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="materias-body">
+                <!-- Se llena con JS -->
+            </tbody>
+        </table>
     </div>
   </main>
 </div>

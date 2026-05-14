@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    const nctrl = sessionStorage.getItem("N_ctrl");
-    if (!nctrl) { window.location.href = "../login.html"; return; }
+    // 0. VERIFICACIÓN DE SESIÓN
+    const sess = getSession();
+    if (!sess) return;
+    const nctrl = sess.N_ctrl;
 
     const selectPeriodo = document.getElementById("selectPeriodo");
     const materiasContainer = document.getElementById("materias-container");
@@ -30,6 +32,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.querySelector(".logout-btn")?.addEventListener("click", () => {
         sessionStorage.clear();
         window.location.href = "../login.html";
+    });
+
+    // 4. DESCARGAR BOLETA (IMPRIMIR)
+    document.getElementById("btnDownloadBoleta")?.addEventListener("click", () => {
+        // Expandir todos los acordeones para que se vean en el PDF/Impresión
+        document.querySelectorAll(".acc-body").forEach(b => b.classList.add("open"));
+        document.querySelectorAll(".acc-header").forEach(h => h.classList.add("open"));
+        document.querySelectorAll(".chevron").forEach(c => c.classList.add("open"));
+        
+        window.print();
     });
 
     async function cargarCalificaciones(idPeriodo) {

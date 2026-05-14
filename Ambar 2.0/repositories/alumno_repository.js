@@ -278,6 +278,41 @@ const alumnoRepository = {
         return { success: true };
     },
 
+    // Obtener grupos disponibles para inscribir (filtrados por carrera y que no esté ya inscrito)
+    getGruposDisponibles: async (nctrl) => {
+        const pool = await getPool();
+        const result = await pool.request()
+            .input("N_ctrl", sql.NVarChar, nctrl)
+            .query(`
+                SELECT 
+                    g.ID_Grupo,
+                    g.MaxAlumnos,
+                    m.Clave,
+                    m.Nombre AS Materia,
+                    m.Creditos,
+                    d.Nombre + ' ' + d.Apellidos AS Docente,
+                    g.Aula,
+                    (SELECT COUNT(*) FROM Inscripciones WHERE ID_Grupo = g.ID_Grupo) AS Inscritos,
+                    (SELECT STRING_AGG(hg.DiaSemana + ' ' + 
+                        CONVERT(VARCHAR(5), hg.HoraInicio, 108) + '-' + 
+                        CONVERT(VARCHAR(5), hg.HoraFin, 108), ', ')
+                     FROM HorarioGrupo hg WHERE hg.ID_Grupo = g.ID_Grupo) AS Horario
+                FROM Grupos g
+                JOIN Materias m ON g.ID_Materia = m.ID_Materia
+                JOIN Docentes d ON g.ID_Docente = d.ID_Docente
+                JOIN PeriodosEscolares pe ON g.ID_Periodo = pe.ID_Periodo
+                JOIN Alumnos a ON a.id_carrera = m.id_carrera
+                WHERE a.N_ctrl = @N_ctrl 
+                  AND pe.Activo = 1
+                  AND g.Estatus = 'ABIERTO'
+                  AND g.ID_Grupo NOT IN (
+                      SELECT i.ID_Grupo FROM Inscripciones i WHERE i.N_ctrl = @N_ctrl
+                  )
+                ORDER BY m.Semestre, m.Nombre
+            `);
+        return result.recordset;
+    },
+
     // Verificar si el periodo de carga está abierto
     isPeriodoCargaAbierto: async () => {
         const pool = await getPool();

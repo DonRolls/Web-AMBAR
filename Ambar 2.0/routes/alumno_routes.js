@@ -135,6 +135,17 @@ router.get("/periodo-carga", async (req, res) => {
     }
 });
 
+// Grupos disponibles
+router.get("/grupos-disponibles/:nctrl", async (req, res) => {
+    try {
+        const grupos = await alumnoRepository.getGruposDisponibles(req.params.nctrl);
+        res.json(grupos);
+    } catch (err) {
+        console.error("Error /grupos-disponibles:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Soporte
 router.get("/soporte", async (req, res) => {
     try {
