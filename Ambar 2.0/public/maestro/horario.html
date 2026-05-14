@@ -116,7 +116,7 @@ tbody tr:hover td{background:#F8FBFF}
               <th>Lunes</th><th>Martes</th><th>Miércoles</th><th>Jueves</th><th>Viernes</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="tbody-horario">
             <tr>
               <td><strong>Análisis Avanzado de Software (Nube)</strong></td>
               <td>Ing. Informática</td>
@@ -151,7 +151,7 @@ tbody tr:hover td{background:#F8FBFF}
           <thead>
             <tr><th>Materia</th><th>Grupo</th><th>Instrumentación</th><th>Planeación</th></tr>
           </thead>
-          <tbody>
+          <tbody id="tbody-instrumentacion">
             <tr>
               <td>Análisis Avanzado de Software</td>
               <td>SCD-2502-IF8A</td>
@@ -179,10 +179,155 @@ tbody tr:hover td{background:#F8FBFF}
   </main>
 </div>
 <script>
-// Cerrar sesión
-    document.querySelector(".logout-btn")?.addEventListener("click", () => {
-        sessionStorage.clear();
-        window.location.href = "../login.html";
+// ─────────────────────────────────────────────
+// SESIÓN
+// ─────────────────────────────────────────────
+const ID_Docente = sessionStorage.getItem("ID_Docente");
+if (!ID_Docente) {
+    window.location.href = "../login.html";
+}
+// ─────────────────────────────────────────────
+// CERRAR SESIÓN
+// ─────────────────────────────────────────────
+document.querySelector(".logout-btn")?.addEventListener("click", () => {
+    sessionStorage.clear();
+    window.location.href = "../login.html";
+});
+// ─────────────────────────────────────────────
+// CARGAR HORARIO
+// ─────────────────────────────────────────────
+fetch(`/docente/horario/${ID_Docente}`)
+    .then(res => {
+        if (!res.ok) {
+            throw new Error("Error al cargar horario");
+        }
+        return res.json();
+    })
+    .then(data => {
+        const tbodyHorario =
+            document.getElementById("tbody-horario");
+        // VALIDAR SI NO HAY DATOS
+        if (!data.length) {
+            tbodyHorario.innerHTML = `
+                <tr>
+                    <td colspan="8" class="no-data">
+                        No hay horario asignado.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        // LIMPIAR TABLA
+        tbodyHorario.innerHTML = "";
+        // RECORRER DATOS
+        data.forEach(h => {
+            const fila = document.createElement("tr");
+            fila.innerHTML = `
+                <td>
+                    <strong>${h.Materia}</strong>
+                </td>
+                <td>
+                    ${h.Carrera}
+                </td>
+                <td>
+                    ${h.ClaveGrupo}
+                </td>
+                <td class="schedule-cell">
+                    ${h.Lunes || "—"}
+                    <span class="room-code">
+                        ${h.AulaLunes || ""}
+                    </span>
+                </td>
+                <td class="schedule-cell">
+                    ${h.Martes || "—"}
+                    <span class="room-code">
+                        ${h.AulaMartes || ""}
+                    </span>
+                </td>
+                <td class="schedule-cell">
+                    ${h.Miercoles || "—"}
+                    <span class="room-code">
+                        ${h.AulaMiercoles || ""}
+                    </span>
+                </td>
+                <td class="schedule-cell">
+                    ${h.Jueves || "—"}
+                    <span class="room-code">
+                        ${h.AulaJueves || ""}
+                    </span>
+                </td>
+                <td class="schedule-cell">
+                    ${h.Viernes || "—"}
+                    <span class="room-code">
+                        ${h.AulaViernes || ""}
+                    </span>
+                </td>
+            `;
+            tbodyHorario.appendChild(fila);
+        });
+    })
+    .catch(error => {
+        console.error(error);
+        document.getElementById("tbody-horario").innerHTML = `
+            <tr>
+                <td colspan="8" class="no-data">
+                    Error al cargar horario.
+                </td>
+            </tr>
+        `;
+    });
+// ─────────────────────────────────────────────
+// CARGAR INSTRUMENTACIÓN
+// ─────────────────────────────────────────────
+fetch(`/docente/instrumentacion/${ID_Docente}`)
+    .then(res => res.json())
+    .then(data => {
+        const tbodyInst =
+            document.getElementById("tbody-instrumentacion");
+        if (!data.length) {
+            tbodyInst.innerHTML = `
+                <tr>
+                    <td colspan="4" class="no-data">
+                        No hay instrumentaciones registradas.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        tbodyInst.innerHTML = "";
+        data.forEach(i => {
+            const fila = document.createElement("tr");
+            fila.innerHTML = `
+                <td>${i.Materia}</td>
+                <td>${i.Grupo}</td>
+                <td>
+                    <span class="${
+                        i.InstrumentacionCompleta
+                        ? 'score-ok'
+                        : 'score-bad'
+                    }">
+                        ${i.InstrumentacionActual}
+                        /
+                        ${i.InstrumentacionTotal}
+                    </span>
+                </td>
+                <td>
+                    <span class="${
+                        i.PlaneacionCompleta
+                        ? 'score-ok'
+                        : 'score-bad'
+                    }">
+                        ${i.PlaneacionActual}
+                        /
+                        ${i.PlaneacionTotal}
+                    </span>
+                </td>
+            `;
+            tbodyInst.appendChild(fila);
+        });
+    })
+    .catch(error => {
+        console.error(error);
     });
 </script>
 </body>
