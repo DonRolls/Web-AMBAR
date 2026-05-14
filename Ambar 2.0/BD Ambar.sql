@@ -4,8 +4,8 @@
 --
 -- INSTRUCCIONES DE USO:
 --   1. Ejecutar este archivo  → crea toda la estructura
---   2. Ejecutar BD_Datos.sql  → inserta datos por defecto
---   3. BD_Alter2.sql          → no tocar (cambios futuros)
+--   2. Ejecutar BD_Alter2.sql → Realiza los nuevos cambios
+--   3. Ejecutar BD_Datos.sql  → inserta datos por defecto
 -- ============================================================
  
 USE master;

@@ -61,12 +61,74 @@ tbody tr:hover td{background:#F8FBFF}
 .btn-edit:hover{background:#FFE8A0;border-color:var(--gold)}
 .btn-delete{background:#FEF2F2;color:var(--danger);border:1px solid rgba(232,64,64,.25)}
 .btn-delete:hover{background:#FFE0E0;border-color:var(--danger)}
+/* MODAL */
+.modal-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(13,27,62,.7);
+  z-index:1000;
+  backdrop-filter:blur(4px);
+  align-items:center;
+  justify-content:center;
+}
+.modal-content{
+  background:var(--card);
+  width:90%;
+  max-width:500px;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-md);
+  overflow:hidden;
+  border:1px solid var(--border);
+}
+.modal-header{
+  background:var(--navy);
+  padding:18px 24px;
+  color:white;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.modal-body{
+  padding:24px;
+}
+.modal-footer{
+  padding:16px 24px;
+  background:#f8fafc;
+  display:flex;
+  justify-content:flex-end;
+  gap:12px;
+  border-top:1px solid var(--border);
+}
+.form-group{
+  margin-bottom:18px;
+}
+.form-group label{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  text-transform:uppercase;
+  color:var(--text-2);
+  margin-bottom:8px;
+}
+.form-input{
+  width:100%;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  font-family:'DM Sans',sans-serif;
+  font-size:14px;
+}
+.form-input:focus{
+  outline:none;
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px var(--gold-glow);
+}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 
 <body>
-
 <header class="topbar">
   <div class="topbar-left">
     <span class="hbg" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">☰</span>
@@ -98,7 +160,7 @@ tbody tr:hover td{background:#F8FBFF}
     <div class="filter-bar">
       <div class="search-box">
         <span style="color:var(--text-2)">🔍</span>
-        <input type="text" placeholder="Buscar competencia...">
+        <input type="text" id="busqueda" placeholder="Buscar competencia...">
       </div>
       <button class="btn-add">＋ Nueva competencia</button>
     </div>
@@ -108,7 +170,7 @@ tbody tr:hover td{background:#F8FBFF}
         <div class="tc-title"><div class="tc-title-icon">🎯</div> Competencias registradas</div>
         <span class="tc-count">6 competencias</span>
       </div>
-      <table>
+      <table id="tabla-competencias">
         <thead>
           <tr><th style="width:75%">Competencia</th><th style="width:25%">Acciones</th></tr>
         </thead>
@@ -140,65 +202,269 @@ tbody tr:hover td{background:#F8FBFF}
         </tbody>
       </table>
     </div>
+<div class="modal-overlay" id="comp-modal">
+  <div class="modal-content">
 
+    <div class="modal-header">
+      <h2 id="modal-title">＋ Nueva Competencia</h2>
+      <span id="close-modal" style="cursor:pointer;font-size:20px">✕</span>
+    </div>
+
+    <div class="modal-body">
+
+      <input type="hidden" id="edit-id">
+
+      <div class="form-group">
+        <label>Competencia</label>
+
+        <textarea
+          id="comp-input"
+          class="form-input"
+          rows="4"
+          placeholder="Describe la competencia..."
+        ></textarea>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button
+        class="btn-sm"
+        id="cancel-modal"
+        style="background:#eee;color:var(--text-2)"
+      >
+        Cancelar
+      </button>
+
+      <button class="btn-add" id="save-btn">
+        Guardar
+      </button>
+
+    </div>
+
+  </div>
+</div>
   </main>
 </div>
 <script>
-// ELIMINAR COMPETENCIA
-document.addEventListener("click", function(e) {
-  if (e.target.classList.contains("btn-delete")) {
-    if (confirm("¿Eliminar esta competencia?")) {
-      const fila = e.target.closest("tr");
-      fila.remove();
-      actualizarContador();
+document.addEventListener("DOMContentLoaded", function () {
+
+    let competencias = JSON.parse(
+        localStorage.getItem("competencias_docente")
+    ) || [
+
+        {
+            id: 1,
+            texto: "Acceso a Repositorios"
+        },
+
+        {
+            id: 2,
+            texto: "Accesos a Bases de Datos"
+        },
+
+        {
+            id: 3,
+            texto: "Diseñar arquitecturas de software escalables en la nube"
+        }
+
+    ];
+
+    const tbody =
+        document.querySelector("#tabla-competencias tbody");
+
+    const modal =
+        document.getElementById("comp-modal");
+
+    const openBtn =
+        document.querySelector(".btn-add");
+
+    const closeBtn =
+        document.getElementById("close-modal");
+
+    const cancelBtn =
+        document.getElementById("cancel-modal");
+
+    const saveBtn =
+        document.getElementById("save-btn");
+
+    const buscador =
+        document.getElementById("busqueda");
+
+    // GUARDAR
+    function guardar() {
+
+        localStorage.setItem(
+            "competencias_docente",
+            JSON.stringify(competencias)
+        );
+
+        render();
     }
-  }
-});
-// EDITAR COMPETENCIA
-document.addEventListener("click", function(e) {
-  if (e.target.classList.contains("btn-edit")) {
-    const fila = e.target.closest("tr");
-    const celda = fila.children[0];
-    // IMPORTANTE: usamos innerHTML para soportar listas
-    const contenidoActual = celda.innerHTML;
-    const nuevoContenido = prompt(
-      "Edita la competencia (puedes usar HTML básico):",
-      contenidoActual
-    );
-    if (nuevoContenido !== null && nuevoContenido.trim() !== "") {
-      celda.innerHTML = nuevoContenido;
+
+    // RENDER TABLA
+    function render(filtro = "") {
+
+        tbody.innerHTML = "";
+
+        const filtradas = competencias.filter(c =>
+            c.texto.toLowerCase().includes(filtro.toLowerCase())
+        );
+
+        filtradas.forEach(comp => {
+
+            const tr = document.createElement("tr");
+
+            tr.innerHTML = `
+                <td>${comp.texto}</td>
+
+                <td>
+                    <div class="btn-group">
+
+                        <button
+                            class="btn-sm btn-edit"
+                            onclick="editar(${comp.id})"
+                        >
+                            Editar
+                        </button>
+
+                        <button
+                            class="btn-sm btn-delete"
+                            onclick="eliminar(${comp.id})"
+                        >
+                            Eliminar
+                        </button>
+
+                    </div>
+                </td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+
+        document.querySelector(".tc-count").textContent =
+            `${filtradas.length} competencias`;
     }
-  }
-});
-// AGREGAR NUEVA COMPETENCIA
-document.querySelector(".btn-add").addEventListener("click", function() {
-  const nuevaCompetencia = prompt("Escribe la nueva competencia:");
-  if (nuevaCompetencia !== null && nuevaCompetencia.trim() !== "") {
-    const tbody = document.querySelector("tbody");
-    const nuevaFila = document.createElement("tr");
-    nuevaFila.innerHTML = `
-      <td>${nuevaCompetencia}</td>
-      <td>
-        <div class="btn-group">
-          <button class="btn-sm btn-edit">Editar</button>
-          <button class="btn-sm btn-delete">Eliminar</button>
-        </div>
-      </td>
-    `;
-    tbody.appendChild(nuevaFila);
-    actualizarContador();
-  }
-});
-// ACTUALIZAR CONTADOR
-function actualizarContador() {
-  const total = document.querySelectorAll("tbody tr").length;
-  document.querySelector(".tc-count").textContent = total + " competencias";
-}
-// Cerrar sesión
-    document.querySelector(".logout-btn")?.addEventListener("click", () => {
-        sessionStorage.clear();
-        window.location.href = "../login.html";
+
+    // ELIMINAR
+    window.eliminar = function(id) {
+
+        if (confirm("¿Eliminar competencia?")) {
+
+            competencias =
+                competencias.filter(c => c.id !== id);
+
+            guardar();
+        }
+    };
+
+    // EDITAR
+    window.editar = function(id) {
+
+        const comp =
+            competencias.find(c => c.id === id);
+
+        document.getElementById("edit-id").value =
+            comp.id;
+
+        document.getElementById("comp-input").value =
+            comp.texto;
+
+        document.getElementById("modal-title").textContent =
+            "✎ Editar Competencia";
+
+        modal.style.display = "flex";
+    };
+
+    // ABRIR MODAL
+    openBtn.onclick = () => {
+
+        document.getElementById("edit-id").value = "";
+
+        document.getElementById("comp-input").value = "";
+
+        document.getElementById("modal-title").textContent =
+            "＋ Nueva Competencia";
+
+        modal.style.display = "flex";
+    };
+
+    // CERRAR
+    function cerrarModal() {
+
+        modal.style.display = "none";
+    }
+
+    closeBtn.onclick = cerrarModal;
+
+    cancelBtn.onclick = cerrarModal;
+
+    // GUARDAR COMPETENCIA
+    saveBtn.onclick = () => {
+
+        const id =
+            document.getElementById("edit-id").value;
+
+        const texto =
+            document.getElementById("comp-input")
+            .value
+            .trim();
+
+        if (!texto) {
+
+            alert("Escribe una competencia");
+
+            return;
+        }
+
+        if (id) {
+
+            const index =
+                competencias.findIndex(c => c.id == id);
+
+            competencias[index].texto = texto;
+
+        } else {
+
+            competencias.push({
+                id: Date.now(),
+                texto
+            });
+        }
+
+        guardar();
+
+        cerrarModal();
+    };
+
+    // BUSCADOR
+    buscador.addEventListener("keyup", (e) => {
+
+        render(e.target.value);
     });
+
+    // CERRAR SI DAN CLICK FUERA
+    window.onclick = function(e) {
+
+        if (e.target === modal) {
+
+            cerrarModal();
+        }
+    };
+
+    // CERRAR SESIÓN
+    document.querySelector(".logout-btn")
+    ?.addEventListener("click", () => {
+
+        sessionStorage.clear();
+
+        alert("Sesión cerrada");
+    });
+
+    render();
+
+});
 </script>
 </body>
 </html>

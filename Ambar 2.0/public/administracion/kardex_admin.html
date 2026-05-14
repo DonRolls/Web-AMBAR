@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kardex de Carrera — Admin Ámbar</title>
+<title>Kardex de Carrera — Administrador</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -11,21 +11,21 @@
   --bg:#F0F4FA;--card:#FFFFFF;--text:#1A1F36;--text-2:#5A6488;
   --border:#E2E8F0;--success:#0FAF7A;--danger:#E84040;
   --radius:14px;--shadow:0 4px 24px rgba(13,27,62,.09);
-  /* Colores por semestre — 9 tonos */
-  --s1:#EFF6FF;--s1b:#3B82F6;
-  --s2:#F0FDF4;--s2b:#22C55E;
-  --s3:#FFF7ED;--s3b:#F97316;
-  --s4:#FDF4FF;--s4b:#A855F7;
-  --s5:#FFFBEB;--s5b:#EAB308;
-  --s6:#FFF1F2;--s6b:#F43F5E;
-  --s7:#F0FDFA;--s7b:#14B8A6;
-  --s8:#FFF3D0;--s8b:#E8A100;
-  --s9:#F8FAFC;--s9b:#64748B;
+  /* colores por semestre (base) */
+  --s1:#EFF6FF; --s1b:#3B82F6;
+  --s2:#F0FDF4; --s2b:#22C55E;
+  --s3:#FFF7ED; --s3b:#F97316;
+  --s4:#FDF4FF; --s4b:#A855F7;
+  --s5:#FFFBEB; --s5b:#EAB308;
+  --s6:#FFF1F2; --s6b:#F43F5E;
+  --s7:#F0FDFA; --s7b:#14B8A6;
+  --s8:#FFF3D0; --s8b:#E8A100;
+  --s9:#F8FAFC; --s9b:#64748B;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
-/* ── TOPBAR ── */
+/* TOPBAR */
 .topbar{background:var(--navy);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:fixed;inset:0 0 auto 0;z-index:200;box-shadow:0 2px 16px rgba(0,0,0,.3)}
 .topbar-left{display:flex;align-items:center;gap:16px}
 .hbg{color:white;font-size:22px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:.2s}
@@ -35,306 +35,373 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .brand-name{color:white;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;line-height:1.3}
 .brand-name span{display:block;font-size:10px;font-weight:300;opacity:.7;letter-spacing:.6px;text-transform:uppercase}
 .topbar-right{display:flex;align-items:center;gap:12px}
-.rol-tag{background:rgba(232,161,0,.2);border:1px solid rgba(232,161,0,.4);color:var(--gold);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:.4px;text-transform:uppercase}
+.rol-tag{background:rgba(232,161,0,.2);border:1px solid rgba(232,161,0,.4);color:var(--gold);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px}
 .avatar{width:34px;height:34px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--navy)}
 .logout-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.8);font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer;transition:.2s}
 .logout-btn:hover{background:rgba(255,255,255,.15);color:white}
 
-/* ── LAYOUT ── */
+/* LAYOUT */
 .layout{display:flex;margin-top:58px;height:calc(100vh - 58px);overflow:hidden}
-#main-sidebar{width:235px;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0}
+#main-sidebar{width:235px;background:var(--navy);flex-shrink:0}
 .main{flex:1;overflow-y:auto;overflow-x:auto;padding:28px 32px;background:var(--bg)}
 
-/* ── PAGE ── */
+/* breadcrumb */
 .breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);margin-bottom:8px}
 .breadcrumb span{color:var(--gold);font-weight:600}
-.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:16px}
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:16px}
 .page-header h1{font-family:'Outfit',sans-serif;font-size:26px;font-weight:700;color:var(--navy);letter-spacing:-.3px}
-.page-header p{font-size:13px;color:var(--text-2);margin-top:3px}
 
-/* ── CONTROLS BAR ── */
+/* controls */
 .controls-bar{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap}
-.carrera-select{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:.18s;cursor:pointer;font-weight:600;min-width:280px}
-.carrera-select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,161,0,.15)}
-.btn-reload{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text-2);cursor:pointer;transition:.18s;display:flex;align-items:center;gap:6px}
-.btn-reload:hover{border-color:var(--gold);color:var(--gold)}
+.carrera-select{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;min-width:280px;cursor:pointer}
+.btn-reload{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.btn-primary{background:var(--navy);color:white;border:none;padding:9px 18px;border-radius:10px;font-weight:600;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.btn-primary:hover{background:var(--navy-mid)}
 .stats-chips{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
 .chip{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;color:var(--text-2);display:flex;align-items:center;gap:5px}
 .chip strong{color:var(--navy)}
 
-/* ── SEMESTRE GRID (scroll horizontal) ── */
-.grid-wrapper{display:flex;gap:16px;min-width:max-content;padding-bottom:12px;align-items:flex-start}
+/* GRID estilo kardex alumno */
+.kardex-grid{
+  display: grid;
+  gap: 16px;
+  align-items: start;
+  min-width: max-content;
+  animation: fadeUp .4s ease both;
+}
+.sem-col{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 16px;
+  padding: 12px 10px;
+  border: 1px solid var(--border);
+}
+.sem-header{
+  font-family:'Outfit',sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--gold);
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.sem-count{font-size: 10px; font-weight: 600; opacity: 0.7;}
+.mat-card{
+  background: white;
+  border-radius: 12px;
+  padding: 10px 12px;
+  border-left: 4px solid;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.mat-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  background: #fefdf7;
+}
+.mat-clave{font-size: 10px; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 4px; text-transform: uppercase;}
+.mat-nombre{font-family:'Outfit',sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 6px;}
+.mat-footer{display: flex; justify-content: space-between; align-items: center;}
+.mat-creditos{font-size: 10px; background: var(--bg); padding: 2px 8px; border-radius: 20px;}
+.mat-optativa{font-size: 9px; font-weight: 800; background: #FEF3C7; padding: 2px 8px; border-radius: 20px; color: #92400E;}
 
-/* ── SEMESTRE COLUMN ── */
-.sem-col{width:210px;flex-shrink:0;display:flex;flex-direction:column;gap:10px}
+/* colores por semestre (utilizado en borde izquierdo) */
+.sem-1 .mat-card{border-left-color: var(--s1b);}
+.sem-2 .mat-card{border-left-color: var(--s2b);}
+.sem-3 .mat-card{border-left-color: var(--s3b);}
+.sem-4 .mat-card{border-left-color: var(--s4b);}
+.sem-5 .mat-card{border-left-color: var(--s5b);}
+.sem-6 .mat-card{border-left-color: var(--s6b);}
+.sem-7 .mat-card{border-left-color: var(--s7b);}
+.sem-8 .mat-card{border-left-color: var(--s8b);}
+.sem-9 .mat-card{border-left-color: var(--s9b);}
 
-.sem-header{border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
-.sem-header-title{font-family:'Outfit',sans-serif;font-size:13px;font-weight:800;letter-spacing:.3px}
-.sem-count{font-size:11px;font-weight:700;opacity:.75;background:rgba(0,0,0,.08);padding:2px 7px;border-radius:20px}
-
-/* ── MATERIA CARD ── */
-.mat-card{background:var(--card);border:1.5px solid var(--border);border-radius:11px;padding:14px 14px 12px;cursor:default;transition:transform .18s,box-shadow .18s;position:relative;overflow:hidden;animation:fadeUp .35s ease both}
-.mat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:11px 11px 0 0}
-.mat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(13,27,62,.13)}
-
-.mat-clave{font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;opacity:.8}
-.mat-nombre{font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:var(--navy);line-height:1.35;margin-bottom:8px}
-.mat-footer{display:flex;align-items:center;justify-content:space-between}
-.mat-creditos{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;color:var(--text-2)}
-.mat-creditos span{color:var(--navy);font-size:12px}
-.mat-optativa{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
-
-/* ── COLORES POR SEMESTRE ── */
-.sem-1 .sem-header{background:var(--s1);color:var(--s1b)}
-.sem-1 .mat-card::before{background:var(--s1b)}
-.sem-1 .mat-clave{color:var(--s1b)}
-
-.sem-2 .sem-header{background:var(--s2);color:var(--s2b)}
-.sem-2 .mat-card::before{background:var(--s2b)}
-.sem-2 .mat-clave{color:var(--s2b)}
-
-.sem-3 .sem-header{background:var(--s3);color:var(--s3b)}
-.sem-3 .mat-card::before{background:var(--s3b)}
-.sem-3 .mat-clave{color:var(--s3b)}
-
-.sem-4 .sem-header{background:var(--s4);color:var(--s4b)}
-.sem-4 .mat-card::before{background:var(--s4b)}
-.sem-4 .mat-clave{color:var(--s4b)}
-
-.sem-5 .sem-header{background:var(--s5);color:var(--s5b)}
-.sem-5 .mat-card::before{background:var(--s5b)}
-.sem-5 .mat-clave{color:var(--s5b)}
-
-.sem-6 .sem-header{background:var(--s6);color:var(--s6b)}
-.sem-6 .mat-card::before{background:var(--s6b)}
-.sem-6 .mat-clave{color:var(--s6b)}
-
-.sem-7 .sem-header{background:var(--s7);color:var(--s7b)}
-.sem-7 .mat-card::before{background:var(--s7b)}
-.sem-7 .mat-clave{color:var(--s7b)}
-
-.sem-8 .sem-header{background:var(--s8);color:var(--s8b)}
-.sem-8 .mat-card::before{background:var(--s8b)}
-.sem-8 .mat-clave{color:var(--s8b)}
-
-.sem-9 .sem-header{background:var(--s9);color:var(--s9b)}
-.sem-9 .mat-card::before{background:var(--s9b)}
-.sem-9 .mat-clave{color:var(--s9b)}
-
-/* ── EMPTY / LOADER ── */
-.state-msg{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:72px 32px;color:var(--text-2);gap:12px;width:100%}
-.state-msg span{font-size:44px}
-.state-msg p{font-size:14px}
-
-/* ── TOAST ── */
-.toast{position:fixed;bottom:28px;right:28px;background:var(--navy);color:white;padding:13px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transform:translateY(10px);transition:.3s;pointer-events:none}
+.state-msg{text-align: center; padding: 60px 20px; color: var(--text-2);}
+.toast{position:fixed;bottom:28px;right:28px;background:var(--navy);color:white;padding:13px 20px;border-radius:10px;z-index:9999;opacity:0;transform:translateY(10px);transition:.3s;pointer-events:none}
 .toast.show{opacity:1;transform:translateY(0)}
 .toast.error{background:var(--danger)}
 .toast.success{background:var(--success)}
 
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+/* MODALES */
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);justify-content:center;align-items:center;z-index:1000}
+.modal.open{display:flex}
+.modal-content{background:var(--card);border-radius:var(--radius);padding:30px;width:90%;max-width:520px;animation:fadeUp .25s ease}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.modal-header h2{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700}
+.close-modal{font-size:28px;cursor:pointer;line-height:1}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:5px;text-transform:uppercase}
+.form-group input,.form-group select{width:100%;padding:9px 13px;border:1px solid var(--border);border-radius:9px;font-size:13px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:20px}
+.btn-cancel{background:var(--border);border:none;padding:9px 18px;border-radius:9px;cursor:pointer}
+.btn-delete-modal{background:var(--danger);color:white;border:none;padding:9px 18px;border-radius:9px;cursor:pointer;margin-right:auto}
+.btn-delete-modal:hover{background:#C03030}
+.preview-table-wrap{max-height: 380px; overflow-y: auto; margin: 16px 0;}
+.preview-table{width:100%;border-collapse:collapse;font-size:12px}
+.preview-table th, .preview-table td{border:1px solid var(--border);padding:6px 8px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
-
-<!-- TOPBAR -->
 <header class="topbar">
-  <div class="topbar-left">
-    <span class="hbg" onclick="toggleSidebar()">☰</span>
-    <div class="brand">
-      <div class="brand-badge">TEC<br>NM</div>
-      <div class="brand-name">Tecnológico Nacional de México<span>Portal Administrador</span></div>
-    </div>
+  <div class="topbar-left"><span class="hbg" onclick="toggleSidebar()">☰</span>
+    <div class="brand"><div class="brand-badge">TEC<br>NM</div><div class="brand-name">Tecnológico Nacional de México<span>Portal Administrador</span></div></div>
   </div>
-  <div class="topbar-right">
-    <span class="rol-tag">Administrador</span>
-    <div class="avatar">👤</div>
-    <button class="logout-btn" id="btn-logout">Cerrar sesión</button>
-  </div>
+  <div class="topbar-right"><span class="rol-tag">Administrador</span><div class="avatar">👤</div><button class="logout-btn" id="btn-logout">Cerrar sesión</button></div>
 </header>
-
-<!-- LAYOUT -->
 <div class="layout">
-  <div id="main-sidebar">
-    <div id="sidebar-container" style="display:flex;flex-direction:column;height:100%"></div>
-  </div>
+  <div id="main-sidebar"><div id="sidebar-container"></div></div>
   <script src="sidebaradmi.js"></script>
-
   <main class="main">
-    <div class="breadcrumb">Portal Administrador <span>›</span> <span>Kardex de Carrera</span></div>
+    <div class="breadcrumb">Portal Administrador <span>›</span> <span>Kardex de Carrera / Gestión de Materias</span></div>
     <div class="page-header">
-      <div>
-        <h1><span style="color:var(--gold)">📋</span> Kardex de Carrera</h1>
-        <p>Plan de estudios organizado por semestre. Se actualiza automáticamente al cambiar materias.</p>
+      <h1>📘 Plan de estudios por carrera</h1>
+      <div style="display:flex; gap:12px;">
+        <button class="btn-primary" id="btn-importar-csv">📥 Importar CSV</button>
+        <button class="btn-primary" id="btn-nueva-materia">+ Nueva Materia</button>
       </div>
     </div>
-
-    <!-- CONTROLES -->
     <div class="controls-bar">
-      <select class="carrera-select" id="sel-carrera" onchange="cargarKardex()">
-        <option value="">— Selecciona una carrera —</option>
-      </select>
-      <button class="btn-reload" onclick="cargarKardex()" title="Recargar">
-        ↺ Actualizar
-      </button>
+      <select class="carrera-select" id="sel-carrera"><option value="">— Selecciona una carrera —</option></select>
+      <button class="btn-reload" id="btn-refresh">↺ Actualizar</button>
       <div class="stats-chips" id="stats-chips" style="display:none">
         <div class="chip">📚 Materias: <strong id="stat-total">0</strong></div>
-        <div class="chip">⭐ Créditos totales: <strong id="stat-creditos">0</strong></div>
+        <div class="chip">⭐ Créditos: <strong id="stat-creditos">0</strong></div>
         <div class="chip">📅 Semestres: <strong id="stat-sems">0</strong></div>
         <div class="chip">🔓 Optativas: <strong id="stat-opt">0</strong></div>
       </div>
     </div>
-
-    <!-- GRID -->
-    <div id="kardex-area">
-      <div class="state-msg">
-        <span>📋</span>
-        <p>Selecciona una carrera para ver su plan de estudios</p>
-      </div>
-    </div>
-
+    <div id="kardex-area"><div class="state-msg"><span>📋</span><p>Selecciona una carrera para ver su kárdex</p></div></div>
   </main>
 </div>
-
 <div id="toast" class="toast"></div>
+
+<!-- MODAL edición/creación -->
+<div id="modal-materia" class="modal">
+  <div class="modal-content">
+    <div class="modal-header"><h2 id="modal-titulo">Nueva Materia</h2><span class="close-modal" onclick="cerrarModal()">&times;</span></div>
+    <div class="form-row"><div class="form-group"><label>Clave *</label><input type="text" id="f-clave" placeholder="Ej: ACD-1053"></div><div class="form-group"><label>Créditos *</label><input type="number" id="f-creditos" value="4"></div></div>
+    <div class="form-row"><div class="form-group"><label>Número de Unidades</label><input type="number" id="f-unidades" value="3"></div><div class="form-group"><label>Semestre</label><input type="number" id="f-semestre" value="1"></div></div>
+    <div class="form-group"><label>Nombre de la materia *</label><input type="text" id="f-nombre" placeholder="Ej: Programación Avanzada"></div>
+    <div class="form-group"><label>Carrera *</label><select id="f-carrera"></select></div>
+    <div class="form-group"><label><input type="checkbox" id="f-optativa"> Materia optativa</label></div>
+    <div class="form-actions"><button class="btn-delete-modal" id="btn-eliminar-modal" style="display:none">🗑 Eliminar</button><button class="btn-cancel" onclick="cerrarModal()">Cancelar</button><button class="btn-primary" id="btn-guardar">💾 Guardar</button></div>
+  </div>
+</div>
+
+<!-- MODAL importación CSV -->
+<div id="modal-importar" class="modal">
+  <div class="modal-content" style="max-width: 1000px;"><div class="modal-header"><h2>Importar Materias desde CSV</h2><span class="close-modal" onclick="cerrarModalImportar()">&times;</span></div>
+    <div id="paso-upload"><p style="margin-bottom:12px;">Selecciona CSV con columnas: clave, nombre, creditos, id_carrera, optativa, num_unidades, semestre</p><input type="file" id="csv-file" accept=".csv"><button class="btn-primary" id="btn-previsualizar" style="margin-top:12px;">👁 Previsualizar</button><div id="upload-error" style="color:var(--danger); margin-top:8px;"></div></div>
+    <div id="paso-preview" style="display:none;"><p>Edita los datos si es necesario y confirma.</p><div class="preview-table-wrap"><table class="preview-table" id="preview-table"><thead><tr><th>Clave</th><th>Nombre</th><th>Créd.</th><th>Carrera</th><th>Optativa</th><th>Unid.</th><th>Sem.</th></tr></thead><tbody></tbody></table></div><div id="preview-errors" style="color:var(--danger);"></div><div class="form-actions"><button class="btn-cancel" onclick="cerrarModalImportar()">Cancelar</button><button class="btn-primary" id="btn-confirmar-import">💾 Guardar todas</button></div></div>
+  </div>
+</div>
 
 <script>
 const API = '/admin';
-const HEADERS = () => ({
-  'Content-Type': 'application/json',
-  'x-admin-id': sessionStorage.getItem('ID_Administrador') || '1'
-});
+const HEADERS = () => ({ 'Content-Type': 'application/json', 'x-admin-id': sessionStorage.getItem('ID_Administrador') || '1' });
 
-// ── Auth ──────────────────────────────────────────────────────────────────────
-(function () {
-  if (!sessionStorage.getItem('ID_Administrador')) window.location.href = '/login.html';
-  document.getElementById('btn-logout').addEventListener('click', () => {
-    sessionStorage.clear(); window.location.href = '/login.html';
-  });
-})();
+// Auth
+(function() { if (!sessionStorage.getItem('ID_Administrador')) window.location.href = '/login.html'; document.getElementById('btn-logout').addEventListener('click', () => { sessionStorage.clear(); window.location.href = '/login.html'; }); })();
 
-// ── Cargar carreras en el select ──────────────────────────────────────────────
+let materiasActuales = [];       // materias de la carrera seleccionada
+let carrerasMap = new Map();      // id -> {clave, nombre}
+let editandoId = null;            // null = crear, else editar
+
+// ---------- Cargar carreras ----------
 async function cargarCarreras() {
   try {
     const res = await fetch(`${API}/carreras`, { headers: HEADERS() });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if(!res.ok) throw new Error();
     const carreras = await res.json();
     const sel = document.getElementById('sel-carrera');
-    carreras.forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c.id_carrera;
-      opt.textContent = `${c.clave} — ${c.nombre}`;
-      sel.appendChild(opt);
-    });
-    // Si hay una carrera guardada en sesión, seleccionarla
-    const saved = sessionStorage.getItem('kardex_carrera');
-    if (saved) { sel.value = saved; cargarKardex(); }
-  } catch (e) {
-    toast('Error al cargar carreras: ' + e.message, 'error');
-  }
+    sel.innerHTML = '<option value="">— Selecciona una carrera —</option>';
+    carreras.forEach(c => { carrerasMap.set(c.id_carrera, c); sel.appendChild(new Option(`${c.clave} — ${c.nombre}`, c.id_carrera)); });
+    const selCarreraModal = document.getElementById('f-carrera');
+    selCarreraModal.innerHTML = '<option value="">Seleccionar</option>';
+    carreras.forEach(c => selCarreraModal.appendChild(new Option(`${c.clave} — ${c.nombre}`, c.id_carrera)));
+    const saved = sessionStorage.getItem('kardex_carrera_admin');
+    if(saved && [...carrerasMap.keys()].includes(parseInt(saved))) { sel.value = saved; cargarKardex(); }
+  } catch(e) { toast('Error cargando carreras', 'error'); }
 }
 
-// ── Cargar y renderizar kardex ────────────────────────────────────────────────
+// ---------- Cargar materias de la carrera seleccionada ----------
 async function cargarKardex() {
-  const sel = document.getElementById('sel-carrera');
-  const idCarrera = sel.value;
-  const area = document.getElementById('kardex-area');
-
-  if (!idCarrera) {
-    area.innerHTML = `<div class="state-msg"><span>📋</span><p>Selecciona una carrera para ver su plan de estudios</p></div>`;
-    document.getElementById('stats-chips').style.display = 'none';
-    return;
-  }
-
-  sessionStorage.setItem('kardex_carrera', idCarrera);
-  area.innerHTML = `<div class="state-msg"><span style="font-size:32px">⏳</span><p>Cargando materias…</p></div>`;
-
+  const idCarrera = document.getElementById('sel-carrera').value;
+  if(!idCarrera) { document.getElementById('kardex-area').innerHTML = `<div class="state-msg"><span>📋</span><p>Selecciona una carrera</p></div>`; document.getElementById('stats-chips').style.display = 'none'; return; }
+  sessionStorage.setItem('kardex_carrera_admin', idCarrera);
+  document.getElementById('kardex-area').innerHTML = `<div class="state-msg"><span>⏳</span><p>Cargando...</p></div>`;
   try {
     const res = await fetch(`${API}/kardex-carrera/${idCarrera}`, { headers: HEADERS() });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const materias = await res.json();
+    if(!res.ok) throw new Error();
+    materiasActuales = await res.json();
+    renderKardex(materiasActuales);
+  } catch(e) { document.getElementById('kardex-area').innerHTML = `<div class="state-msg"><span>⚠️</span><p>Error al cargar</p></div>`; toast('Error', 'error'); }
+}
 
-    if (!materias.length) {
-      area.innerHTML = `<div class="state-msg"><span>🔍</span><p>Esta carrera no tiene materias registradas</p></div>`;
-      document.getElementById('stats-chips').style.display = 'none';
-      return;
-    }
+// Render estilo kardex alumno
+function renderKardex(materias) {
+  if(!materias.length) { document.getElementById('kardex-area').innerHTML = `<div class="state-msg"><span>🔍</span><p>No hay materias registradas en esta carrera</p></div>`; document.getElementById('stats-chips').style.display = 'none'; return; }
+  const porSemestre = {};
+  materias.forEach(m => { let s = m.Semestre || 1; if(!porSemestre[s]) porSemestre[s] = []; porSemestre[s].push(m); });
+  const semestres = Object.keys(porSemestre).map(Number).sort((a,b)=>a-b);
+  const totalCreditos = materias.reduce((s,m)=> s + (m.Creditos||0),0);
+  const totalOpt = materias.filter(m=> m.EsOptativa).length;
+  document.getElementById('stat-total').textContent = materias.length;
+  document.getElementById('stat-creditos').textContent = totalCreditos;
+  document.getElementById('stat-sems').textContent = semestres.length;
+  document.getElementById('stat-opt').textContent = totalOpt;
+  document.getElementById('stats-chips').style.display = 'flex';
 
-    renderKardex(materias);
-  } catch (e) {
-    area.innerHTML = `<div class="state-msg"><span>⚠️</span><p>Error al cargar: ${e.message}</p></div>`;
-    toast('Error: ' + e.message, 'error');
+  const maxSem = Math.max(...semestres, 9);
+  const grid = document.getElementById('kardex-area');
+  grid.innerHTML = `<div class="kardex-grid" style="grid-template-columns: repeat(${maxSem}, 260px);"></div>`;
+  const gridContainer = grid.firstChild;
+  for(let s=1; s<=maxSem; s++){
+    const colDiv = document.createElement('div');
+    colDiv.className = `sem-col sem-${Math.min(s,9)}`;
+    const mats = porSemestre[s] || [];
+    const credSem = mats.reduce((acc,m)=> acc+(m.Creditos||0),0);
+    colDiv.innerHTML = `<div class="sem-header"><span>Semestre ${s}</span><span class="sem-count">${mats.length} mat · ${credSem} cr</span></div>`;
+    mats.forEach(mat => {
+      const card = document.createElement('div');
+      card.className = 'mat-card';
+      card.setAttribute('data-id', mat.ID_Materia);
+      card.innerHTML = `<div class="mat-clave">${mat.Clave}</div><div class="mat-nombre">${mat.Nombre}</div>
+        <div class="mat-footer"><span class="mat-creditos">🎓 ${mat.Creditos} créditos</span>${mat.EsOptativa ? '<span class="mat-optativa">OPT</span>' : '<span class="mat-optativa" style="background:#EFF6FF; color:#0369A1;">OBL</span>'}</div>`;
+      card.addEventListener('dblclick', (e) => { e.stopPropagation(); abrirModalEditar(mat.ID_Materia); });
+      colDiv.appendChild(card);
+    });
+    gridContainer.appendChild(colDiv);
   }
 }
 
-// ── Render ────────────────────────────────────────────────────────────────────
-function renderKardex(materias) {
-  // Agrupar por semestre
-  const porSemestre = {};
-  materias.forEach(m => {
-    const s = m.Semestre || 1;
-    if (!porSemestre[s]) porSemestre[s] = [];
-    porSemestre[s].push(m);
-  });
-
-  const semestres = Object.keys(porSemestre).map(Number).sort((a, b) => a - b);
-
-  // Estadísticas
-  const totalCreditos = materias.reduce((s, m) => s + (m.Creditos || 0), 0);
-  const totalOpt      = materias.filter(m => m.EsOptativa).length;
-  document.getElementById('stat-total').textContent    = materias.length;
-  document.getElementById('stat-creditos').textContent = totalCreditos;
-  document.getElementById('stat-sems').textContent     = semestres.length;
-  document.getElementById('stat-opt').textContent      = totalOpt;
-  document.getElementById('stats-chips').style.display = 'flex';
-
-  // Construir HTML
-  const colsHTML = semestres.map((sem, idx) => {
-    const mats = porSemestre[sem];
-    const semClass = `sem-${Math.min(sem, 9)}`;
-    const credsSem = mats.reduce((s, m) => s + (m.Creditos || 0), 0);
-
-    const cardsHTML = mats.map((m, i) => {
-      const delay = (idx * 30 + i * 40) + 'ms';
-      const optBadge = m.EsOptativa
-        ? `<span class="mat-optativa" style="background:#F5F3FF;color:#7C3AED">OPT</span>`
-        : `<span class="mat-optativa" style="background:#F0F9FF;color:#0369A1">OBL</span>`;
-      return `
-        <div class="mat-card" style="animation-delay:${delay}">
-          <div class="mat-clave">${m.Clave}</div>
-          <div class="mat-nombre">${m.Nombre}</div>
-          <div class="mat-footer">
-            <div class="mat-creditos">🎓 <span>${m.Creditos ?? 0}</span> créditos</div>
-            ${optBadge}
-          </div>
-        </div>`;
-    }).join('');
-
-    return `
-      <div class="sem-col ${semClass}">
-        <div class="sem-header">
-          <span class="sem-header-title">Semestre ${sem}</span>
-          <span class="sem-count">${mats.length} mat · ${credsSem} cr</span>
-        </div>
-        ${cardsHTML}
-      </div>`;
-  }).join('');
-
-  document.getElementById('kardex-area').innerHTML =
-    `<div class="grid-wrapper">${colsHTML}</div>`;
+// ---------- Edición / eliminación ----------
+async function abrirModalEditar(idMateria) {
+  const materia = materiasActuales.find(m => m.ID_Materia === idMateria);
+  if(!materia) { toast('Materia no encontrada', 'error'); return; }
+  editandoId = idMateria;
+  document.getElementById('modal-titulo').innerText = 'Editar Materia';
+  document.getElementById('f-clave').value = materia.Clave;
+  document.getElementById('f-clave').disabled = true;    // clave no editable
+  document.getElementById('f-nombre').value = materia.Nombre;
+  document.getElementById('f-creditos').value = materia.Creditos;
+  document.getElementById('f-unidades').value = materia.NumUnidades ?? 3;
+  document.getElementById('f-semestre').value = materia.Semestre ?? 1;
+  document.getElementById('f-carrera').value = materia.id_carrera;
+  document.getElementById('f-optativa').checked = materia.EsOptativa === true || materia.EsOptativa === 1;
+  document.getElementById('btn-eliminar-modal').style.display = 'inline-flex';
+  document.getElementById('modal-materia').classList.add('open');
 }
 
-// ── TOAST ─────────────────────────────────────────────────────────────────────
-function toast(msg, tipo = '') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'toast ' + tipo;
-  void el.offsetWidth;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 3200);
+function abrirModalNuevo() {
+  editandoId = null;
+  document.getElementById('modal-titulo').innerText = 'Nueva Materia';
+  document.getElementById('f-clave').value = '';
+  document.getElementById('f-clave').disabled = false;
+  document.getElementById('f-nombre').value = '';
+  document.getElementById('f-creditos').value = '4';
+  document.getElementById('f-unidades').value = '3';
+  document.getElementById('f-semestre').value = '1';
+  document.getElementById('f-carrera').value = '';
+  document.getElementById('f-optativa').checked = false;
+  document.getElementById('btn-eliminar-modal').style.display = 'none';
+  document.getElementById('modal-materia').classList.add('open');
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+async function guardarMateria() {
+  const clave = document.getElementById('f-clave').value.trim().toUpperCase();
+  const nombre = document.getElementById('f-nombre').value.trim();
+  const creditos = parseInt(document.getElementById('f-creditos').value);
+  const carrera = parseInt(document.getElementById('f-carrera').value);
+  const optativa = document.getElementById('f-optativa').checked ? 1 : 0;
+  const numUnidades = parseInt(document.getElementById('f-unidades').value);
+  const semestre = parseInt(document.getElementById('f-semestre').value);
+  if(!nombre || !carrera || !creditos) { toast('Completa campos obligatorios', 'error'); return; }
+  if(!editandoId && !clave) { toast('Clave es obligatoria', 'error'); return; }
+
+  const body = { Nombre: nombre, Creditos: creditos, id_carrera: carrera, EsOptativa: optativa, NumUnidades: numUnidades, Semestre: semestre };
+  if(!editandoId) body.Clave = clave;
+  const url = editandoId ? `${API}/materias/${editandoId}` : `${API}/materias`;
+  const method = editandoId ? 'PUT' : 'POST';
+  try {
+    const res = await fetch(url, { method, headers: HEADERS(), body: JSON.stringify(body) });
+    if(!res.ok) throw new Error(await res.text());
+    cerrarModal();
+    toast(editandoId ? 'Materia actualizada' : 'Materia creada', 'success');
+    cargarKardex();  // refresca la vista actual
+  } catch(e) { toast('Error al guardar: '+e.message, 'error'); }
+}
+
+async function eliminarMateria() {
+  if(!editandoId) return;
+  if(!confirm('¿Eliminar esta materia permanentemente? Verifica que no tenga dependencias.')) return;
+  try {
+    const res = await fetch(`${API}/materias/${editandoId}`, { method: 'DELETE', headers: HEADERS() });
+    if(!res.ok) throw new Error();
+    cerrarModal();
+    toast('Materia eliminada', 'success');
+    cargarKardex();
+  } catch(e) { toast('Error al eliminar', 'error'); }
+}
+
+function cerrarModal() { document.getElementById('modal-materia').classList.remove('open'); editandoId = null; }
+
+// ---------- Importación CSV ----------
+let datosPrevisualizacion = [];
+function abrirModalImportar() { document.getElementById('modal-importar').classList.add('open'); document.getElementById('paso-upload').style.display = 'block'; document.getElementById('paso-preview').style.display = 'none'; document.getElementById('csv-file').value = ''; document.getElementById('upload-error').textContent = ''; datosPrevisualizacion = []; }
+function cerrarModalImportar() { document.getElementById('modal-importar').classList.remove('open'); }
+async function previsualizarCSV() {
+  const file = document.getElementById('csv-file').files[0];
+  if(!file) { document.getElementById('upload-error').textContent = 'Selecciona un archivo CSV'; return; }
+  const formData = new FormData(); formData.append('file', file);
+  try {
+    const res = await fetch(`${API}/materias/import/preview`, { method: 'POST', headers: { 'x-admin-id': sessionStorage.getItem('ID_Administrador') || '1' }, body: formData });
+    if(!res.ok) throw new Error();
+    const data = await res.json();
+    if(!data.success) throw new Error(data.error);
+    datosPrevisualizacion = data.preview;
+    const tbody = document.querySelector('#preview-table tbody');
+    tbody.innerHTML = datosPrevisualizacion.map((m,i)=>`<tr><td><input value="${m.clave}" onchange="datosPrevisualizacion[${i}].clave=this.value"></td><td><input value="${m.nombre}" onchange="datosPrevisualizacion[${i}].nombre=this.value"></td><td><input type="number" value="${m.creditos}" onchange="datosPrevisualizacion[${i}].creditos=parseInt(this.value)"></td><td><input type="number" value="${m.id_carrera}" onchange="datosPrevisualizacion[${i}].id_carrera=parseInt(this.value)"></td><td><select onchange="datosPrevisualizacion[${i}].esOptativa=parseInt(this.value)"><option value="0" ${m.esOptativa===0?'selected':''}>No</option><option value="1" ${m.esOptativa===1?'selected':''}>Sí</option></select></td><td><input type="number" value="${m.numUnidades}" onchange="datosPrevisualizacion[${i}].numUnidades=parseInt(this.value)"></td><td><input type="number" value="${m.semestre}" onchange="datosPrevisualizacion[${i}].semestre=parseInt(this.value)"></td></tr>`).join('');
+    document.getElementById('preview-errors').innerHTML = (data.errors || []).join('<br>');
+    document.getElementById('paso-upload').style.display = 'none';
+    document.getElementById('paso-preview').style.display = 'block';
+  } catch(e) { document.getElementById('upload-error').textContent = 'Error: '+e.message; }
+}
+async function confirmarImportacion() {
+  if(!confirm('¿Guardar todas las materias?')) return;
+  try {
+    const res = await fetch(`${API}/materias/import/save`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-id': sessionStorage.getItem('ID_Administrador') || '1' }, body: JSON.stringify({ materias: datosPrevisualizacion }) });
+    const data = await res.json();
+    if(!data.success) throw new Error(data.error);
+    let msg = `✅ ${data.inserted} materias importadas.`;
+    if(data.errores?.length) msg += '\nErrores: '+data.errores.join(', ');
+    alert(msg);
+    cerrarModalImportar();
+    cargarKardex();
+  } catch(e) { alert('Error al importar: '+e.message); }
+}
+
+function toast(msg, tipo){ const el=document.getElementById('toast'); el.textContent=msg; el.className='toast '+tipo; void el.offsetWidth; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),3000); }
+
+// event listeners
+document.getElementById('btn-refresh').addEventListener('click', cargarKardex);
+document.getElementById('btn-nueva-materia').addEventListener('click', abrirModalNuevo);
+document.getElementById('btn-importar-csv').addEventListener('click', abrirModalImportar);
+document.getElementById('btn-guardar').addEventListener('click', guardarMateria);
+document.getElementById('btn-eliminar-modal').addEventListener('click', eliminarMateria);
+document.getElementById('btn-previsualizar').addEventListener('click', previsualizarCSV);
+document.getElementById('btn-confirmar-import').addEventListener('click', confirmarImportacion);
+window.cerrarModal = cerrarModal;
+window.cerrarModalImportar = cerrarModalImportar;
+window.toggleSidebar = function(){ const sb = document.getElementById('main-sidebar'); sb.style.width = sb.style.width === '0px' ? '235px' : '0px'; };
 cargarCarreras();
 </script>
 </body>

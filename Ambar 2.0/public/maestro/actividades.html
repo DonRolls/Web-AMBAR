@@ -72,6 +72,77 @@ tbody tr:hover td{background:#F8FBFF}
 .btn-edit:hover{background:#FFE8A0;border-color:var(--gold)}
 .btn-delete{background:#FEF2F2;color:var(--danger);border:1px solid rgba(232,64,64,.25)}
 .btn-delete:hover{background:#FFE0E0;border-color:var(--danger)}
+/* Estilos del Modal alineados con actividades.html */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 27, 62, 0.7); /* --navy con transparencia */
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+.modal-content {
+  background: var(--card);
+  width: 90%;
+  max-width: 500px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.modal-header {
+  background: var(--navy);
+  padding: 18px 24px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-header h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+}
+.modal-body {
+  padding: 24px;
+}
+.form-group {
+  margin-bottom: 18px;
+}
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-2);
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+.form-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  transition: 0.2s;
+}
+.form-input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-glow);
+}
+.modal-footer {
+  padding: 16px 24px;
+  background: #f8fafc;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 1px solid var(--border);
+}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 </style>
@@ -111,13 +182,49 @@ tbody tr:hover td{background:#F8FBFF}
         <span style="color:var(--text-2)">🔍</span>
         <input type="text" id="busqueda" placeholder="Buscar actividad por nombre o descripción...">
       </div>
-      <button class="btn-add">＋ Nueva actividad</button>
+      <button class="btn-add" id="open-modal">＋ Nueva actividad</button>
     </div>
+<div class="modal-overlay" id="act-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span style="color:var(--text-2)">🔍</span>
+      <h2 id="modal-title">＋ Registrar Nueva Actividad</h2>
+      <span style="cursor:pointer; font-size:20px" id="close-modal">✕</span>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+      
+      <div class="form-group">
+        <label>Unidad Temática</label>
+        <select id="act-unit-input" class="form-input">
+          <option value="Unidad 1">Unidad 1</option>
+          <option value="Unidad 2">Unidad 2</option>
+          <option value="Unidad 3">Unidad 3</option>
+          <option value="Unidad 4">Unidad 4</option>
+          <option value="Unidad 5">Unidad 5</option>
+        </select>
+      </div>
 
+      <div class="form-group">
+        <label>Nombre de la Actividad</label>
+        <input type="text" id="act-title-input" class="form-input" placeholder="Ej: Proyecto Final">
+      </div>
+
+      <div class="form-group">
+        <label>Descripción / Tareas</label>
+        <textarea id="act-desc-input" class="form-input" rows="3" placeholder="Detalla las instrucciones..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm" style="background:#eee; color:var(--text-2)" id="cancel-modal">Cancelar</button>
+      <button class="btn-add" id="save-btn">Guardar Actividad</button>
+    </div>
+  </div>
+</div>
     <div class="table-card">
       <div class="tc-head">
         <div class="tc-title"><div class="tc-title-icon">📋</div> Actividades registradas</div>
-        <span class="tc-count">5 actividades</span>
+        <span class="tc-count" id="act-count">0actividades</span>
       </div>
       <table id="tabla-actividades">
         <thead>
@@ -127,34 +234,7 @@ tbody tr:hover td{background:#F8FBFF}
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td><strong>Presentación de PowerPoint:</strong> Introducción a los conceptos básicos.</td>
-            <td><div class="btn-group"><button class="btn-sm btn-edit">Editar</button><button class="btn-sm btn-delete">Eliminar</button></div></td>
-          </tr>
-          <tr>
-            <td><strong>Presentación de Proyecto:</strong> Avances del primer parcial.</td>
-            <td><div class="btn-group"><button class="btn-sm btn-edit">Editar</button><button class="btn-sm btn-delete">Eliminar</button></div></td>
-          </tr>
-          <tr>
-            <td>
-              <div class="act-unit">Unidad 1: Inteligencia de Negocios (BI)</div>
-              <ul class="act-list">
-                <li>Investigar la definición, objetivos y ventajas de BI.</li>
-                <li>Analizar componentes mediante ejemplos prácticos.</li>
-                <li>Diseñar esquema de Data Warehouse unificado.</li>
-                <li>Ejercicios de toma de decisiones basadas en datos.</li>
-              </ul>
-            </td>
-            <td><div class="btn-group"><button class="btn-sm btn-edit">Editar</button><button class="btn-sm btn-delete">Eliminar</button></div></td>
-          </tr>
-          <tr>
-            <td>Acceso a bases de datos — Gestión de repositorios institucionales.</td>
-            <td><div class="btn-group"><button class="btn-sm btn-edit">Editar</button><button class="btn-sm btn-delete">Eliminar</button></div></td>
-          </tr>
-          <tr>
-            <td>Desarrollar dashboards interactivos para minería de datos (Power BI / Tableau).</td>
-            <td><div class="btn-group"><button class="btn-sm btn-edit">Editar</button><button class="btn-sm btn-delete">Eliminar</button></div></td>
-          </tr>
+          <!-- Las actividades se cargarán aquí dinámicamente -->
         </tbody>
       </table>
     </div>
@@ -162,80 +242,154 @@ tbody tr:hover td{background:#F8FBFF}
   </main>
 </div>
 <script>
-// USAR DOMContentLoaded para asegurar que el HTML cargó
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
 
-    const tbody = document.querySelector("#tabla-actividades tbody");
-    const btnAdd = document.querySelector(".btn-add");
-    const contador = document.querySelector(".tc-count");
-    const inputBusqueda = document.querySelector("#busqueda");
-
-    // ACTUALIZAR CONTADOR
-    function actualizarContador() {
-        const total = tbody.querySelectorAll("tr").length;
-        contador.textContent = total + (total === 1 ? " actividad" : " actividades");
+    let activities = JSON.parse(localStorage.getItem('docente_actividades')) || [
+        {
+            id: 1,
+            unit: "Unidad 1",
+            title: "Investigación",
+            desc: "Definición, objetivos y ventajas de BI."
+        },
+        {
+            id: 2,
+            unit: "Unidad 2",
+            title: "Presentación",
+            desc: "Avances del primer parcial."
+        }
+    ];
+    const tableBody = document.querySelector("#tabla-actividades tbody");
+    const modal = document.getElementById("act-modal");
+    const openBtn = document.getElementById("open-modal");
+    const closeBtn = document.getElementById("close-modal");
+    const cancelBtn = document.getElementById("cancel-modal");
+    const saveBtn = document.getElementById("save-btn");
+    const searchInput = document.getElementById("busqueda");
+    // GUARDAR EN LOCAL STORAGE
+    function saveToLocal() {
+        localStorage.setItem(
+            'docente_actividades',
+            JSON.stringify(activities)
+        );
+        render();
     }
-
-    // ELIMINAR ACTIVIDAD
-    document.addEventListener("click", function(e) {
-        if (e.target.classList.contains("btn-delete")) {
-            if (confirm("¿Estás seguro de que deseas eliminar esta actividad?")) {
-                e.target.closest("tr").remove();
-                actualizarContador();
-            }
-        }
-    });
-
-    // EDITAR ACTIVIDAD
-    document.addEventListener("click", function(e) {
-        if (e.target.classList.contains("btn-edit")) {
-            const fila = e.target.closest("tr");
-            const celda = fila.children[0];
-            const contenidoActual = celda.innerHTML;
-            const nuevoContenido = prompt("Edita la actividad (puedes usar HTML):", contenidoActual);
-            
-            if (nuevoContenido !== null && nuevoContenido.trim() !== "") {
-                celda.innerHTML = nuevoContenido;
-            }
-        }
-    });
-
-    // AGREGAR NUEVA ACTIVIDAD
-    btnAdd.addEventListener("click", function() {
-        const nuevaActividad = prompt("Escribe la descripción de la nueva actividad:");
-        if (nuevaActividad !== null && nuevaActividad.trim() !== "") {
-            const nuevaFila = document.createElement("tr");
-            nuevaFila.innerHTML = `
-                <td>${nuevaActividad}</td>
+    // RENDER TABLA
+    function render(filter = '') {
+        tableBody.innerHTML = '';
+        const filtered = activities.filter(a =>
+            a.title.toLowerCase().includes(filter.toLowerCase()) ||
+            a.desc.toLowerCase().includes(filter.toLowerCase()) ||
+            a.unit.toLowerCase().includes(filter.toLowerCase())
+        );
+        filtered.forEach(act => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <div class="act-unit">${act.unit}</div>
+                    <ul class="act-list">
+                        <li>
+                            <strong>${act.title}:</strong>
+                            ${act.desc}
+                        </li>
+                    </ul>
+                </td>
                 <td>
                     <div class="btn-group">
-                        <button class="btn-sm btn-edit">Editar</button>
-                        <button class="btn-sm btn-delete">Eliminar</button>
+                        <button
+                            class="btn-sm btn-edit"
+                            onclick="editAct(${act.id})">
+                            Editar
+                        </button>
+                        <button
+                            class="btn-sm btn-delete"
+                            onclick="deleteAct(${act.id})">
+                            Eliminar
+                        </button>
                     </div>
                 </td>
             `;
-            tbody.appendChild(nuevaFila);
-            actualizarContador();
-        }
-    });
-
-    // BUSCADOR (FUNCIONALIDAD EXTRA)
-    inputBusqueda.addEventListener("keyup", function() {
-        const busqueda = this.value.toLowerCase();
-        const filas = tbody.querySelectorAll("tr");
-        
-        filas.forEach(fila => {
-            const texto = fila.children[0].innerText.toLowerCase();
-            fila.style.display = texto.includes(busqueda) ? "" : "none";
+            tableBody.appendChild(tr);
         });
+        document.getElementById("act-count").textContent =
+            `${filtered.length} actividades`;
+    }
+    // ELIMINAR
+    window.deleteAct = function(id) {
+        if (confirm("¿Eliminar esta actividad?")) {
+            activities = activities.filter(a => a.id !== id);
+            saveToLocal();
+        }
+    };
+    // EDITAR
+    window.editAct = function(id) {
+        const act = activities.find(a => a.id === id);
+        document.getElementById("edit-id").value = act.id;
+        document.getElementById("act-unit-input").value = act.unit;
+        document.getElementById("act-title-input").value = act.title;
+        document.getElementById("act-desc-input").value = act.desc;
+        document.getElementById("modal-title").textContent ="✎ Editar Actividad";
+        modal.style.display = "flex";
+    };
+    // ABRIR MODAL
+    openBtn.onclick = () => {
+        document.getElementById("edit-id").value = "";
+        document.getElementById("act-unit-input").value = "Unidad 1";
+        document.getElementById("act-title-input").value = "";
+        document.getElementById("act-desc-input").value = "";
+        document.getElementById("modal-title").textContent =
+            "＋ Registrar Nueva Actividad";
+        modal.style.display = "flex";
+    };
+    // CERRAR MODAL
+    function closeModal() {
+        modal.style.display = "none";
+    }
+    closeBtn.onclick = closeModal;
+    cancelBtn.onclick = closeModal;
+    // GUARDAR ACTIVIDAD
+    saveBtn.onclick = () => {
+        const id = document.getElementById("edit-id").value;
+        const unit =
+            document.getElementById("act-unit-input").value;
+        const title =
+            document.getElementById("act-title-input").value.trim();
+        const desc =
+            document.getElementById("act-desc-input").value.trim();
+        if (!title || !desc) {
+            alert("Completa todos los campos");
+            return;
+        }
+        if (id) {
+            const index =
+                activities.findIndex(a => a.id == id);
+            activities[index] = {
+                ...activities[index],
+                unit,
+                title,
+                desc
+            };
+        } else {
+            activities.push({
+                id: Date.now(),
+                unit,
+                title,
+                desc
+            });
+        }
+        saveToLocal();
+        closeModal();
+    };
+    // BUSCADOR
+    searchInput.addEventListener("keyup", (e) => {
+        render(e.target.value);
     });
-// Cerrar sesión
-    document.querySelector(".logout-btn")?.addEventListener("click", () => {
-        sessionStorage.clear();
-        window.location.href = "../login.html";
-    });
-    // Inicializar contador al cargar
-    actualizarContador();
+    // CERRAR MODAL SI DAN CLICK FUERA
+    window.onclick = function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    };
+    render();
 });
 </script>
 </body>
