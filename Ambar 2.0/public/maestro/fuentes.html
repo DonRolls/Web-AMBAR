@@ -59,7 +59,57 @@ tbody tr:hover td{background:#F8FBFF}
 /* LINK */
 .source-link{color:var(--gold);font-weight:600;font-size:12.5px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;border:1px solid rgba(232,161,0,.3);background:var(--gold-lt);transition:.15s}
 .source-link:hover{background:#FFE8A0;border-color:var(--gold)}
+/* BOTONES */
+.btn-group{
+display:flex;
+gap:8px;
+}
 
+.btn-sm{
+border:none;
+padding:6px 10px;
+border-radius:6px;
+font-size:11px;
+font-weight:700;
+cursor:pointer;
+transition:.2s;
+font-family:'DM Sans',sans-serif;
+}
+
+.btn-edit{
+background:#DBEAFE;
+color:#2563EB;
+}
+
+.btn-edit:hover{
+background:#BFDBFE;
+}
+
+.btn-delete{
+background:#FEE2E2;
+color:#DC2626;
+}
+
+.btn-delete:hover{
+background:#FECACA;
+}
+/* INPUTS TABLA */
+.input-table{
+width:100%;
+padding:8px 10px;
+border:1px solid var(--border);
+border-radius:7px;
+font-size:12px;
+font-family:'DM Sans',sans-serif;
+background:white;
+outline:none;
+transition:.2s;
+}
+
+.input-table:focus{
+border-color:var(--gold);
+box-shadow:0 0 0 3px var(--gold-glow);
+}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
@@ -99,9 +149,89 @@ tbody tr:hover td{background:#F8FBFF}
         <span style="color:var(--text-2)">🔍</span>
         <input type="text" placeholder="Buscar por título, autor o descripción...">
       </div>
-      <button class="btn-add">＋ Nueva fuente</button>
+      
     </div>
+      <!-- NUEVA FUENTE -->
+      <div class="table-card" style="margin-bottom:20px">
 
+        <div class="tc-head">
+          <div class="tc-title">
+            <div class="tc-title-icon">➕</div>
+            Registrar nueva fuente
+          </div>
+        </div>
+
+        <div class="t-wrap">
+
+          <table>
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Descripción</th>
+                <th>Tipo</th>
+                <th>Enlace</th>
+                <th>Autores</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+
+                <td>
+                  <input type="text"
+                        id="tituloFuente"
+                        placeholder="Título"
+                        class="input-table">
+                </td>
+
+                <td>
+                  <input type="text"
+                        id="descripcionFuente"
+                        placeholder="Descripción"
+                        class="input-table">
+                </td>
+
+                <td>
+                  <select id="tipoFuente"
+                          class="input-table">
+
+                    <option value="Libro">Libro</option>
+                    <option value="Artículo">Artículo</option>
+                    <option value="Blog">Blog</option>
+                    <option value="PDF">PDF</option>
+                    <option value="Repositorio">Repositorio</option>
+
+                  </select>
+                </td>
+
+                <td>
+                  <input type="url"
+                        id="linkFuente"
+                        placeholder="https://..."
+                        class="input-table">
+                </td>
+
+                <td>
+                  <input type="text"
+                        id="autorFuente"
+                        placeholder="Autor(es)"
+                        class="input-table">
+                </td>
+
+                <td>
+                  <button id="guardarFuente"
+                          class="btn-add">
+                    Guardar
+                  </button>
+                </td>
+
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </div>
     <div class="table-card">
       <div class="tc-head">
         <div class="tc-title"><div class="tc-title-icon">📚</div> Fuentes registradas</div>
@@ -132,11 +262,16 @@ tbody tr:hover td{background:#F8FBFF}
                   </a>
                 </td>
                 <td style="font-size:12px;color:var(--text-2)">Conexión ESAN, (s.f.)</td>
-                <td>
-                  <div class="btn-group">
-                    <button class="btn-sm btn-edit">Editar</button>
-                    <button class="btn-sm btn-delete">Eliminar</button>
-                  </div>
+                  <td>
+                    <div class="btn-group">
+                      <button class="btn-sm btn-edit">
+                        Editar
+                      </button>
+
+                      <button class="btn-sm btn-delete">
+                        Eliminar
+                      </button>
+                    </div>
                 </td>
               </tr>
             </tbody>
@@ -147,103 +282,166 @@ tbody tr:hover td{background:#F8FBFF}
 </div>
 <script>
 
-// AGREGAR NUEVA FUENTE
-document.querySelector(".btn-add").addEventListener("click", function () {
-    const titulo = prompt("Título:");
-    if (!titulo) return;
-    const descripcion = prompt("Descripción:");
-    if (!descripcion) return;
-    const tipo = prompt("Tipo (Libro, Artículo, Blog, PDF, etc):");
-    if (!tipo) return;
-    const link = prompt("Link o URL:");
-    if (!link) return;
-    const autores = prompt("Autores:");
-    if (!autores) return;
-    const tbody = document.getElementById("fuentes-body");
+// ===== TABLA =====
+const tbody = document.querySelector("tbody");
+
+// ===== GUARDAR NUEVA FUENTE =====
+document.getElementById("guardarFuente")
+.addEventListener("click", function () {
+
+    const titulo =
+        document.getElementById("tituloFuente").value;
+
+    const descripcion =
+        document.getElementById("descripcionFuente").value;
+
+    const tipo =
+        document.getElementById("tipoFuente").value;
+
+    const enlace =
+        document.getElementById("linkFuente").value;
+
+    const autores =
+        document.getElementById("autorFuente").value;
+
+    // VALIDACIÓN
+    if(
+        titulo.trim() === "" ||
+        descripcion.trim() === "" ||
+        enlace.trim() === "" ||
+        autores.trim() === ""
+    ){
+        alert("Completa todos los campos");
+        return;
+    }
+
+    // CREAR FILA
     const fila = document.createElement("tr");
+
     fila.innerHTML = `
-        <td><strong>${titulo}</strong></td>
-        <td>${descripcion}</td>
         <td>
-            <span class="badge-type">${tipo}</span>
+            <strong>${titulo}</strong>
         </td>
+
         <td>
-            <a href="${link}"
+            ${descripcion}
+        </td>
+
+        <td>
+            <span class="badge-type">
+                ${tipo}
+            </span>
+        </td>
+
+        <td>
+            <a href="${enlace}"
                target="_blank"
                class="source-link">
-               🔗 Abrir enlace
+               🔗 Visitar sitio
             </a>
         </td>
+
         <td style="font-size:12px;color:var(--text-2)">
             ${autores}
         </td>
+
         <td>
             <div class="btn-group">
-                <button class="btn-sm btn-edit">Editar</button>
-                <button class="btn-sm btn-delete">Eliminar</button>
+
+                <button class="btn-sm btn-edit">
+                    Editar
+                </button>
+
+                <button class="btn-sm btn-delete">
+                    Eliminar
+                </button>
+
             </div>
         </td>
     `;
-    tbody.appendChild(fila);
+
+    document.querySelector(".table-card table tbody")
+    .appendChild(fila);
+
     actualizarContador();
+
+    // LIMPIAR CAMPOS
+    document.getElementById("tituloFuente").value = "";
+    document.getElementById("descripcionFuente").value = "";
+    document.getElementById("linkFuente").value = "";
+    document.getElementById("autorFuente").value = "";
 });
-// ELIMINAR
+
+// ===== ELIMINAR =====
 document.addEventListener("click", function(e){
+
     if(e.target.classList.contains("btn-delete")){
-        if(confirm("¿Eliminar esta fuente?")){
+
+        if(confirm("¿Eliminar fuente?")){
+
             e.target.closest("tr").remove();
+
             actualizarContador();
         }
     }
 });
-// EDITAR
+
+// ===== EDITAR =====
 document.addEventListener("click", function(e){
+
     if(e.target.classList.contains("btn-edit")){
+
         const fila = e.target.closest("tr");
-        const tituloActual =
-            fila.children[0].innerText;
-        const descripcionActual =
-            fila.children[1].innerText;
-        const tipoActual =
-            fila.children[2].innerText;
-        const autoresActual =
-            fila.children[4].innerText;
-        const nuevoTitulo =
-            prompt("Editar título:", tituloActual);
-        if(!nuevoTitulo) return;
-        const nuevaDescripcion =
-            prompt("Editar descripción:", descripcionActual);
-        if(!nuevaDescripcion) return;
-        const nuevoTipo =
-            prompt("Editar tipo:", tipoActual);
-        if(!nuevoTipo) return;
-        const nuevosAutores =
-            prompt("Editar autores:", autoresActual);
-        if(!nuevosAutores) return;
+
+        const titulo =
+            prompt(
+                "Editar título:",
+                fila.children[0].innerText
+            );
+
+        if(!titulo) return;
+
+        const descripcion =
+            prompt(
+                "Editar descripción:",
+                fila.children[1].innerText
+            );
+
+        if(!descripcion) return;
+
+        const autores =
+            prompt(
+                "Editar autores:",
+                fila.children[4].innerText
+            );
+
+        if(!autores) return;
+
         fila.children[0].innerHTML =
-            `<strong>${nuevoTitulo}</strong>`;
+            `<strong>${titulo}</strong>`;
+
         fila.children[1].innerText =
-            nuevaDescripcion;
-        fila.children[2].innerHTML =
-            `<span class="badge-type">${nuevoTipo}</span>`;
+            descripcion;
+
         fila.children[4].innerText =
-            nuevosAutores;
+            autores;
     }
 });
-// CONTADOR
+
+// ===== CONTADOR =====
 function actualizarContador(){
+
     const total =
-        document.querySelectorAll("#fuentes-body tr").length;
-    document.querySelector(".tc-count").textContent =
+        document.querySelectorAll("tbody tr").length - 1;
+
+    document.querySelector(".tc-count")
+    .textContent =
         total + " fuentes";
 }
-// CERRAR SESIÓN
-document.querySelector(".logout-btn")?.addEventListener("click", () => {
-    sessionStorage.clear();
-    window.location.href = "../login.html";
-});
-// INICIAR CONTADOR
+
+// ===== INICIAR =====
 actualizarContador();
+
 </script>
 </body>
 </html>
