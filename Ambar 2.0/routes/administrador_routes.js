@@ -396,6 +396,56 @@ router.get("/carreras", authAdmin, asyncH(async (req, res) => {
     res.json(result.recordset);
 }));
 
+/* ─── CATÁLOGO DE ACTIVIDADES ───────────────────────────────────────────── */
+router.get("/actividades", authAdmin, asyncH(async (req, res) => {
+    res.json(await repo.getActividades());
+}));
+
+router.post("/actividades", authAdmin, asyncH(async (req, res) => {
+    const { Titulo, Descripcion, Tipo, FechaInicio, FechaFin, Horas, Cupo, ID_Docente } = req.body;
+    if (!Titulo || !Descripcion || !Tipo || !FechaInicio || !FechaFin)
+        return res.status(400).json({ error: "Faltan campos obligatorios" });
+    await repo.crearActividad(Titulo, Descripcion, Tipo, FechaInicio, FechaFin, Horas || 0, Cupo || 30, ID_Docente);
+    res.status(201).json({ ok: true });
+}));
+
+router.put("/actividades/:id", authAdmin, asyncH(async (req, res) => {
+    await repo.actualizarActividad(parseInt(req.params.id), req.body);
+    res.json({ ok: true });
+}));
+
+router.delete("/actividades/:id", authAdmin, asyncH(async (req, res) => {
+    await repo.eliminarActividad(parseInt(req.params.id));
+    res.json({ ok: true });
+}));
+
+/* ─── CONTROL DE ACTIVIDADES ────────────────────────────────────────────── */
+router.get("/control-actividades", authAdmin, asyncH(async (req, res) => {
+    res.json(await repo.getControlActividades());
+}));
+
+router.post("/control-actividades", authAdmin, asyncH(async (req, res) => {
+    const { Tipo, Activo } = req.body;
+    if (!Tipo || Activo === undefined)
+        return res.status(400).json({ error: "Faltan campos obligatorios" });
+    await repo.actualizarControlActividad(Tipo, Activo);
+    res.json({ ok: true });
+}));
+
+/* ─── INSCRITOS A ACTIVIDADES Y ESTATUS ──────────────────────────────────── */
+router.get("/actividades/:id/inscritos", authAdmin, asyncH(async (req, res) => {
+    const inscritos = await repo.getActividadInscritos(parseInt(req.params.id));
+    res.json(inscritos);
+}));
+
+router.post("/actividades/alumno-status", authAdmin, asyncH(async (req, res) => {
+    const { Tipo, ID_Registro, Estatus } = req.body;
+    if (!Tipo || !ID_Registro || !Estatus)
+        return res.status(400).json({ error: "Faltan campos obligatorios" });
+    await repo.actualizarEstatusActividadAlumno(Tipo, parseInt(ID_Registro), Estatus);
+    res.json({ ok: true });
+}));
+
 /* ─── Manejador de errores ─────────────────────────────────────────────────── */
 router.use((err, req, res, next) => {
     console.error("[Admin Route Error]", err.message);

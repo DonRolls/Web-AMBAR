@@ -214,6 +214,149 @@ const administradorRepository = {
             `);
         return result.recordset;
     },
+
+    // ─── CATÁLOGO DE ACTIVIDADES ─────────────────────────────────────────────
+    getActividades: async () => {
+        const pool = await getPool();
+        const result = await pool.request().query(`
+            SELECT c.*, ISNULL(d.Nombre + ' ' + d.Apellidos, 'N/A') AS DocenteNombre
+            FROM CatalogoActividades c
+            LEFT JOIN Docentes d ON c.ID_Docente = d.ID_Docente
+            ORDER BY c.FechaInicio DESC
+        `);
+        return result.recordset;
+    },
+
+    crearActividad: async (titulo, descripcion, tipo, fechaInicio, fechaFin, horas, cupo, idDocente) => {
+        const pool = await getPool();
+        await pool.request()
+            .input("Titulo", sql.NVarChar, titulo)
+            .input("Descripcion", sql.NVarChar, descripcion)
+            .input("Tipo", sql.NVarChar, tipo)
+            .input("FechaInicio", sql.Date, fechaInicio)
+            .input("FechaFin", sql.Date, fechaFin)
+            .input("Horas", sql.Int, horas)
+            .input("Cupo", sql.Int, cupo)
+            .input("ID_Docente", sql.Int, idDocente || null)
+            .query(`INSERT INTO CatalogoActividades (Titulo, Descripcion, Tipo, FechaInicio, FechaFin, Horas, Cupo, ID_Docente)
+                    VALUES (@Titulo, @Descripcion, @Tipo, @FechaInicio, @FechaFin, @Horas, @Cupo, @ID_Docente)`);
+    },
+
+    actualizarActividad: async (id, campos) => {
+        const pool = await getPool();
+        const request = pool.request().input("ID_Catalogo", sql.Int, id);
+        const updates = [];
+        if (campos.Titulo !== undefined) { updates.push("Titulo = @Titulo"); request.input("Titulo", sql.NVarChar, campos.Titulo); }
+        if (campos.Descripcion !== undefined) { updates.push("Descripcion = @Descripcion"); request.input("Descripcion", sql.NVarChar, campos.Descripcion); }
+        if (campos.Tipo !== undefined) { updates.push("Tipo = @Tipo"); request.input("Tipo", sql.NVarChar, campos.Tipo); }
+        if (campos.FechaInicio !== undefined) { updates.push("FechaInicio = @FechaInicio"); request.input("FechaInicio", sql.Date, campos.FechaInicio); }
+        if (campos.FechaFin !== undefined) { updates.push("FechaFin = @FechaFin"); request.input("FechaFin", sql.Date, campos.FechaFin); }
+        if (campos.Horas !== undefined) { updates.push("Horas = @Horas"); request.input("Horas", sql.Int, campos.Horas); }
+        if (campos.Cupo !== undefined) { updates.push("Cupo = @Cupo"); request.input("Cupo", sql.Int, campos.Cupo); }
+        if (campos.ID_Docente !== undefined) { updates.push("ID_Docente = @ID_Docente"); request.input("ID_Docente", sql.Int, campos.ID_Docente || null); }
+        
+        if (updates.length === 0) return;
+        await request.query(`UPDATE CatalogoActividades SET ${updates.join(', ')} WHERE ID_Catalogo = @ID_Catalogo`);
+    },
+
+    eliminarActividad: async (id) => {
+        const pool = await getPool();
+        await pool.request()
+            .input("ID_Catalogo", sql.Int, id)
+            .query("DELETE FROM CatalogoActividades WHERE ID_Catalogo = @ID_Catalogo");
+    },
+
+    // ─── CONTROL DE ACTIVIDADES ──────────────────────────────────────────────
+    getControlActividades: async () => {
+        const pool = await getPool();
+        const result = await pool.request().query("SELECT * FROM ControlActividades");
+        return result.recordset;
+    },
+
+    actualizarControlActividad: async (tipo, activo) => {
+        const pool = await getPool();
+        await pool.request()
+            .input("Tipo", sql.NVarChar, tipo)
+            .input("Activo", sql.Bit, activo ? 1 : 0)
+            .query("UPDATE ControlActividades SET Activo = @Activo WHERE Tipo = @Tipo");
+    },
+
+    // Obtener los alumnos inscritos en una actividad
+    getActividadInscritos: async (idCatalogo) => {
+        const pool = await getPool();
+        // 1. Obtener la actividad
+        const actRes = await pool.request()
+            .input("ID", sql.Int, idCatalogo)
+            .query("SELECT * FROM CatalogoActividades WHERE ID_Catalogo = @ID");
+        if (actRes.recordset.length === 0) return [];
+        const act = actRes.recordset[0];
+        
+        let query = "";
+        let request = pool.request();
+        request.input("Tit", sql.NVarChar, act.Titulo).input("Fec", sql.Date, act.FechaInicio);
+
+        // 2. Dependiendo del tipo, obtener los inscritos con su respectiva tabla
+        const tipoUpper = act.Tipo.toUpperCase();
+        if (tipoUpper === 'COMPLEMENTARIA') {
+            query = `
+                SELECT ac.ID_Actividad AS ID_Registro, a.N_ctrl, a.Nombre + ' ' + a.Apellidos AS NombreCompleto,
+                       c.nombre AS Carrera, a.Semestre, ac.Estatus
+                FROM ActividadesComplementarias ac
+                JOIN Alumnos a ON ac.N_ctrl = a.N_ctrl
+                JOIN carrera c ON a.id_carrera = c.id_carrera
+                WHERE ac.Descripcion = @Tit AND ac.Fecha = @Fec
+                ORDER BY a.Apellidos
+            `;
+        } else if (tipoUpper === 'EXTRAESCOLAR') {
+            query = `
+                SELECT ae.ID_Actividad AS ID_Registro, a.N_ctrl, a.Nombre + ' ' + a.Apellidos AS NombreCompleto,
+                       c.nombre AS Carrera, a.Semestre, ae.Estatus
+                FROM ActividadesExtraescolares ae
+                JOIN Alumnos a ON ae.N_ctrl = a.N_ctrl
+                JOIN carrera c ON a.id_carrera = c.id_carrera
+                WHERE ae.Descripcion = @Tit AND ae.Fecha = @Fec
+                ORDER BY a.Apellidos
+            `;
+        } else if (tipoUpper === 'TUTORIA') {
+            request.input("Doc", sql.Int, act.ID_Docente);
+            query = `
+                SELECT t.ID_Tutoria AS ID_Registro, a.N_ctrl, a.Nombre + ' ' + a.Apellidos AS NombreCompleto,
+                       c.nombre AS Carrera, a.Semestre, t.Estatus
+                FROM Tutorias t
+                JOIN Alumnos a ON t.N_ctrl = a.N_ctrl
+                JOIN carrera c ON a.id_carrera = c.id_carrera
+                WHERE t.ID_Docente = @Doc AND t.Fecha = @Fec AND t.Observaciones = @Tit
+                ORDER BY a.Apellidos
+            `;
+        } else {
+            return [];
+        }
+
+        const res = await request.query(query);
+        return res.recordset;
+    },
+
+    // Actualizar el estatus de un alumno en la actividad
+    actualizarEstatusActividadAlumno: async (tipo, idRegistro, estatus) => {
+        const pool = await getPool();
+        const tipoUpper = tipo.toUpperCase();
+        let query = "";
+        if (tipoUpper === 'COMPLEMENTARIA') {
+            query = "UPDATE ActividadesComplementarias SET Estatus = @Estatus WHERE ID_Actividad = @ID";
+        } else if (tipoUpper === 'EXTRAESCOLAR') {
+            query = "UPDATE ActividadesExtraescolares SET Estatus = @Estatus WHERE ID_Actividad = @ID";
+        } else if (tipoUpper === 'TUTORIA') {
+            query = "UPDATE Tutorias SET Estatus = @Estatus WHERE ID_Tutoria = @ID";
+        } else {
+            throw new Error("Tipo de actividad no válido");
+        }
+
+        await pool.request()
+            .input("ID", sql.Int, idRegistro)
+            .input("Estatus", sql.NVarChar, estatus)
+            .query(query);
+        return true;
+    }
 };
 //zeus deja de romper todo por favor, ya casi acabamos :c
 module.exports = administradorRepository;

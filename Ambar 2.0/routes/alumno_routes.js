@@ -63,6 +63,34 @@ router.get("/actividades/:nctrl", async (req, res) => {
     }
 });
 
+// Actividades Disponibles
+router.get("/actividades-disponibles/:nctrl", async (req, res) => {
+    try {
+        const actividades = await alumnoRepository.getActividadesDisponibles(req.params.nctrl);
+        res.json(actividades);
+    } catch (err) {
+        console.error("Error /actividades-disponibles:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Tomar actividad
+router.post("/tomar-actividad", async (req, res) => {
+    try {
+        const { N_ctrl, ID_Catalogo } = req.body;
+        if (!N_ctrl || !ID_Catalogo) return res.status(400).json({ success: false, error: "Datos incompletos" });
+        const result = await alumnoRepository.tomarActividad(N_ctrl, parseInt(ID_Catalogo));
+        if (result.success) {
+            res.json(result);
+        } else {
+            res.status(400).json({ success: false, error: result.mensaje });
+        }
+    } catch (err) {
+        console.error("Error /tomar-actividad:", err.message);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 // Recibos
 router.get("/recibos/:nctrl", async (req, res) => {
     try {

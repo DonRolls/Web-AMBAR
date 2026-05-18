@@ -149,14 +149,14 @@ const alumnoRepository = {
         const [comp, extra, tut] = await Promise.all([
             pool.request()
                 .input("N_ctrl", sql.NVarChar, nctrl)
-                .query("SELECT Descripcion, Fecha, Horas FROM ActividadesComplementarias WHERE N_ctrl = @N_ctrl ORDER BY Fecha DESC"),
+                .query("SELECT Descripcion, Fecha, Horas, Estatus FROM ActividadesComplementarias WHERE N_ctrl = @N_ctrl ORDER BY Fecha DESC"),
             pool.request()
                 .input("N_ctrl", sql.NVarChar, nctrl)
-                .query("SELECT Descripcion, Fecha, Horas FROM ActividadesExtraescolares WHERE N_ctrl = @N_ctrl ORDER BY Fecha DESC"),
+                .query("SELECT Descripcion, Fecha, Horas, Estatus FROM ActividadesExtraescolares WHERE N_ctrl = @N_ctrl ORDER BY Fecha DESC"),
             pool.request()
                 .input("N_ctrl", sql.NVarChar, nctrl)
                 .query(`
-                    SELECT t.Fecha, t.Observaciones,
+                    SELECT t.Fecha, t.Observaciones, t.Estatus,
                            d.Nombre + ' ' + d.Apellidos AS Docente
                     FROM Tutorias t
                     JOIN Docentes d ON t.ID_Docente = d.ID_Docente
@@ -322,6 +322,148 @@ const alumnoRepository = {
             WHERE Activo = 1 AND GETDATE() BETWEEN FechaInicio AND FechaFin
         `);
         return result.recordset.length > 0;
+    },
+
+    // Obtener actividades disponibles del catálogo (validando que el periodo esté abierto)
+    getActividadesDisponibles: async (nctrl) => {
+        const pool = await getPool();
+        
+        // Obtenemos los controles globales
+        const controlesRes = await pool.request().query("SELECT Tipo, Activo FROM ControlActividades");
+        const controles = {};
+        controlesRes.recordset.forEach(c => controles[c.Tipo] = c.Activo);
+
+        // Obtenemos las actividades del catálogo donde el alumno no esté inscrito y haya cupo
+        const result = await pool.request()
+            .input("N_ctrl", sql.NVarChar, nctrl)
+            .query(`
+                SELECT c.ID_Catalogo, c.Titulo, c.Descripcion, c.Tipo, c.FechaInicio, c.FechaFin, c.Horas, c.Cupo,
+                       ISNULL(d.Nombre + ' ' + d.Apellidos, 'N/A') AS DocenteNombre,
+                       (
+                           SELECT COUNT(*) FROM ActividadesComplementarias ac 
+                           WHERE ac.Descripcion = c.Titulo AND ac.Fecha = c.FechaInicio
+                       ) +
+                       (
+                           SELECT COUNT(*) FROM ActividadesExtraescolares ae 
+                           WHERE ae.Descripcion = c.Titulo AND ae.Fecha = c.FechaInicio
+                       ) +
+                       (
+                           SELECT COUNT(*) FROM Tutorias t 
+                           WHERE t.ID_Docente = c.ID_Docente AND t.Fecha = c.FechaInicio
+                       ) AS Inscritos
+                FROM CatalogoActividades c
+                LEFT JOIN Docentes d ON c.ID_Docente = d.ID_Docente
+                WHERE c.FechaFin >= GETDATE()
+            `);
+            
+        // Filtrar por cupo y validar si el alumno ya la tomó
+        const actividadesDisponibles = [];
+        
+        for (let act of result.recordset) {
+            // Verificar si el periodo está abierto para este tipo (con búsqueda insensible a mayúsculas/minúsculas)
+            const tipoUpper = act.Tipo.toUpperCase();
+            let controlAbierto = false;
+            let existeControl = false;
+            for (let k in controles) {
+                if (k.toUpperCase() === tipoUpper) {
+                    existeControl = true;
+                    if (controles[k]) {
+                        controlAbierto = true;
+                    }
+                    break;
+                }
+            }
+            // Si el control existe pero está cerrado y el control global también está cerrado, se ignora la actividad.
+            // Si no existe un control específico, por seguridad y flexibilidad se considera abierto por defecto.
+            if (existeControl && !controlAbierto && !controles['GLOBAL']) continue;
+            
+            // Verificar cupo
+            if (act.Inscritos >= act.Cupo) continue;
+
+            // Verificar si el alumno ya la tiene
+            let yaInscrito = false;
+            if (tipoUpper === 'COMPLEMENTARIA') {
+                const dup = await pool.request().input("N", sql.NVarChar, nctrl).input("D", sql.NVarChar, act.Titulo).input("F", sql.Date, act.FechaInicio)
+                    .query("SELECT 1 FROM ActividadesComplementarias WHERE N_ctrl=@N AND Descripcion=@D AND Fecha=@F");
+                if (dup.recordset.length) yaInscrito = true;
+            } else if (tipoUpper === 'EXTRAESCOLAR') {
+                const dup = await pool.request().input("N", sql.NVarChar, nctrl).input("D", sql.NVarChar, act.Titulo).input("F", sql.Date, act.FechaInicio)
+                    .query("SELECT 1 FROM ActividadesExtraescolares WHERE N_ctrl=@N AND Descripcion=@D AND Fecha=@F");
+                if (dup.recordset.length) yaInscrito = true;
+            } else if (tipoUpper === 'TUTORIA') {
+                const dup = await pool.request().input("N", sql.NVarChar, nctrl).input("D", sql.Int, act.ID_Docente).input("F", sql.Date, act.FechaInicio)
+                    .query("SELECT 1 FROM Tutorias WHERE N_ctrl=@N AND ID_Docente=@D AND Fecha=@F");
+                if (dup.recordset.length) yaInscrito = true;
+            }
+
+            if (!yaInscrito) actividadesDisponibles.push(act);
+        }
+
+        return actividadesDisponibles;
+    },
+
+    tomarActividad: async (nctrl, idCatalogo) => {
+        const pool = await getPool();
+        
+        // Obtener detalles de la actividad
+        const actRes = await pool.request()
+            .input("ID", sql.Int, idCatalogo)
+            .query("SELECT * FROM CatalogoActividades WHERE ID_Catalogo = @ID");
+            
+        if (actRes.recordset.length === 0) return { success: false, mensaje: "Actividad no encontrada" };
+        const act = actRes.recordset[0];
+        
+        // Validar si el periodo está abierto (insensible a mayúsculas/minúsculas)
+        const controlesRes = await pool.request().query("SELECT Tipo, Activo FROM ControlActividades");
+        const controles = {};
+        controlesRes.recordset.forEach(c => controles[c.Tipo] = c.Activo);
+
+        const tipoUpper = act.Tipo.toUpperCase();
+        let controlAbierto = false;
+        let existeControl = false;
+        for (let k in controles) {
+            if (k.toUpperCase() === tipoUpper) {
+                existeControl = true;
+                if (controles[k]) {
+                    controlAbierto = true;
+                }
+                break;
+            }
+        }
+        if (existeControl && !controlAbierto && !controles['GLOBAL']) {
+            return { success: false, mensaje: "El periodo de inscripciones para este tipo de actividad está cerrado" };
+        }
+        
+        // Calcular inscritos
+        let countQuery = "";
+        let request = pool.request();
+        if (tipoUpper === 'COMPLEMENTARIA') {
+            countQuery = "SELECT COUNT(*) AS total FROM ActividadesComplementarias WHERE Descripcion = @Tit AND Fecha = @Fec";
+            request.input("Tit", sql.NVarChar, act.Titulo).input("Fec", sql.Date, act.FechaInicio);
+        } else if (tipoUpper === 'EXTRAESCOLAR') {
+            countQuery = "SELECT COUNT(*) AS total FROM ActividadesExtraescolares WHERE Descripcion = @Tit AND Fecha = @Fec";
+            request.input("Tit", sql.NVarChar, act.Titulo).input("Fec", sql.Date, act.FechaInicio);
+        } else if (tipoUpper === 'TUTORIA') {
+            countQuery = "SELECT COUNT(*) AS total FROM Tutorias WHERE ID_Docente = @Doc AND Fecha = @Fec";
+            request.input("Doc", sql.Int, act.ID_Docente).input("Fec", sql.Date, act.FechaInicio);
+        }
+        
+        const cRes = await request.query(countQuery);
+        if (cRes.recordset[0].total >= act.Cupo) return { success: false, mensaje: "La actividad está llena" };
+        
+        // Insertar en la tabla correspondiente
+        if (tipoUpper === 'COMPLEMENTARIA') {
+            await pool.request().input("N", sql.NVarChar, nctrl).input("D", sql.NVarChar, act.Titulo).input("F", sql.Date, act.FechaInicio).input("H", sql.Int, act.Horas)
+                .query("INSERT INTO ActividadesComplementarias (N_ctrl, Descripcion, Fecha, Horas) VALUES (@N, @D, @F, @H)");
+        } else if (tipoUpper === 'EXTRAESCOLAR') {
+            await pool.request().input("N", sql.NVarChar, nctrl).input("D", sql.NVarChar, act.Titulo).input("F", sql.Date, act.FechaInicio).input("H", sql.Int, act.Horas)
+                .query("INSERT INTO ActividadesExtraescolares (N_ctrl, Descripcion, Fecha, Horas) VALUES (@N, @D, @F, @H)");
+        } else if (tipoUpper === 'TUTORIA') {
+            await pool.request().input("N", sql.NVarChar, nctrl).input("D", sql.Int, act.ID_Docente).input("F", sql.Date, act.FechaInicio).input("O", sql.NVarChar, act.Titulo)
+                .query("INSERT INTO Tutorias (N_ctrl, ID_Docente, Fecha, Observaciones) VALUES (@N, @D, @F, @O)");
+        }
+        
+        return { success: true };
     }
 };
 //zeus deja de romper todo por favor, ya casi acabamos :c
