@@ -87,24 +87,20 @@ const docenteRepository = {
         return result.recordset;
     },
 
-    // Guardar / actualizar calificaciones — soporta 3, 4 o 5 unidades dinámicamente
+    // Guardar / actualizar calificaciones
     upsertCalificacion: async (idInscripcion, unidades) => {
-        // unidades = { u1, u2, u3, u4?, u5? }
         const pool = await getPool();
         const toNum = v => (v === null || v === undefined || v === '') ? null : parseFloat(v);
-
         const u1 = toNum(unidades.u1);
         const u2 = toNum(unidades.u2);
         const u3 = toNum(unidades.u3);
         const u4 = toNum(unidades.u4 ?? null);
         const u5 = toNum(unidades.u5 ?? null);
 
-        // Promedio sobre las unidades con valor
         const vals = [u1, u2, u3, u4, u5].filter(v => v !== null);
         const calFinal = vals.length > 0
             ? parseFloat((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2))
             : null;
-
         const estatus = calFinal !== null
             ? (calFinal >= 70 ? 'APROBADO' : 'REPROBADO')
             : 'EN CURSO';
@@ -140,7 +136,7 @@ const docenteRepository = {
         return { calFinal, estatus };
     },
 
-    // Info del grupo (para la cabecera de la pantalla de calificaciones)
+    // Info del grupo
     getGrupoInfo: async (idGrupo) => {
         const pool = await getPool();
         const result = await pool.request()
@@ -163,53 +159,55 @@ const docenteRepository = {
         return result.recordset[0] || null;
     },
 
-    getHorarioDocente: async (idDocente) => {
-    const pool = await getPool(); 
-    const result = await pool.request()
-        .input("ID_Docente", sql.Int, idDocente)
-        .query(`
-            SELECT 
-                g.ID_Grupo, 
-                m.Nombre AS Materia, 
-                m.Clave AS ClaveMateria, 
-                c.nombre AS Carrera, 
-                g.Aula AS AulaOriginal, 
-                hg.DiaSemana, 
-                hg.HoraInicio, 
-                hg.HoraFin
-            FROM Grupos g
-            INNER JOIN Materias m ON g.ID_Materia = m.ID_Materia
-            INNER JOIN carrera c ON m.id_carrera = c.id_carrera
-            INNER JOIN PeriodosEscolares pe ON g.ID_Periodo = pe.ID_Periodo
-            LEFT JOIN HorarioGrupo hg ON g.ID_Grupo = hg.ID_Grupo
-            WHERE g.ID_Docente = @ID_Docente 
-              AND pe.Activo = 1 
-              AND g.Estatus = 'ABIERTO'
-        `);
-    return result.recordset;
-},
+    // NUEVO: Obtener filas crudas del horario
+    getHorarioDocenteRaw: async (idDocente) => {
+        const pool = await getPool();
+        const result = await pool.request()
+            .input("ID_Docente", sql.Int, idDocente)
+            .query(`
+                SELECT 
+                    g.ID_Grupo,
+                    m.Nombre AS Materia,
+                    m.Clave AS ClaveMateria,
+                    c.nombre AS Carrera,
+                    g.Aula AS AulaOriginal,
+                    hg.DiaSemana,
+                    hg.HoraInicio,
+                    hg.HoraFin
+                FROM Grupos g
+                INNER JOIN Materias m ON g.ID_Materia = m.ID_Materia
+                INNER JOIN carrera c ON m.id_carrera = c.id_carrera
+                INNER JOIN PeriodosEscolares pe ON g.ID_Periodo = pe.ID_Periodo
+                LEFT JOIN HorarioGrupo hg ON g.ID_Grupo = hg.ID_Grupo
+                WHERE g.ID_Docente = @ID_Docente 
+                  AND pe.Activo = 1
+                  AND g.Estatus = 'ABIERTO'
+            `);
+        return result.recordset;
+    },
 
-getInstrumentacionDocente: async (idDocente) => {
-    const pool = await getPool();
-    const result = await pool.request()
-        .input("ID_Docente", sql.Int, idDocente)
-        .query(`
-            SELECT 
-                m.Nombre AS Materia,
-                m.Clave AS Grupo,
-                1 AS InstrumentacionCompleta,
-                m.NumUnidades AS InstrumentacionActual,
-                m.NumUnidades AS InstrumentacionTotal,
-                1 AS PlaneacionCompleta,
-                m.NumUnidades AS PlaneacionActual,
-                m.NumUnidades AS PlaneacionTotal
-            FROM Grupos g
-            INNER JOIN Materias m ON g.ID_Materia = m.ID_Materia
-            INNER JOIN PeriodosEscolares pe ON g.ID_Periodo = pe.ID_Periodo
-            WHERE g.ID_Docente = @ID_Docente AND pe.Activo = 1
-        `);
-    return result.recordset;
-}
+    // NUEVO: Obtener datos de instrumentación
+    getInstrumentacionDocente: async (idDocente) => {
+        const pool = await getPool();
+        const result = await pool.request()
+            .input("ID_Docente", sql.Int, idDocente)
+            .query(`
+                SELECT 
+                    m.Nombre AS Materia,
+                    m.Clave AS Grupo,
+                    1 AS InstrumentacionCompleta,
+                    m.NumUnidades AS InstrumentacionActual,
+                    m.NumUnidades AS InstrumentacionTotal,
+                    1 AS PlaneacionCompleta,
+                    m.NumUnidades AS PlaneacionActual,
+                    m.NumUnidades AS PlaneacionTotal
+                FROM Grupos g
+                INNER JOIN Materias m ON g.ID_Materia = m.ID_Materia
+                INNER JOIN PeriodosEscolares pe ON g.ID_Periodo = pe.ID_Periodo
+                WHERE g.ID_Docente = @ID_Docente AND pe.Activo = 1 AND g.Estatus = 'ABIERTO'
+            `);
+        return result.recordset;
+    }
 };
 
 module.exports = docenteRepository;
