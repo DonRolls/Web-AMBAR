@@ -4,7 +4,7 @@ const sql     = require("mssql");
 
 // Si usas getPool() de tu repositorio o poolPromise de db.js, asegúrate de importarlo adecuadamente:
 // Ejemplo con getPool o poolPromise de tu arquitectura:
-const { getPool } = require("../repositories/docente_repository"); 
+const { getPool } = require("../config/database"); 
 // O bien: const { poolPromise } = require("../db");
 
 // ── AUXILIAR: Formateador robusto de horas (evita desfases u objetos de mssql)
