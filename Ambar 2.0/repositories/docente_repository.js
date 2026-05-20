@@ -161,7 +161,55 @@ const docenteRepository = {
                 WHERE g.ID_Grupo = @ID_Grupo
             `);
         return result.recordset[0] || null;
-    }
+    },
+
+    getHorarioDocente: async (idDocente) => {
+    const pool = await getPool(); 
+    const result = await pool.request()
+        .input("ID_Docente", sql.Int, idDocente)
+        .query(`
+            SELECT 
+                g.ID_Grupo, 
+                m.Nombre AS Materia, 
+                m.Clave AS ClaveMateria, 
+                c.nombre AS Carrera, 
+                g.Aula AS AulaOriginal, 
+                hg.DiaSemana, 
+                hg.HoraInicio, 
+                hg.HoraFin
+            FROM Grupos g
+            INNER JOIN Materias m ON g.ID_Materia = m.ID_Materia
+            INNER JOIN carrera c ON m.id_carrera = c.id_carrera
+            INNER JOIN PeriodosEscolares pe ON g.ID_Periodo = pe.ID_Periodo
+            LEFT JOIN HorarioGrupo hg ON g.ID_Grupo = hg.ID_Grupo
+            WHERE g.ID_Docente = @ID_Docente 
+              AND pe.Activo = 1 
+              AND g.Estatus = 'ABIERTO'
+        `);
+    return result.recordset;
+},
+
+getInstrumentacionDocente: async (idDocente) => {
+    const pool = await getPool();
+    const result = await pool.request()
+        .input("ID_Docente", sql.Int, idDocente)
+        .query(`
+            SELECT 
+                m.Nombre AS Materia,
+                m.Clave AS Grupo,
+                1 AS InstrumentacionCompleta,
+                m.NumUnidades AS InstrumentacionActual,
+                m.NumUnidades AS InstrumentacionTotal,
+                1 AS PlaneacionCompleta,
+                m.NumUnidades AS PlaneacionActual,
+                m.NumUnidades AS PlaneacionTotal
+            FROM Grupos g
+            INNER JOIN Materias m ON g.ID_Materia = m.ID_Materia
+            INNER JOIN PeriodosEscolares pe ON g.ID_Periodo = pe.ID_Periodo
+            WHERE g.ID_Docente = @ID_Docente AND pe.Activo = 1
+        `);
+    return result.recordset;
+}
 };
 
 module.exports = docenteRepository;
