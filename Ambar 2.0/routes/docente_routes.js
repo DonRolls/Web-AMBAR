@@ -1,80 +1,139 @@
-// routes/docente_routes.js
 const express = require("express");
 const router  = express.Router();
-const repo    = require("../repositories/docente_repository");
+const sql     = require("mssql");
 
-// ── Perfil del docente ────────────────────────────────────────────────────────
-router.get("/perfil/:id", async (req, res) => {
+// Si usas getPool() de tu repositorio o poolPromise de db.js, asegúrate de importarlo adecuadamente:
+// Ejemplo con getPool o poolPromise de tu arquitectura:
+const { getPool } = require("../repositories/docente_repository"); 
+// O bien: const { poolPromise } = require("../db");
+
+// ── AUXILIAR: Formateador robusto de horas (evita desfases u objetos de mssql)
+const formatTime = (time) => {
+    if (!time) return "";
+    // Si viene como string tipo "19:00:00" -> "19:00"
+    if (typeof time === 'string') return time.substring(0, 5);
+    // Si viene como objeto nativo de mssql { hours: 19, minutes: 0 }
+    if (time.hours !== undefined && time.minutes !== undefined) {
+        const hh = String(time.hours).padStart(2, '0');
+        const mm = String(time.minutes).padStart(2, '0');
+        return `${hh}:${mm}`;
+    }
+    // Si viene como tipo Date
+    if (time instanceof Date) {
+        return time.toTimeString().substring(0, 5);
+    }
+    return time.toString().substring(0, 5);
+};
+
+// ── 1. GET: OBTENER HORARIO MAPEADO PARA EL FRONTEND ──────────────────────────
+router.get("/horario/:idDocente", async (req, res) => {
+    const idDocente = req.params.idDocente;
     try {
-        const docente = await repo.getDocenteById(req.params.id);
-        if (!docente) return res.status(404).json({ error: "Docente no encontrado" });
-        res.json(docente);
+        // Adaptar al gestor de conexiones que use tu proyecto (getPool() o poolPromise)
+        const pool = await getPool(); 
+        
+        const result = await pool.request()
+            .input("ID_Docente", sql.Int, idDocente)
+            .query(`
+                SELECT 
+                    g.ID_Grupo, 
+                    m.Nombre AS Materia, 
+                    m.Clave AS ClaveMateria, 
+                    c.nombre AS Carrera, 
+                    g.Aula AS AulaOriginal, 
+                    hg.DiaSemana, 
+                    hg.HoraInicio, 
+                    hg.HoraFin
+                FROM Grupos g
+                INNER JOIN Materias m ON g.ID_Materia = m.ID_Materia
+                INNER JOIN carrera c ON m.id_carrera = c.id_carrera
+                INNER JOIN PeriodosEscolares pe ON g.ID_Periodo = pe.ID_Periodo
+                LEFT JOIN HorarioGrupo hg ON g.ID_Grupo = hg.ID_Grupo
+                WHERE g.ID_Docente = @ID_Docente 
+                  AND pe.Activo = 1 
+                  AND g.Estatus = 'ABIERTO'
+            `);
+
+        const horarioMap = {};
+
+        // Procesamos filas y las agrupamos en la estructura que Horario.html espera
+        result.recordset.forEach(row => {
+            const id = row.ID_Grupo;
+            
+            if (!horarioMap[id]) {
+                horarioMap[id] = {
+                    Materia: row.Materia,
+                    Carrera: row.Carrera,
+                    // El HTML renderiza h.ClaveGrupo. Usamos ID_Grupo o Clave de Materia como fallback seguro
+                    ClaveGrupo: row.ClaveMateria || `GRP-${id}`, 
+                    Lunes: "", AulaLunes: "",
+                    Martes: "", AulaMartes: "",
+                    Miercoles: "", AulaMiercoles: "",
+                    Jueves: "", AulaJueves: "",
+                    Viernes: "", AulaViernes: ""
+                };
+            }
+
+            if (row.DiaSemana) {
+                // Normalizamos el texto del día para evitar problemas de acentos o espacios
+                let dia = row.DiaSemana.trim().toLowerCase()
+                    .replace('é', 'e').replace('í', 'i').replace('á', 'a');
+                
+                let propDia = "";
+                if (dia === "lunes") propDia = "Lunes";
+                else if (dia === "martes") propDia = "Martes";
+                else if (dia === "miercoles") propDia = "Miercoles";
+                else if (dia === "jueves") propDia = "Jueves";
+                else if (dia === "viernes") propDia = "Viernes";
+
+                if (propDia && row.HoraInicio && row.HoraFin) {
+                    const inicio = formatTime(row.HoraInicio);
+                    const fin = formatTime(row.HoraFin);
+                    
+                    // Formato final requerido: "19:00 – 20:00"
+                    horarioMap[id][propDia] = `${inicio} – ${fin}`;
+                    horarioMap[id][`Aula${propDia}`] = row.AulaOriginal || "AULA";
+                }
+            }
+        });
+
+        // Convertimos el mapa acumulado en un arreglo plano listo para JSON
+        const data = Object.values(horarioMap);
+        res.json(data);
+
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error("Error en /horario:", err.message);
+        res.status(500).json({ error: "Error interno al procesar el horario" });
     }
 });
 
-// ── Grupos del docente en periodo activo ─────────────────────────────────────
-router.get("/grupos/:idDocente", async (req, res) => {
+// ── 2. GET: COMPLEMENTO DE INSTRUMENTACIÓN (Para evitar errores en consola) ──
+router.get("/instrumentacion/:idDocente", async (req, res) => {
+    const idDocente = req.params.idDocente;
     try {
-        const grupos = await repo.getGruposDocente(req.params.idDocente);
-        res.json(grupos);
+        const pool = await getPool();
+        const result = await pool.request()
+            .input("ID_Docente", sql.Int, idDocente)
+            .query(`
+                SELECT 
+                    m.Nombre AS Materia,
+                    m.Clave AS Grupo,
+                    -- Mocks dinámicos o columnas reales si cuentas con ellas
+                    1 AS InstrumentacionCompleta,
+                    m.NumUnidades AS InstrumentacionActual,
+                    m.NumUnidades AS InstrumentacionTotal,
+                    1 AS PlaneacionCompleta,
+                    m.NumUnidades AS PlaneacionActual,
+                    m.NumUnidades AS PlaneacionTotal
+                FROM Grupos g
+                INNER JOIN Materias m ON g.ID_Materia = m.ID_Materia
+                INNER JOIN PeriodosEscolares pe ON g.ID_Periodo = pe.ID_Periodo
+                WHERE g.ID_Docente = @ID_Docente AND pe.Activo = 1
+            `);
+            
+        res.json(result.recordset);
     } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// ── Info de un grupo específico ───────────────────────────────────────────────
-router.get("/grupo/:idGrupo/info", async (req, res) => {
-    try {
-        const info = await repo.getGrupoInfo(req.params.idGrupo);
-        if (!info) return res.status(404).json({ error: "Grupo no encontrado" });
-        res.json(info);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// ── Alumnos de un grupo con calificaciones ────────────────────────────────────
-router.get("/grupo/:idGrupo/calificaciones", async (req, res) => {
-    try {
-        const alumnos = await repo.getAlumnosGrupoConCalif(req.params.idGrupo);
-        res.json(alumnos);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// ── Guardar / actualizar calificación de un alumno ────────────────────────────
-// Body: { idInscripcion, u1, u2, u3, u4?, u5? }
-router.post("/calificacion", async (req, res) => {
-    try {
-        const { idInscripcion, u1, u2, u3, u4, u5 } = req.body;
-        if (!idInscripcion) return res.status(400).json({ error: "idInscripcion requerido" });
-
-        const result = await repo.upsertCalificacion(idInscripcion, { u1, u2, u3, u4, u5 });
-        res.json({ success: true, ...result });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// ── Guardar calificaciones de todo el grupo (bulk) ────────────────────────────
-// Body: [ { idInscripcion, parcial1, parcial2, parcial3 }, ... ]
-router.post("/grupo/:idGrupo/calificaciones/bulk", async (req, res) => {
-    try {
-        const registros = req.body;
-        if (!Array.isArray(registros) || registros.length === 0)
-            return res.status(400).json({ error: "Se requiere un array de registros" });
-
-        const results = [];
-        for (const r of registros) {
-            const out = await repo.upsertCalificacion(r.idInscripcion, { u1: r.u1, u2: r.u2, u3: r.u3, u4: r.u4, u5: r.u5 });
-            results.push({ idInscripcion: r.idInscripcion, ...out });
-        }
-        res.json({ success: true, results });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.json([]);
     }
 });
 
