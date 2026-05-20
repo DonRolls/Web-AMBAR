@@ -81,32 +81,96 @@ tbody tr:hover td{background:#F8FBFF}
   </div>
   <div class="topbar-right">
     <span class="doc-tag">Docente</span>
-    <div class="avatar">👨‍🏫</div>
-    <button class="logout-btn">Cerrar sesión</button>
+    <div class="avatar" id="avatar-top">👨‍🏫</div>
+    <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
   </div>
 </header>
-
+ 
 <div class="layout">
+  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
-    <div id="sidebar-container" style="display:flex;flex-direction:column;height:100%"></div>
-    <script src="sidebarm.js"></script>
+    <div class="nav-section">Panel</div>
+    <a class="nav-item" href="inicio_docente.html"><span class="nav-icon">🏠</span><span>Inicio</span></a>
+    <div style="height:1px;background:rgba(255,255,255,.07);margin:8px 16px"></div>
+    <div class="nav-section">Académico</div>
+    <a class="nav-item active" href="horario_docente.html"><span class="nav-icon">📅</span><span>Horario</span></a>
+    <a class="nav-item" href="grupos_docente.html"><span class="nav-icon">📚</span><span>Mis Grupos</span></a>
   </aside>
-
+ 
+  <!-- MAIN -->
   <main class="main">
     <div class="breadcrumb">Portal Docentes <span>›</span> <span>Horario</span></div>
     <div class="page-header">
-      <h1>Horario Docente</h1>
-      <p>Enero – Junio 2026</p>
+      <h1>📅 Gestión de Horario</h1>
+      <p>Selecciona las materias que deseas impartir en el periodo activo</p>
     </div>
-
+ 
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-icon blue">📚</div>
+        <div class="stat-content">
+          <div class="stat-label">Materias Disponibles</div>
+          <div class="stat-value" id="stat-disponibles">0</div>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-icon green">✓</div>
+        <div class="stat-content">
+          <div class="stat-label">Materias Seleccionadas</div>
+          <div class="stat-value" id="stat-seleccionadas">0</div>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-icon gold">🕐</div>
+        <div class="stat-content">
+          <div class="stat-label">Horas Semanales</div>
+          <div class="stat-value" id="stat-horas">0</div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- DEADLINE -->
     <div class="deadline-row">
-      <div class="deadline-chip warn">📅 <strong>Planeación:</strong> 30 de abril 2026</div>
-      <div class="deadline-chip warn">📅 <strong>Calificaciones:</strong> 12 de junio 2026</div>
+      <div class="deadline-chip warn">📅 <strong>Fecha límite de selección:</strong> 15 de enero 2026</div>
     </div>
-
-    <div class="s-card">
+ 
+    <!-- TABS -->
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="switchTab('seleccion')">📝 Seleccionar Materias</button>
+      <button class="filter-btn" onclick="switchTab('horario')">📅 Ver Horario</button>
+    </div>
+ 
+    <!-- TAB: SELECCIÓN DE MATERIAS -->
+    <div id="tab-seleccion" class="s-card">
       <div class="s-head">
-        <div class="s-title"><div class="s-title-icon">📅</div> Distribución de Horas</div>
+        <div class="s-title"><div class="s-title-icon">📚</div> Materias Disponibles</div>
+        <button class="btn btn-success" onclick="guardarSeleccion()">💾 Guardar Selección</button>
+      </div>
+      <div class="selection-area" id="materias-list">
+        <div class="no-data">⏳ Cargando materias disponibles...</div>
+      </div>
+    </div>
+ 
+    <!-- TAB: HORARIO VISUAL -->
+    <div id="tab-horario" class="s-card" style="display:none">
+      <div class="s-head">
+        <div class="s-title"><div class="s-title-icon">📅</div> Horario Semanal</div>
+      </div>
+      <div class="visual-schedule" id="horario-visual">
+        <div></div>
+        <div class="vs-header">Lunes</div>
+        <div class="vs-header">Martes</div>
+        <div class="vs-header">Miércoles</div>
+        <div class="vs-header">Jueves</div>
+        <div class="vs-header">Viernes</div>
+      </div>
+    </div>
+ 
+    <!-- HORARIO TRADICIONAL (TABLA) -->
+    <div id="tab-horario-tabla" class="s-card" style="display:none">
+      <div class="s-head">
+        <div class="s-title"><div class="s-title-icon">📋</div> Distribución de Horas</div>
       </div>
       <div class="t-wrap">
         <table>
@@ -116,219 +180,429 @@ tbody tr:hover td{background:#F8FBFF}
               <th>Lunes</th><th>Martes</th><th>Miércoles</th><th>Jueves</th><th>Viernes</th>
             </tr>
           </thead>
-          <tbody id="tbody-horario">
-            <tr>
-              <td><strong>Análisis Avanzado de Software (Nube)</strong></td>
-              <td>Ing. Informática</td>
-              <td>SCD-2502-IF8A</td>
-              <td class="schedule-cell">19:00 – 20:00<span class="room-code">AULA 0305</span></td>
-              <td class="schedule-cell">19:00 – 20:00<span class="room-code">LAB-A</span></td>
-              <td class="schedule-cell">19:00 – 20:00<span class="room-code">AULA 0305</span></td>
-              <td class="schedule-cell">19:00 – 20:00<span class="room-code">LAB-A</span></td>
-              <td class="schedule-cell">19:00 – 20:00<span class="room-code">LAB-A</span></td>
-            </tr>
-            <tr>
-              <td><strong>Desarrollo de Software en la Nube</strong></td>
-              <td>Ing. Informática</td>
-              <td>SCF-2501-IF8A</td>
-              <td class="schedule-cell">18:00 – 19:00<span class="room-code">AULA 0305</span></td>
-              <td class="schedule-cell">18:00 – 19:00<span class="room-code">LAB-A</span></td>
-              <td class="schedule-cell">18:00 – 19:00<span class="room-code">AULA 0305</span></td>
-              <td class="schedule-cell">18:00 – 19:00<span class="room-code">LAB-A</span></td>
-              <td class="schedule-cell">18:00 – 19:00<span class="room-code">LAB-A</span></td>
-            </tr>
+          <tbody id="tbody-horario-tabla">
+            <tr><td colspan="8" class="no-data">No hay materias seleccionadas</td></tr>
           </tbody>
         </table>
       </div>
     </div>
-
-    <div class="s-card">
-      <div class="s-head">
-        <div class="s-title"><div class="s-title-icon">📝</div> Instrumentación y Planeación</div>
-      </div>
-      <div class="t-wrap">
-        <table>
-          <thead>
-            <tr><th>Materia</th><th>Grupo</th><th>Instrumentación</th><th>Planeación</th></tr>
-          </thead>
-          <tbody id="tbody-instrumentacion">
-            <tr>
-              <td>Análisis Avanzado de Software</td>
-              <td>SCD-2502-IF8A</td>
-              <td><span class="score-bad">0 / 5</span></td>
-              <td><span class="score-ok">5 / 5</span></td>
-            </tr>
-            <tr>
-              <td>Desarrollo de Software en la Nube</td>
-              <td>SCF-2501-IF8A</td>
-              <td><span class="score-bad">0 / 4</span></td>
-              <td><span class="score-ok">4 / 4</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="s-card">
-      <div class="s-head">
-        <div class="s-title"><div class="s-title-icon">➕</div> Actividades Complementarias</div>
-      </div>
-      <div class="no-data">No cuenta con actividades complementarias en este periodo.</div>
-    </div>
-
+ 
   </main>
 </div>
+ 
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+ 
 <script>
-// ─────────────────────────────────────────────
-// SESIÓN
-// ─────────────────────────────────────────────
-const ID_Docente = sessionStorage.getItem("ID_Docente");
-if (!ID_Docente) {
+// ═══════════════════════════════════════════════════════════════════════════════
+// VARIABLES GLOBALES
+// ═══════════════════════════════════════════════════════════════════════════════
+let ID_Docente = null;
+let materiasDisponibles = [];
+let materiasSeleccionadas = new Set();
+let conflictos = new Set();
+ 
+// ═══════════════════════════════════════════════════════════════════════════════
+// INICIALIZACIÓN
+// ═══════════════════════════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  // Verificar sesión
+  ID_Docente = sessionStorage.getItem("ID_Docente");
+  if (!ID_Docente) {
     window.location.href = "../login.html";
-}
-// ─────────────────────────────────────────────
-// CERRAR SESIÓN
-// ─────────────────────────────────────────────
-document.querySelector(".logout-btn")?.addEventListener("click", () => {
-    sessionStorage.clear();
-    window.location.href = "../login.html";
+    return;
+  }
+ 
+  await cargarMateriasDisponibles();
+  await cargarMateriasDocente();
 });
-// ─────────────────────────────────────────────
-// CARGAR HORARIO
-// ─────────────────────────────────────────────
-fetch(`/docente/horario/${ID_Docente}`)
-    .then(res => {
-        if (!res.ok) {
-            throw new Error("Error al cargar horario");
-        }
-        return res.json();
-    })
-    .then(data => {
-        const tbodyHorario =
-            document.getElementById("tbody-horario");
-        // VALIDAR SI NO HAY DATOS
-        if (!data.length) {
-            tbodyHorario.innerHTML = `
-                <tr>
-                    <td colspan="8" class="no-data">
-                        No hay horario asignado.
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-        // LIMPIAR TABLA
-        tbodyHorario.innerHTML = "";
-        // RECORRER DATOS
-        data.forEach(h => {
-            const fila = document.createElement("tr");
-            fila.innerHTML = `
-                <td>
-                    <strong>${h.Materia}</strong>
-                </td>
-                <td>
-                    ${h.Carrera}
-                </td>
-                <td>
-                    ${h.ClaveGrupo}
-                </td>
-                <td class="schedule-cell">
-                    ${h.Lunes || "—"}
-                    <span class="room-code">
-                        ${h.AulaLunes || ""}
-                    </span>
-                </td>
-                <td class="schedule-cell">
-                    ${h.Martes || "—"}
-                    <span class="room-code">
-                        ${h.AulaMartes || ""}
-                    </span>
-                </td>
-                <td class="schedule-cell">
-                    ${h.Miercoles || "—"}
-                    <span class="room-code">
-                        ${h.AulaMiercoles || ""}
-                    </span>
-                </td>
-                <td class="schedule-cell">
-                    ${h.Jueves || "—"}
-                    <span class="room-code">
-                        ${h.AulaJueves || ""}
-                    </span>
-                </td>
-                <td class="schedule-cell">
-                    ${h.Viernes || "—"}
-                    <span class="room-code">
-                        ${h.AulaViernes || ""}
-                    </span>
-                </td>
-            `;
-            tbodyHorario.appendChild(fila);
-        });
-    })
-    .catch(error => {
-        console.error(error);
-        document.getElementById("tbody-horario").innerHTML = `
-            <tr>
-                <td colspan="8" class="no-data">
-                    Error al cargar horario.
-                </td>
-            </tr>
-        `;
+ 
+// ═══════════════════════════════════════════════════════════════════════════════
+// CARGAR MATERIAS DISPONIBLES
+// ═══════════════════════════════════════════════════════════════════════════════
+async function cargarMateriasDisponibles() {
+  try {
+    const response = await fetch(`/docente/materias-disponibles`);
+    if (!response.ok) throw new Error('Error al cargar materias');
+    
+    materiasDisponibles = await response.json();
+    renderizarMaterias();
+    actualizarEstadisticas();
+  } catch (error) {
+    console.error(error);
+    showToast('Error al cargar materias disponibles', 'error');
+    document.getElementById('materias-list').innerHTML = 
+      '<div class="no-data">❌ Error al cargar materias</div>';
+  }
+}
+ 
+// ═══════════════════════════════════════════════════════════════════════════════
+// CARGAR MATERIAS YA SELECCIONADAS POR EL DOCENTE
+// ═══════════════════════════════════════════════════════════════════════════════
+async function cargarMateriasDocente() {
+  try {
+    const response = await fetch(`/docente/grupos/${ID_Docente}`);
+    if (!response.ok) return;
+    
+    const grupos = await response.json();
+    grupos.forEach(g => {
+      materiasSeleccionadas.add(g.ID_Grupo);
     });
-// ─────────────────────────────────────────────
-// CARGAR INSTRUMENTACIÓN
-// ─────────────────────────────────────────────
-fetch(`/docente/instrumentacion/${ID_Docente}`)
-    .then(res => res.json())
-    .then(data => {
-        const tbodyInst =
-            document.getElementById("tbody-instrumentacion");
-        if (!data.length) {
-            tbodyInst.innerHTML = `
-                <tr>
-                    <td colspan="4" class="no-data">
-                        No hay instrumentaciones registradas.
-                    </td>
-                </tr>
-            `;
-            return;
+    
+    renderizarMaterias();
+    renderizarHorarioVisual();
+    renderizarHorarioTabla();
+    actualizarEstadisticas();
+  } catch (error) {
+    console.error('Error al cargar materias del docente:', error);
+  }
+}
+ 
+// ═══════════════════════════════════════════════════════════════════════════════
+// RENDERIZAR LISTA DE MATERIAS
+// ═══════════════════════════════════════════════════════════════════════════════
+function renderizarMaterias() {
+  const container = document.getElementById('materias-list');
+  
+  if (!materiasDisponibles.length) {
+    container.innerHTML = '<div class="no-data">📚 No hay materias disponibles en este momento</div>';
+    return;
+  }
+ 
+  container.innerHTML = materiasDisponibles.map(materia => {
+    const isSelected = materiasSeleccionadas.has(materia.ID_Grupo);
+    const hasConflict = conflictos.has(materia.ID_Grupo);
+    const horarios = parseHorarios(materia.Horario);
+    
+    let cardClass = 'materia-card';
+    if (isSelected) cardClass += ' selected';
+    if (hasConflict && !isSelected) cardClass += ' conflict';
+ 
+    return `
+      <div class="${cardClass}" onclick="toggleMateria(${materia.ID_Grupo})" data-id="${materia.ID_Grupo}">
+        <div class="mc-header">
+          <div style="flex:1">
+            <div class="mc-title">${materia.Materia}</div>
+            <div class="mc-subtitle">${materia.ClaveMat} • ${materia.Carrera}</div>
+          </div>
+          <div class="mc-checkbox">${isSelected ? '✓' : ''}</div>
+        </div>
+        <div class="mc-info">
+          <div class="mc-badge">🎓 Sem. ${materia.Semestre}</div>
+          <div class="mc-badge">🏛 ${materia.Aula}</div>
+          <div class="mc-badge">👥 ${materia.Inscritos || 0}/${materia.MaxAlumnos || 40}</div>
+        </div>
+        ${horarios.length ? `
+          <div class="mc-horario">
+            ${horarios.map(h => `<span class="mc-horario-item">${h}</span>`).join('')}
+          </div>
+        ` : '<div class="mc-horario"><span style="color:var(--text-2);font-size:12px">⚠️ Sin horario asignado</span></div>'}
+        ${hasConflict && !isSelected ? '<div class="conflict-msg">⚠️ Conflicto de horario</div>' : ''}
+      </div>
+    `;
+  }).join('');
+}
+ 
+// ═══════════════════════════════════════════════════════════════════════════════
+// TOGGLE SELECCIÓN DE MATERIA
+// ═══════════════════════════════════════════════════════════════════════════════
+function toggleMateria(idGrupo) {
+  const materia = materiasDisponibles.find(m => m.ID_Grupo === idGrupo);
+  if (!materia) return;
+ 
+  // Si tiene conflicto y no está seleccionada, no permitir
+  if (conflictos.has(idGrupo) && !materiasSeleccionadas.has(idGrupo)) {
+    showToast('❌ Esta materia tiene conflicto de horario con tu selección actual', 'error');
+    return;
+  }
+ 
+  // Toggle selección
+  if (materiasSeleccionadas.has(idGrupo)) {
+    materiasSeleccionadas.delete(idGrupo);
+  } else {
+    materiasSeleccionadas.add(idGrupo);
+  }
+ 
+  // Recalcular conflictos
+  recalcularConflictos();
+  renderizarMaterias();
+  renderizarHorarioVisual();
+  renderizarHorarioTabla();
+  actualizarEstadisticas();
+}
+ 
+// ═══════════════════════════════════════════════════════════════════════════════
+// DETECTAR CONFLICTOS DE HORARIO
+// ═══════════════════════════════════════════════════════════════════════════════
+function recalcularConflictos() {
+  conflictos.clear();
+  
+  const seleccionadas = materiasDisponibles.filter(m => materiasSeleccionadas.has(m.ID_Grupo));
+  
+  materiasDisponibles.forEach(materia => {
+    if (materiasSeleccionadas.has(materia.ID_Grupo)) return; // Ya está seleccionada
+    
+    const horarios1 = parseHorariosDetallados(materia.Horario);
+    
+    for (const sel of seleccionadas) {
+      const horarios2 = parseHorariosDetallados(sel.Horario);
+      
+      if (hayConflicto(horarios1, horarios2)) {
+        conflictos.add(materia.ID_Grupo);
+        break;
+      }
+    }
+  });
+}
+ 
+// ═══════════════════════════════════════════════════════════════════════════════
+// VERIFICAR SI HAY CONFLICTO ENTRE DOS HORARIOS
+// ═══════════════════════════════════════════════════════════════════════════════
+function hayConflicto(horarios1, horarios2) {
+  for (const h1 of horarios1) {
+    for (const h2 of horarios2) {
+      if (h1.dia === h2.dia) {
+        // Convertir horas a minutos
+        const inicio1 = horaAMinutos(h1.inicio);
+        const fin1 = horaAMinutos(h1.fin);
+        const inicio2 = horaAMinutos(h2.inicio);
+        const fin2 = horaAMinutos(h2.fin);
+        
+        // Verificar solapamiento
+        if (!(fin1 <= inicio2 || inicio1 >= fin2)) {
+          return true;
         }
-        tbodyInst.innerHTML = "";
-        data.forEach(i => {
-            const fila = document.createElement("tr");
-            fila.innerHTML = `
-                <td>${i.Materia}</td>
-                <td>${i.Grupo}</td>
-                <td>
-                    <span class="${
-                        i.InstrumentacionCompleta
-                        ? 'score-ok'
-                        : 'score-bad'
-                    }">
-                        ${i.InstrumentacionActual}
-                        /
-                        ${i.InstrumentacionTotal}
-                    </span>
-                </td>
-                <td>
-                    <span class="${
-                        i.PlaneacionCompleta
-                        ? 'score-ok'
-                        : 'score-bad'
-                    }">
-                        ${i.PlaneacionActual}
-                        /
-                        ${i.PlaneacionTotal}
-                    </span>
-                </td>
-            `;
-            tbodyInst.appendChild(fila);
-        });
-    })
-    .catch(error => {
-        console.error(error);
+      }
+    }
+  }
+  return false;
+}
+ 
+// ═══════════════════════════════════════════════════════════════════════════════
+// PARSEAR HORARIOS
+// ═══════════════════════════════════════════════════════════════════════════════
+function parseHorarios(horarioStr) {
+  if (!horarioStr) return [];
+  return horarioStr.split(' | ').map(h => h.trim()).filter(Boolean);
+}
+ 
+function parseHorariosDetallados(horarioStr) {
+  if (!horarioStr) return [];
+  
+  const horarios = [];
+  const partes = horarioStr.split(' | ');
+  
+  partes.forEach(parte => {
+    const match = parte.match(/^(\w+)\s+(\d{2}:\d{2})-(\d{2}:\d{2})$/);
+    if (match) {
+      horarios.push({
+        dia: match[1],
+        inicio: match[2],
+        fin: match[3]
+      });
+    }
+  });
+  
+  return horarios;
+}
+ 
+function horaAMinutos(hora) {
+  const [h, m] = hora.split(':').map(Number);
+  return h * 60 + m;
+}
+ 
+// ═══════════════════════════════════════════════════════════════════════════════
+// RENDERIZAR HORARIO VISUAL (GRID)
+// ═══════════════════════════════════════════════════════════════════════════════
+function renderizarHorarioVisual() {
+  const container = document.getElementById('horario-visual');
+  
+  // Limpiar todo excepto headers
+  while (container.children.length > 6) {
+    container.removeChild(container.lastChild);
+  }
+ 
+  const seleccionadas = materiasDisponibles.filter(m => materiasSeleccionadas.has(m.ID_Grupo));
+  if (!seleccionadas.length) return;
+ 
+  // Obtener rango de horas
+  const horas = new Set();
+  seleccionadas.forEach(m => {
+    const horarios = parseHorariosDetallados(m.Horario);
+    horarios.forEach(h => {
+      const inicio = parseInt(h.inicio.split(':')[0]);
+      horas.add(inicio);
     });
+  });
+ 
+  const horasOrdenadas = Array.from(horas).sort((a, b) => a - b);
+  const dias = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+ 
+  // Crear grid
+  horasOrdenadas.forEach(hora => {
+    // Columna de tiempo
+    const timeDiv = document.createElement('div');
+    timeDiv.className = 'vs-time';
+    timeDiv.textContent = `${hora}:00`;
+    container.appendChild(timeDiv);
+ 
+    // Celdas para cada día
+    dias.forEach(dia => {
+      const cell = document.createElement('div');
+      cell.className = 'vs-cell';
+      
+      // Buscar si hay alguna materia en este día/hora
+      for (const materia of seleccionadas) {
+        const horarios = parseHorariosDetallados(materia.Horario);
+        const match = horarios.find(h => 
+          h.dia === dia && parseInt(h.inicio.split(':')[0]) === hora
+        );
+        
+        if (match) {
+          cell.classList.add('filled');
+          cell.innerHTML = `
+            <div class="vs-cell-content">
+              <div class="vs-cell-mat">${materia.Materia.substring(0, 30)}${materia.Materia.length > 30 ? '...' : ''}</div>
+              <div class="vs-cell-aula">${match.inicio} - ${match.fin}</div>
+              <div class="vs-cell-aula">🏛 ${materia.Aula}</div>
+            </div>
+          `;
+          break;
+        }
+      }
+      
+      container.appendChild(cell);
+    });
+  });
+}
+ 
+// ═══════════════════════════════════════════════════════════════════════════════
+// RENDERIZAR HORARIO TABLA TRADICIONAL
+// ═══════════════════════════════════════════════════════════════════════════════
+function renderizarHorarioTabla() {
+  const tbody = document.getElementById('tbody-horario-tabla');
+  const seleccionadas = materiasDisponibles.filter(m => materiasSeleccionadas.has(m.ID_Grupo));
+  
+  if (!seleccionadas.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="no-data">No hay materias seleccionadas</td></tr>';
+    return;
+  }
+ 
+  tbody.innerHTML = seleccionadas.map(m => {
+    const horarios = parseHorariosDetallados(m.Horario);
+    const dias = { Lunes: [], Martes: [], Miercoles: [], Jueves: [], Viernes: [] };
+    
+    horarios.forEach(h => {
+      if (dias[h.dia]) {
+        dias[h.dia].push(`${h.inicio} – ${h.fin}`);
+      }
+    });
+ 
+    return `
+      <tr>
+        <td><strong>${m.Materia}</strong></td>
+        <td>${m.Carrera}</td>
+        <td>${m.ClaveMat}</td>
+        <td class="schedule-cell">${dias.Lunes.join('<br>') || '—'}<span class="room-code">${m.Aula}</span></td>
+        <td class="schedule-cell">${dias.Martes.join('<br>') || '—'}<span class="room-code">${m.Aula}</span></td>
+        <td class="schedule-cell">${dias.Miercoles.join('<br>') || '—'}<span class="room-code">${m.Aula}</span></td>
+        <td class="schedule-cell">${dias.Jueves.join('<br>') || '—'}<span class="room-code">${m.Aula}</span></td>
+        <td class="schedule-cell">${dias.Viernes.join('<br>') || '—'}<span class="room-code">${m.Aula}</span></td>
+      </tr>
+    `;
+  }).join('');
+}
+ 
+// ═══════════════════════════════════════════════════════════════════════════════
+// ACTUALIZAR ESTADÍSTICAS
+// ═══════════════════════════════════════════════════════════════════════════════
+function actualizarEstadisticas() {
+  document.getElementById('stat-disponibles').textContent = materiasDisponibles.length;
+  document.getElementById('stat-seleccionadas').textContent = materiasSeleccionadas.size;
+  
+  // Calcular horas semanales
+  let horasTotal = 0;
+  const seleccionadas = materiasDisponibles.filter(m => materiasSeleccionadas.has(m.ID_Grupo));
+  seleccionadas.forEach(m => {
+    const horarios = parseHorariosDetallados(m.Horario);
+    horarios.forEach(h => {
+      const inicio = horaAMinutos(h.inicio);
+      const fin = horaAMinutos(h.fin);
+      horasTotal += (fin - inicio) / 60;
+    });
+  });
+  
+  document.getElementById('stat-horas').textContent = Math.round(horasTotal);
+}
+ 
+// ═══════════════════════════════════════════════════════════════════════════════
+// GUARDAR SELECCIÓN
+// ═══════════════════════════════════════════════════════════════════════════════
+async function guardarSeleccion() {
+  if (materiasSeleccionadas.size === 0) {
+    showToast('⚠️ Selecciona al menos una materia', 'error');
+    return;
+  }
+ 
+  try {
+    const response = await fetch('/docente/seleccionar-materias', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ID_Docente: parseInt(ID_Docente),
+        grupos: Array.from(materiasSeleccionadas)
+      })
+    });
+ 
+    const data = await response.json();
+    
+    if (data.success) {
+      showToast('✅ Selección guardada correctamente', 'success');
+    } else {
+      showToast(data.error || 'Error al guardar', 'error');
+    }
+  } catch (error) {
+    console.error(error);
+    showToast('❌ Error de conexión', 'error');
+  }
+}
+ 
+// ═══════════════════════════════════════════════════════════════════════════════
+// CAMBIAR TABS
+// ═══════════════════════════════════════════════════════════════════════════════
+function switchTab(tab) {
+  // Actualizar botones
+  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  // Mostrar/ocultar tabs
+  if (tab === 'seleccion') {
+    document.getElementById('tab-seleccion').style.display = 'block';
+    document.getElementById('tab-horario').style.display = 'none';
+    document.getElementById('tab-horario-tabla').style.display = 'none';
+  } else {
+    document.getElementById('tab-seleccion').style.display = 'none';
+    document.getElementById('tab-horario').style.display = 'block';
+    document.getElementById('tab-horario-tabla').style.display = 'block';
+    renderizarHorarioVisual();
+    renderizarHorarioTabla();
+  }
+}
+ 
+// ═══════════════════════════════════════════════════════════════════════════════
+// UTILIDADES
+// ═══════════════════════════════════════════════════════════════════════════════
+function showToast(msg, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = `toast ${type} show`;
+  setTimeout(() => toast.classList.remove('show'), 3500);
+}
+ 
+function logout() {
+  sessionStorage.clear();
+  window.location.href = "../login.html";
+}
 </script>
 </body>
 </html>
