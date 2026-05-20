@@ -79,4 +79,3 @@ router.post("/grupo/:idGrupo/calificaciones/bulk", async (req, res) => {
 });
 
 module.exports = router;
-//zeus deja de romper todo por favor, ya casi acabamos :c
