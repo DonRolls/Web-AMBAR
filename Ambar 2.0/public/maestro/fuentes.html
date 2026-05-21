@@ -52,6 +52,7 @@ tbody tr{transition:background .15s;animation:fadeUp .4s ease both}
 tbody tr:nth-child(1){animation-delay:.15s}
 tbody tr:nth-child(2){animation-delay:.2s}
 tbody tr:hover td{background:#F8FBFF}
+tr.editing td{ background:#FFFBEA !important; transition:.2s; }
 
 /* TYPE BADGE */
 .badge-type{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;background:#EFF6FF;color:#3B82F6}
@@ -415,114 +416,170 @@ document.addEventListener("click", function(e){
     }
 });
 
-// ===== EDITAR FLUIDO =====
- document.addEventListener("click", function(e){
-   // ===== ACTIVAR EDICIÓN ===== 
-   if(e.target.classList.contains("btn-edit")){ 
-    const fila = e.target.closest("tr"); 
-   // evitar doble edición 
-   if(fila.classList.contains("editing")) return;
-    fila.classList.add("editing");
-    // obtener datos actuales
-     const titulo = 
-     fila.children[0].innerText.trim();
-      const descripcion = 
-      fila.children[1].innerText.trim();
-       const tipo = 
-       fila.children[2].innerText.trim();
-        const link = 
-        fila.children[3] 
-        .querySelector("a") 
-        .href;
-         const autores = 
-         fila.children[4].innerText.trim();
-          // convertir fila a inputs
-           fila.children[0].innerHTML = 
-           `<input type="text"
-           class="input-table edit-titulo" 
-           value="${titulo}">`;
-            fila.children[1].innerHTML = 
-            `<input type="text" 
-            class="input-table edit-descripcion" 
-            value="${descripcion}">`;
-             fila.children[2].innerHTML = 
-             ` <select class="input-table edit-tipo">
-               <option ${tipo==="Libro"?"selected":""}>Libro</option>
-                <option ${tipo==="Artículo"?"selected":""}>Artículo</option>
-                 <option ${tipo==="Blog"?"selected":""}>Blog</option> 
-                 <option ${tipo==="PDF"?"selected":""}>PDF</option>
-                  <option ${tipo==="Repositorio"?"selected":""}>Repositorio</option>
-                 </select> 
-                 `; 
-                 fila.children[3].innerHTML =
-                  `<input type="url"
-                   class="input-table edit-link" 
-                   value="${link}">`;
-                    fila.children[4].innerHTML =
-                     `<input type="text" 
-                     class="input-table edit-autores"
-                      value="${autores}">`;
-                       fila.children[5].innerHTML =` 
-                       <div class="btn-group">
-                           <button class="btn-sm btn-add btn-save">
-                             Guardar 
-                            </button> 
-                            <button class="btn-sm btn-delete btn-cancel">
-                               Cancelar 
-                              </button> 
-                            </div> 
-                            `; 
-                          } 
-                          // ===== GUARDAR CAMBIOS ===== 
-                          if(e.target.classList.contains("btn-save")){ 
-                            const fila = e.target.closest("tr");
-                             const titulo =
-                              fila.querySelector(".edit-titulo").value;
-                               const descripcion =
-                                fila.querySelector(".edit-descripcion").value;
-                                 const tipo = fila.querySelector(".edit-tipo").value;
-                                  const link = fila.querySelector(".edit-link").value;
-                                   const autores = fila.querySelector(".edit-autores").value;
-                                    // restaurar fila normal 
-                                    fila.innerHTML = `
-                                     <td> 
-                                      <strong>${titulo}</strong> 
-                                    </td> 
-                                    <td> 
-                                      ${descripcion} 
-                                    </td> 
-                                    <td>
-                                       <span class="badge-type">
-                                         ${tipo} 
-                                        </span> 
-                                      </td> 
-                                      <td> 
-                                        <a href="${link}" 
-                                        target="_blank"
-                                         class="source-link"> 
-                                         🔗 Visitar sitio 
-                                        </a> 
-                                      </td> 
-                                      <td style="font-size:12px;color:var(--text-2)"> 
-                                        ${autores} 
-                                      </td> 
-                                      <td>
-                                         <div class="btn-group"> 
-                                          <button class="btn-sm btn-edit">
-                                             Editar 
-                                            </button> 
-                                            <button class="btn-sm btn-delete"> 
-                                              Eliminar 
-                                            </button> 
-                                          </div> 
-                                        </td> 
-                                        `; 
-                                      } 
-                                      // ===== CANCELAR =====
-                                       if(e.target.classList.contains("btn-cancel")){
-                                         location.reload(); 
-                                        } 
-                                      });
+
+// ===== EDITAR / GUARDAR / CANCELAR =====
+document.addEventListener("click", function(e){
+
+    // ===== EDITAR =====
+    if(e.target.classList.contains("btn-edit")){
+
+        const fila = e.target.closest("tr");
+
+        // evitar doble edición
+        if(fila.classList.contains("editing")) return;
+
+        fila.classList.add("editing");
+
+        // guardar HTML original
+        fila.dataset.original = fila.innerHTML;
+
+        // obtener datos
+        const titulo =
+            fila.children[0].innerText.trim();
+
+        const descripcion =
+            fila.children[1].innerText.trim();
+
+        const tipo =
+            fila.children[2].innerText.trim();
+
+        const link =
+            fila.children[3]
+            .querySelector("a")
+            .href;
+
+        const autores =
+            fila.children[4].innerText.trim();
+
+        // convertir a edición
+        fila.innerHTML = `
+            <td>
+                <input type="text"
+                    class="input-table edit-titulo"
+                    value="${titulo}">
+            </td>
+
+            <td>
+                <input type="text"
+                    class="input-table edit-descripcion"
+                    value="${descripcion}">
+            </td>
+
+            <td>
+                <select class="input-table edit-tipo">
+                    <option ${tipo==="Libro"?"selected":""}>Libro</option>
+                    <option ${tipo==="Artículo"?"selected":""}>Artículo</option>
+                    <option ${tipo==="Blog"?"selected":""}>Blog</option>
+                    <option ${tipo==="PDF"?"selected":""}>PDF</option>
+                    <option ${tipo==="Repositorio"?"selected":""}>Repositorio</option>
+                </select>
+            </td>
+
+            <td>
+                <input type="url"
+                    class="input-table edit-link"
+                    value="${link}">
+            </td>
+
+            <td>
+                <input type="text"
+                    class="input-table edit-autores"
+                    value="${autores}">
+            </td>
+
+            <td>
+                <div class="btn-group">
+
+                    <button class="btn-sm btn-add btn-save">
+                        Guardar
+                    </button>
+
+                    <button class="btn-sm btn-delete btn-cancel">
+                        Cancelar
+                    </button>
+
+                </div>
+            </td>
+        `;
+    }
+
+    // ===== GUARDAR =====
+    if(e.target.classList.contains("btn-save")){
+
+        const fila = e.target.closest("tr");
+
+        const titulo =
+            fila.querySelector(".edit-titulo").value;
+
+        const descripcion =
+            fila.querySelector(".edit-descripcion").value;
+
+        const tipo =
+            fila.querySelector(".edit-tipo").value;
+
+        const link =
+            fila.querySelector(".edit-link").value;
+
+        const autores =
+            fila.querySelector(".edit-autores").value;
+
+        fila.classList.remove("editing");
+
+        fila.innerHTML = `
+            <td>
+                <strong>${titulo}</strong>
+            </td>
+
+            <td>
+                ${descripcion}
+            </td>
+
+            <td>
+                <span class="badge-type">
+                    ${tipo}
+                </span>
+            </td>
+
+            <td>
+                <a href="${link}"
+                    target="_blank"
+                    class="source-link">
+                    🔗 Visitar sitio
+                </a>
+            </td>
+
+            <td style="font-size:12px;color:var(--text-2)">
+                ${autores}
+            </td>
+
+            <td>
+                <div class="btn-group">
+
+                    <button class="btn-sm btn-edit">
+                        Editar
+                    </button>
+
+                    <button class="btn-sm btn-delete">
+                        Eliminar
+                    </button>
+
+                </div>
+            </td>
+        `;
+    }
+
+    // ===== CANCELAR =====
+    if(e.target.classList.contains("btn-cancel")){
+
+        const fila = e.target.closest("tr");
+
+        fila.innerHTML = fila.dataset.original;
+
+        fila.classList.remove("editing");
+    }
+
+});
+
 // ===== CONTADOR =====
 function actualizarContador(){
 
