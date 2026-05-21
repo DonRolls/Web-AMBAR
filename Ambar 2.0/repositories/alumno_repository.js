@@ -27,7 +27,11 @@ const alumnoRepository = {
             .query(`
                 SELECT a.N_ctrl, a.Nombre, a.Apellidos, a.Email, a.Semestre,
                        a.Estatus, a.Foto, a.FechaIngreso,
+                       a.Curp, a.Ciudad, a.Telefono, a.Colonia, a.CorreoPersonal, a.Calle,
+                       CONVERT(VARCHAR(10), a.FechaNacimiento, 120) AS FechaNacimiento,
+                       a.CodigoPostal,
                        c.Nombre AS Carrera,
+                       a.id_carrera,
                        e.Nombre AS Especialidad,
                        (SELECT ROUND(AVG(k2.CalFinal), 2)
                         FROM Kardex k2
@@ -40,7 +44,15 @@ const alumnoRepository = {
                         JOIN Inscripciones i2 ON c2.ID_Inscripcion = i2.ID_Inscripcion
                         JOIN Grupos g2 ON i2.ID_Grupo = g2.ID_Grupo
                         JOIN PeriodosEscolares pe2 ON g2.ID_Periodo = pe2.ID_Periodo
-                        WHERE i2.N_ctrl = a.N_ctrl AND pe2.Activo = 1) AS PromUltimo
+                        WHERE i2.N_ctrl = a.N_ctrl AND pe2.Activo = 1) AS PromUltimo,
+                       (SELECT CONVERT(VARCHAR(10), MIN(i.FechaInscripcion), 103)
+                        FROM Inscripciones i
+                        JOIN Grupos g ON i.ID_Grupo = g.ID_Grupo
+                        JOIN PeriodosEscolares pe ON g.ID_Periodo = pe.ID_Periodo
+                        WHERE i.N_ctrl = a.N_ctrl AND pe.Activo = 1) AS FechaCarga,
+                       (SELECT COUNT(*)
+                        FROM Recibos r
+                        WHERE r.N_ctrl = a.N_ctrl AND r.Estatus IN ('PENDIENTE', 'EXPIRADO')) AS CantidadAdeudos
                 FROM Alumnos a
                 JOIN carrera c ON a.ID_Carrera = c.ID_Carrera
                 LEFT JOIN especialidad e ON a.ID_Especialidad = e.id_especialidad
@@ -463,6 +475,35 @@ const alumnoRepository = {
                 .query("INSERT INTO Tutorias (N_ctrl, ID_Docente, Fecha, Observaciones) VALUES (@N, @D, @F, @O)");
         }
         
+        return { success: true };
+    },
+
+    // Obtener carreras del alumno
+    getAlumnoCarreras: async (nctrl) => {
+        const pool = await getPool();
+        const result = await pool.request()
+            .input("N_ctrl", sql.NVarChar, nctrl)
+            .query(`
+                SELECT ac.id_carrera, c.nombre AS Carrera, ac.Estatus
+                FROM AlumnoCarreras ac
+                JOIN carrera c ON ac.id_carrera = c.id_carrera
+                WHERE ac.N_ctrl = @N_ctrl
+            `);
+        return result.recordset;
+    },
+
+    // Cambiar carrera activa del alumno
+    updateActiveCarrera: async (nctrl, idCarrera) => {
+        const pool = await getPool();
+        await pool.request()
+            .input("N_ctrl", sql.NVarChar, nctrl)
+            .input("ID_Carrera", sql.Int, idCarrera)
+            .query(`
+                UPDATE Alumnos 
+                SET id_carrera = @ID_Carrera, 
+                    ID_Especialidad = NULL 
+                WHERE N_ctrl = @N_ctrl
+            `);
         return { success: true };
     }
 };

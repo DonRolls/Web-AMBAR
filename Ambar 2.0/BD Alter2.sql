@@ -146,3 +146,94 @@ GO
 
 PRINT 'Tablas y columnas para control de estatus de actividades agregadas correctamente.';
 GO
+
+-- 9. NUEVAS COLUMNAS EN Alumnos PARA DATOS PERSONALES
+IF COL_LENGTH('Alumnos', 'Curp') IS NULL
+    ALTER TABLE Alumnos ADD Curp NVARCHAR(18) NULL;
+GO
+IF COL_LENGTH('Alumnos', 'Ciudad') IS NULL
+    ALTER TABLE Alumnos ADD Ciudad NVARCHAR(100) NULL;
+GO
+IF COL_LENGTH('Alumnos', 'Telefono') IS NULL
+    ALTER TABLE Alumnos ADD Telefono NVARCHAR(20) NULL;
+GO
+IF COL_LENGTH('Alumnos', 'Colonia') IS NULL
+    ALTER TABLE Alumnos ADD Colonia NVARCHAR(100) NULL;
+GO
+IF COL_LENGTH('Alumnos', 'CorreoPersonal') IS NULL
+    ALTER TABLE Alumnos ADD CorreoPersonal NVARCHAR(150) NULL;
+GO
+IF COL_LENGTH('Alumnos', 'Calle') IS NULL
+    ALTER TABLE Alumnos ADD Calle NVARCHAR(200) NULL;
+GO
+IF COL_LENGTH('Alumnos', 'FechaNacimiento') IS NULL
+    ALTER TABLE Alumnos ADD FechaNacimiento DATE NULL;
+GO
+IF COL_LENGTH('Alumnos', 'CodigoPostal') IS NULL
+    ALTER TABLE Alumnos ADD CodigoPostal NVARCHAR(10) NULL;
+GO
+
+-- 10. TABLA INTERMEDIA PARA CARRERAS POR ALUMNO (MULTIPLE CARRERA)
+IF OBJECT_ID('AlumnoCarreras', 'U') IS NULL
+BEGIN
+    CREATE TABLE AlumnoCarreras (
+        N_ctrl NVARCHAR(10) NOT NULL,
+        id_carrera INT NOT NULL,
+        Estatus NVARCHAR(20) NOT NULL, -- 'INSCRITO', 'COMPLETADO'
+        PRIMARY KEY (N_ctrl, id_carrera),
+        CONSTRAINT FK_AlumnoCarreras_Alumno FOREIGN KEY (N_ctrl) REFERENCES Alumnos(N_ctrl),
+        CONSTRAINT FK_AlumnoCarreras_Carrera FOREIGN KEY (id_carrera) REFERENCES carrera(id_carrera)
+    );
+END
+GO
+
+-- 11. INSERCIÓN DE DATOS DE EJEMPLO PARA MULTICARRERA Y DATOS PERSONALES
+-- Limpiar relaciones previas si existen para evitar duplicados
+DELETE FROM AlumnoCarreras;
+GO
+
+INSERT INTO AlumnoCarreras (N_ctrl, id_carrera, Estatus) VALUES
+    ('21212680', 2, 'INSCRITO'),
+    ('21212680', 1, 'COMPLETADO'),
+    ('23210202', 2, 'INSCRITO'),
+    ('22210333', 1, 'INSCRITO'),
+    ('22210333', 3, 'COMPLETADO');
+GO
+
+-- Actualizar alumnos con datos personales
+UPDATE Alumnos SET 
+    Curp = 'VIBJ010809HBCLLR01',
+    Ciudad = 'Tijuana',
+    Telefono = '6641234567',
+    Colonia = 'Zona Centro',
+    CorreoPersonal = 'armando.villa@gmail.com',
+    Calle = 'Av. Revolucion 123',
+    FechaNacimiento = '2001-08-09',
+    CodigoPostal = '22000'
+WHERE N_ctrl = '21212680';
+
+UPDATE Alumnos SET 
+    Curp = 'LUNE030120MBCLLR02',
+    Ciudad = 'Tijuana',
+    Telefono = '6649876543',
+    Colonia = 'Rio Tijuana',
+    CorreoPersonal = 'diana.luna@gmail.com',
+    Calle = 'Paseo de los Heroes 456',
+    FechaNacimiento = '2003-01-20',
+    CodigoPostal = '22010'
+WHERE N_ctrl = '23210202';
+
+UPDATE Alumnos SET 
+    Curp = 'OCBM020815HBCLLR03',
+    Ciudad = 'Tijuana',
+    Telefono = '6645554433',
+    Colonia = 'Otay Universidad',
+    CorreoPersonal = 'manuel.ochoa@gmail.com',
+    Calle = 'Calzada Tecnologico 789',
+    FechaNacimiento = '2002-08-15',
+    CodigoPostal = '22427'
+WHERE N_ctrl = '22210333';
+GO
+
+PRINT 'Tablas, columnas y datos de ejemplo para multicarrera y datos personales agregados correctamente.';
+GO

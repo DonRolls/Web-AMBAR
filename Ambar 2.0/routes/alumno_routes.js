@@ -16,6 +16,32 @@ router.get("/alumno/:nctrl", async (req, res) => {
     }
 });
 
+// Obtener carreras del alumno
+router.get("/alumno/:nctrl/carreras", async (req, res) => {
+    try {
+        const carreras = await alumnoRepository.getAlumnoCarreras(req.params.nctrl);
+        res.json(carreras);
+    } catch (err) {
+        console.error("Error /alumno/:nctrl/carreras:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Cambiar carrera activa del alumno
+router.post("/alumno/:nctrl/carrera", async (req, res) => {
+    try {
+        const { id_carrera } = req.body;
+        if (!id_carrera) {
+            return res.status(400).json({ error: "Falta id_carrera" });
+        }
+        const result = await alumnoRepository.updateActiveCarrera(req.params.nctrl, parseInt(id_carrera));
+        res.json(result);
+    } catch (err) {
+        console.error("Error POST /alumno/:nctrl/carrera:", err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Horario
 router.get("/horario/:nctrl", async (req, res) => {
     try {

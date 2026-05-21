@@ -51,12 +51,204 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
 .badge-vigente{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;background:#ECFDF5;color:#059669}
 /* ACCORDION */
 .accordion{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;max-width:780px;font-size:14px;color:var(--text);box-shadow:var(--shadow);transition:.18s;animation:fadeUp .5s ease both}
-.accordion:nth-child(1){animation-delay:.15s}
-.accordion:nth-child(2){animation-delay:.2s}
 .accordion:hover{border-color:var(--gold);background:#FFFDF5}
 .accordion-left{display:flex;align-items:center;gap:10px;font-weight:500}
 .acc-icon{width:28px;height:28px;border-radius:7px;background:var(--gold-lt);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:14px}
-.chevron{font-size:16px;color:var(--gold)}
+.chevron{font-size:16px;color:var(--gold);transition: transform 0.2s ease;}
+
+/* SELECTOR DROPDOWN */
+.dept-selector { position: relative; z-index: 10; }
+.dept-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 8px;
+    box-shadow: var(--shadow-md);
+    display: none;
+    z-index: 100;
+    overflow: hidden;
+    animation: fadeUp .2s ease both;
+}
+.dept-dropdown.show {
+    display: block;
+}
+.dept-dropdown-item {
+    padding: 12px 20px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: background .15s, color .15s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+}
+.dept-dropdown-item:last-child {
+    border-bottom: none;
+}
+.dept-dropdown-item:hover {
+    background: var(--gold-lt);
+    color: var(--navy);
+}
+.dept-dropdown-item .badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    text-transform: uppercase;
+}
+.dept-dropdown-item .badge.inscrito {
+    background: #ECFDF5;
+    color: #059669;
+}
+.dept-dropdown-item .badge.completado {
+    background: #EFF6FF;
+    color: #2563EB;
+}
+
+/* ACCORDION CONTENT PANEL */
+.accordion-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out, margin-bottom 0.3s ease-out;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    margin-top: -14px; /* merge with accordion header */
+    margin-bottom: 12px;
+    max-width: 780px;
+    padding: 0 20px;
+    box-shadow: var(--shadow);
+    opacity: 0;
+}
+.accordion-panel.open {
+    max-height: 500px;
+    padding: 24px 20px 20px 20px;
+    opacity: 1;
+}
+.accordion.open {
+    border-radius: var(--radius) var(--radius) 0 0;
+    background: #FFFDF5;
+    border-bottom-color: transparent;
+}
+.accordion.open .chevron {
+    transform: rotate(180deg);
+}
+
+/* PERSONAL DETAILS TABLE */
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 5px 0;
+}
+.info-table th {
+    text-align: left;
+    padding: 12px 16px;
+    background: var(--navy-mid);
+    color: white;
+    font-family: 'Outfit', sans-serif;
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid var(--border);
+}
+.info-table th:first-child {
+    border-top-left-radius: 8px;
+}
+.info-table th:last-child {
+    border-top-right-radius: 8px;
+}
+.info-table td {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    background: white;
+    width: 50%;
+}
+.table-field label {
+    font-size: 10px;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+}
+.table-field span {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* CARGA ACADEMICA GRID */
+.carga-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 5px 0;
+}
+.carga-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: 0.2s;
+}
+.carga-card-icon {
+    font-size: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--gold-lt);
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.carga-label {
+    font-size: 10.5px;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+.carga-val {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--navy);
+}
+.carga-card.has-adeudo {
+    background: #FEF2F2;
+    border-color: #FCA5A5;
+}
+.carga-card.has-adeudo .carga-card-icon {
+    background: #FEE2E2;
+    color: var(--danger);
+}
+.carga-card.has-adeudo .carga-val {
+    color: var(--danger);
+}
+.carga-card.no-adeudo {
+    background: #ECFDF5;
+    border-color: #A7F3D0;
+}
+.carga-card.no-adeudo .carga-card-icon {
+    background: #D1FAE5;
+    color: var(--success);
+}
+.carga-card.no-adeudo .carga-val {
+    color: var(--success);
+}
+
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
@@ -81,9 +273,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
   <main class="main">
     <div class="breadcrumb">Portal Estudiantes <span>›</span> <span>Inicio</span></div>
     <div class="page-header"><h1>Mi Panel</h1><p>Bienvenido al portal estudiantil TecNM</p></div>
-    <div class="dept-selector">
-      <div><div class="dept-label">Selecciona una carrera</div><div class="dept-value">INGENIERÍA INFORMÁTICA</div></div>
+    <div class="dept-selector" id="career-selector">
+      <div><div class="dept-label">Selecciona una carrera</div><div class="dept-value">Cargando...</div></div>
       <span class="dept-arrow">▾</span>
+      <div class="dept-dropdown" id="career-dropdown">
+        <!-- Renders dynamically -->
+      </div>
     </div>
     <div class="card">
       <div class="card-title"><div class="card-title-icon">👤</div>Identificación</div>
@@ -104,8 +299,62 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);dis
         </div>
       </div>
     </div>
-    <div class="accordion"><div class="accordion-left"><div class="acc-icon">👤</div>Datos personales</div><span class="chevron">▾</span></div>
-    <div class="accordion"><div class="accordion-left"><div class="acc-icon">📋</div>Información de carga académica</div><span class="chevron">▾</span></div>
+    
+    <div class="accordion" id="accordion-datos">
+      <div class="accordion-left"><div class="acc-icon">👤</div>Datos personales</div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="accordion-panel" id="panel-datos">
+      <table class="info-table">
+        <thead>
+          <tr>
+            <th>Datos Personales</th>
+            <th>Dirección del Alumno</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="table-field"><label>CURP</label><span id="val-curp">—</span></div></td>
+            <td><div class="table-field"><label>Calle</label><span id="val-calle">—</span></div></td>
+          </tr>
+          <tr>
+            <td><div class="table-field"><label>Teléfono</label><span id="val-telefono">—</span></div></td>
+            <td><div class="table-field"><label>Colonia</label><span id="val-colonia">—</span></div></td>
+          </tr>
+          <tr>
+            <td><div class="table-field"><label>Correo Personal</label><span id="val-correo">—</span></div></td>
+            <td><div class="table-field"><label>Ciudad</label><span id="val-ciudad">—</span></div></td>
+          </tr>
+          <tr>
+            <td><div class="table-field"><label>Fecha de Nacimiento</label><span id="val-nacimiento">—</span></div></td>
+            <td><div class="table-field"><label>Código Postal</label><span id="val-cp">—</span></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="accordion" id="accordion-carga">
+      <div class="accordion-left"><div class="acc-icon">📋</div>Información de carga académica</div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="accordion-panel" id="panel-carga">
+      <div class="carga-info-grid">
+        <div class="carga-card">
+          <div class="carga-card-icon">📅</div>
+          <div>
+            <div class="carga-label">Fecha de carga actual</div>
+            <div class="carga-val" id="val-fecha-carga">—</div>
+          </div>
+        </div>
+        <div class="carga-card" id="card-adeudo">
+          <div class="carga-card-icon" id="icon-adeudo">✔️</div>
+          <div>
+            <div class="carga-label">Estatus de adeudo</div>
+            <div class="carga-val" id="val-adeudo">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 </div>
 <script src="../session.js"></script>
